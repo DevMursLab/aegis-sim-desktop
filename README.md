@@ -5,7 +5,7 @@
 ## বর্তমান অবস্থা
 
 - দুটি বাংলা পরিকল্পনার PDF আছে।
-- প্রথম runnable C# console lesson প্রস্তুত; মূল WPF অ্যাপ এখনো তৈরি হয়নি।
+- দুটি runnable C# console lesson প্রস্তুত; মূল WPF অ্যাপ এখনো তৈরি হয়নি।
 - মূল নির্দেশনা: `main/AEGIS_SIM_2_Desktop_GIS_WPF_MVVM_Blueprint_Bangla (1).pdf`।
 - `partial/`-এর PDF আগের web/Blazor পরিকল্পনা; desktop পরিকল্পনাই অনুসরণ করা হবে।
 
@@ -35,6 +35,12 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-lesson.ps1
 শুরু করো: [বাংলা learning guide](docs/learning/START-HERE.bn.md)।
 
 প্রথম পাঠ: [ত্রাণ বিতরণ দিয়ে C#](docs/learning/01-supply-ticks.bn.md)।
+
+দ্বিতীয় পাঠ: [class, object ও List](docs/learning/02-shelter-objects.bn.md)। চালাও:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-lesson.ps1 -Lesson 02
+```
 
 ## Scope
 

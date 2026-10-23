@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('01')]
+    [ValidateSet('01', '02')]
     [string]$Lesson = '01'
 )
 
@@ -21,7 +21,11 @@ if (-not ($installedSdks | Where-Object { $_ -match '^10\.' })) {
     throw 'The .NET 10 SDK is missing. A runtime alone cannot build lessons.'
 }
 
-$lessonProject = Join-Path $repoRoot 'lessons\01-supply-ticks\Aegis.Lesson01.csproj'
+$projects = @{
+    '01' = 'lessons\01-supply-ticks\Aegis.Lesson01.csproj'
+    '02' = 'lessons\02-shelter-objects\Aegis.Lesson02.csproj'
+}
+$lessonProject = Join-Path $repoRoot $projects[$Lesson]
 & $dotnetPath run --project $lessonProject
 if ($LASTEXITCODE -ne 0) {
     throw "Lesson failed with exit code $LASTEXITCODE."

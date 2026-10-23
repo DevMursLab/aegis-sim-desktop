@@ -15,7 +15,7 @@ Console.WriteLine("AEGIS-SIM | Lesson 01 | Synthetic supply simulation");
 while (demandLeft > 0)
 {
     tick = tick + 1;
-    int deliveredNow = CalculateDelivery(demandLeft, vehicleCapacity);
+    int deliveredNow = Math.Min(demandLeft, vehicleCapacity);
     demandLeft = demandLeft - deliveredNow;
     deliveredTotal = deliveredTotal + deliveredNow;
 
@@ -23,8 +23,3 @@ while (demandLeft > 0)
 }
 
 Console.WriteLine($"Completed in {tick} ticks. Total delivered: {deliveredTotal}.");
-
-static int CalculateDelivery(int demand, int capacity)
-{
-    return Math.Min(demand, capacity);
-}

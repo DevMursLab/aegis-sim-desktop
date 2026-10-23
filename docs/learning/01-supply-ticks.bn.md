@@ -25,16 +25,13 @@ if (demandLeft < 0 || vehicleCapacity <= 0)
 
 `if` শর্ত সত্য হলে তার block চলে। `||` মানে দুই শর্তের যেকোনো একটি সত্য। ঋণাত্মক চাহিদা এই model-এ অর্থপূর্ণ নয়। শূন্য capacity দিয়ে loop চললে চাহিদা কখনো কমবে না, তাই আগেই থামাচ্ছি। এখানে `return` পুরো top-level program থেকে বের হয়।
 
-## ৩. Method: একটি হিসাবের নাম দাও
+## ৩. সরাসরি কত পৌঁছাবে হিসাব করো
 
 ```csharp
-static int CalculateDelivery(int demand, int capacity)
-{
-    return Math.Min(demand, capacity);
-}
+int deliveredNow = Math.Min(demandLeft, vehicleCapacity);
 ```
 
-Method দুটি সংখ্যা নেয় এবং একটি পূর্ণসংখ্যা ফেরত দেয়। `Math.Min` ছোট সংখ্যাটি নেয়। চাহিদা ৫ আর capacity ১০ হলে পৌঁছাবে ৫। Method-এর `return` শুধু ওই method-এর ফল caller-কে ফেরত দেয়। `static` এখানে method-টিকে বাইরের local variable সরাসরি ব্যবহার করতে দেয় না; প্রয়োজনীয় মান parameter দিয়ে পাঠাচ্ছি।
+`Math.Min` দুটি সংখ্যার ছোটটি নেয়। চাহিদা ৫ আর capacity ১০ হলে পৌঁছাবে ৫। সেই মান `deliveredNow`-এ রাখা হচ্ছে। এই ছোট হিসাবের জন্য আলাদা নিজের method বানাইনি; loop-এর ভেতরেই সরাসরি লিখেছি।
 
 ## ৪. Loop: যতক্ষণ কাজ বাকি
 

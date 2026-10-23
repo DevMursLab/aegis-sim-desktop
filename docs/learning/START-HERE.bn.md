@@ -21,7 +21,7 @@
 | 02 | class, object, List, foreach | এক গাড়ি দিয়ে একাধিক shelter-এ এক round delivery | প্রস্তুত; তোমার অনুশীলন বাকি |
 | 03 | Step method, bool, private set, executable checks | একই input-এ একই ফলের mini-engine | প্রস্তুত; তোমার অনুশীলন বাকি |
 | 04 | XAML, binding, commands, MVVM | Start/Pause/Resume/Step/Reset সহ WPF window | প্রস্তুত; তোমার অনুশীলন বাকি |
-| 05 | coordinates, layers, selection | offline synthetic map | পরিকল্পিত |
+| 05 | local coordinates, zoom/pan, selection | native WPF offline synthetic map | প্রথম সংস্করণ প্রস্তুত; GIS import পরে |
 | 06 | SQL, persistence, transactions | সংরক্ষিত run history | পরিকল্পিত |
 | 07 | events, snapshots, replay | আগের state পুনরায় তৈরি | পরিকল্পিত |
 | 08 | SignalR, sequence, reconnect | দুই client-এর একই run | পরিকল্পিত |
@@ -46,3 +46,5 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-lesson.ps1
 তার পরের পাঠ: [Lesson 03 — tick engine](03-tick-engine.bn.md)। চালাতে `-Lesson 03`; নিয়ম যাচাই করতে সঙ্গে `-Check` যোগ করো।
 
 নতুন পাঠ: [Lesson 04 — WPF ও MVVM](04-wpf-mvvm.bn.md)। window খুলতে `-Lesson 04`; পুরো repository যাচাই করতে `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1` চালাও।
+
+মানচিত্রের পাঠ: [Lesson 05 — offline map](05-offline-map.bn.md)। `-Lesson 05` দিয়ে একই desktop app খুলে map selection ও zoom/pan শেখো।

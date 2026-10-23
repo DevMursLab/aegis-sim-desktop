@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('01', '02', '03', '04')]
+    [ValidateSet('01', '02', '03', '04', '05')]
     [string]$Lesson = '01',
     [switch]$Check
 )
@@ -27,11 +27,12 @@ $projects = @{
     '02' = 'lessons\02-shelter-objects\Aegis.Lesson02.csproj'
     '03' = 'lessons\03-tick-engine\Aegis.Lesson03.csproj'
     '04' = 'src\Aegis.Desktop.Wpf\Aegis.Desktop.Wpf.csproj'
+    '05' = 'src\Aegis.Desktop.Wpf\Aegis.Desktop.Wpf.csproj'
 }
 $lessonProject = Join-Path $repoRoot $projects[$Lesson]
 if ($Check) {
-    if ($Lesson -notin @('03', '04')) {
-        throw 'Executable checks are currently available for Lessons 03 and 04.'
+    if ($Lesson -notin @('03', '04', '05')) {
+        throw 'Executable checks are currently available for Lessons 03, 04 and 05.'
     }
     $checkProject = if ($Lesson -eq '03') { 'tests\Aegis.Lesson03.Checks\Aegis.Lesson03.Checks.csproj' } else { 'tests\Aegis.Desktop.Checks\Aegis.Desktop.Checks.csproj' }
     $lessonProject = Join-Path $repoRoot $checkProject

@@ -108,6 +108,71 @@ Check("Property and command notifications reach the screen", () =>
     vm.StartCommand.Execute(null); vm.Advance(); vm.PauseCommand.Execute(null); vm.ResetCommand.Execute(null);
     Require(propertyUpdates == 4 && commandUpdates == 4);
 });
+Check("Map coordinates round-trip across viewport sizes", () =>
+{
+    foreach (var size in new[] { (800.0, 500.0), (300.0, 900.0), (1200.0, 800.0) })
+    {
+        var map = new MapViewport(); map.Resize(size.Item1, size.Item2);
+        foreach (var point in new[] { new MapPoint(0, 0), new MapPoint(480, 180), new MapPoint(1200, 800) })
+        {
+            var restored = map.ToWorld(map.ToScreen(point));
+            Require(Math.Abs(restored.X - point.X) < 0.00001 && Math.Abs(restored.Y - point.Y) < 0.00001);
+        }
+    }
+});
+Check("Zoom keeps its anchor and obeys limits", () =>
+{
+    var map = new MapViewport(); map.Resize(800, 500);
+    var anchor = new MapPoint(310, 190); var before = map.ToWorld(anchor);
+    map.ZoomAt(2, anchor); var after = map.ToWorld(anchor);
+    Require(Math.Abs(before.X - after.X) < 0.00001 && Math.Abs(before.Y - after.Y) < 0.00001);
+    map.ZoomAt(1000, anchor); Require(map.Zoom == 5);
+    map.ZoomAt(0.00001, anchor); Require(map.Zoom == 0.6);
+});
+Check("Pan and fit never mutate simulation state", () =>
+{
+    var vm = Demo(); var map = new MapViewport(); map.Resize(800, 500);
+    var before = map.ToScreen(new(480, 180)); map.Pan(35, -20);
+    var after = map.ToScreen(new(480, 180));
+    Require(Math.Abs(after.X - before.X - 35) < 0.00001 && Math.Abs(after.Y - before.Y + 20) < 0.00001);
+    map.ZoomAt(2, new(400, 250)); map.Reset();
+    Require(map.Zoom == 1 && map.PanX == 0 && map.PanY == 0 && vm.Tick == 0 && vm.Remaining == 48);
+});
+Check("Hit-testing works after zoom and pan", () =>
+{
+    var vm = Demo(); var map = new MapViewport(); map.Resize(800, 500);
+    map.ZoomAt(1.8, new(350, 220)); map.Pan(20, -10);
+    var node = vm.MapNodes[1]; var screen = map.ToScreen(new(node.X, node.Y));
+    Require(map.HitTest(vm.MapNodes, screen) == node.Name);
+    Require(map.HitTest(vm.MapNodes, new(-10000, -10000)) == null);
+});
+Check("Invalid viewport inputs cannot create NaN", () =>
+{
+    var map = new MapViewport();
+    Expect<ArgumentOutOfRangeException>(() => map.Resize(0, 500));
+    Expect<ArgumentOutOfRangeException>(() => map.Resize(double.NaN, 500));
+    Expect<ArgumentOutOfRangeException>(() => map.ZoomAt(double.NaN, new(0, 0)));
+    Expect<ArgumentOutOfRangeException>(() => map.ZoomAt(0, new(0, 0)));
+    Expect<ArgumentOutOfRangeException>(() => map.Pan(double.PositiveInfinity, 0));
+});
+Check("Map, selection and table agree after delivery and reset", () =>
+{
+    var vm = Demo(); vm.SelectedShelterName = "Shelter-A";
+    vm.StepCommand.Execute(null);
+    Require(vm.MapNodes[0].Remaining == 15 && vm.Shelters[0].Remaining == 15);
+    Require(vm.SelectedShelterName == "Shelter-A" && vm.SelectedDetail.Contains("15 remaining"));
+    Require(vm.LastDeliveryShelter == "Shelter-A" && vm.CompletionPercent > 20);
+    vm.SelectedShelterName = "unknown"; Require(vm.SelectedShelterName == "Shelter-A");
+    vm.ResetCommand.Execute(null);
+    Require(vm.SelectedDetail.Contains("25 remaining") && vm.LastDeliveryShelter == null && vm.CompletionPercent == 0);
+});
+Check("Completion and zero-demand progress are bounded", () =>
+{
+    var vm = Demo(); for (int i = 0; i < 6; i++) vm.StepCommand.Execute(null);
+    Require(vm.CompletionPercent == 100 && vm.MapNodes.All(n => n.Remaining == 0));
+    var empty = new RunViewModel(new SimulationSession(Array.Empty<(string, int)>(), 10));
+    Require(empty.CompletionPercent == 100 && empty.MapNodes.Count == 0 && empty.SelectedDetail.StartsWith("Choose"));
+});
 Console.WriteLine($"All {passed} desktop checks passed.");
 
 static RunViewModel Demo() => new(SimulationSession.CreateDemo());

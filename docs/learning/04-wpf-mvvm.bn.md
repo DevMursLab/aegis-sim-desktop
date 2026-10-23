@@ -26,7 +26,7 @@ Start করার আগেও Step চাপতে পারো। Reset চ�
 | ViewModel | `src/Aegis.Presentation/RunViewModel.cs` | screen-এর তথ্য ও button-এর command |
 | View | `src/Aegis.Desktop.Wpf/MainWindow.xaml` | screen-এর layout ও লেখা |
 
-এই দায়িত্ব ভাগ করার পদ্ধতিকে **MVVM** বলে। MainWindow-এর code-behind শুধু window তৈরি করে; delivery হিসাব সেখানে নেই। App.xaml.cs model ও ViewModel তৈরি করে window-র সঙ্গে যুক্ত করে। ছোট lesson-এ composition সরাসরি আছে; DI container বা MVVM package এখনো লাগানো হয়নি।
+এই দায়িত্ব ভাগ করার পদ্ধতিকে **MVVM** বলে। MainWindow-এর code-behind window তৈরি করে এবং Lesson 05 থেকে visual Zoom/Fit action যুক্ত করে; delivery হিসাব সেখানে নেই। App.xaml.cs model ও ViewModel তৈরি করে window-র সঙ্গে যুক্ত করে। ছোট lesson-এ composition সরাসরি আছে; DI container বা MVVM package এখনো লাগানো হয়নি।
 
 ## ১. Binding: screen-কে তথ্যের সঙ্গে যুক্ত করা
 
@@ -69,14 +69,14 @@ Reset এখন একই local exercise-এর তথ্য মুছে শু
 ## পরীক্ষা চালাও
 
 ```powershell
-# Window না খুলে model ও command-এর ১৩টি check
+# Window না খুলে model, command ও map-এর ২০টি check
 powershell -ExecutionPolicy Bypass -File .\scripts\run-lesson.ps1 -Lesson 04 -Check
 
-# সব lesson, Release build, ২০টি console check এবং real-window smoke check
+# সব lesson, Release build, ২৭টি console check এবং real-window smoke check
 powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 ```
 
-এগুলো executable console checks; xUnit suite নয়, `dotnet test` দিয়ে চালাবে না। WPF smoke check আসল window খুলে button invoke করে, binding, timer, pause/resume, reset ও close দেখে। এটি interactive Windows desktop চায়। CI-তে `-SkipUi` দিয়ে window check বাদ থাকে; UI check স্থানীয়ভাবে চালাতে হবে।
+এগুলো executable console checks; xUnit suite নয়, `dotnet test` দিয়ে চালাবে না। Desktop check-এ এখন Lesson 05-এর map check-ও আছে (মোট ২০টি)। WPF smoke check আসল window খুলে button invoke করে, binding, map, timer, pause/resume, reset ও close দেখে। এটি interactive Windows desktop চায়। CI-তে `-SkipUi` দিয়ে window check বাদ থাকে; UI check স্থানীয়ভাবে চালাতে হবে।
 
 ## তোমার কাজ
 

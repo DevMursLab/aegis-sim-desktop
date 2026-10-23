@@ -1,6 +1,6 @@
 # এখান থেকে শুরু করো
 
-এই repository-তে শেখার কাজ ও মূল অ্যাপের অগ্রগতি আলাদা করে লেখা থাকবে। এখন প্রথম ও দ্বিতীয় console lesson প্রস্তুত; মূল WPF অ্যাপ এখনো তৈরি হয়নি।
+এই repository-তে শেখার কাজ ও মূল অ্যাপের অগ্রগতি আলাদা করে লেখা থাকবে। এখন তিনটি console lesson প্রস্তুত; মূল WPF অ্যাপ এখনো তৈরি হয়নি।
 
 ## প্রতিদিনের পদ্ধতি
 
@@ -19,7 +19,7 @@
 |---|---|---|---|
 | 01 | variable, condition, loop, Math.Min | এক আশ্রয়কেন্দ্রে ত্রাণ পৌঁছানোর console lesson | প্রস্তুত; নিজের বোঝা যাচাই করবে |
 | 02 | class, object, List, foreach | এক গাড়ি দিয়ে একাধিক shelter-এ এক round delivery | প্রস্তুত; তোমার অনুশীলন বাকি |
-| 03 | rules, state transition, tests | deterministic mini-engine | পরিকল্পিত |
+| 03 | Step method, bool, private set, executable checks | একই input-এ একই ফলের mini-engine | প্রস্তুত; তোমার অনুশীলন বাকি |
 | 04 | XAML, binding, commands, MVVM | Start/Pause সহ WPF window | পরিকল্পিত |
 | 05 | coordinates, layers, selection | offline synthetic map | পরিকল্পিত |
 | 06 | SQL, persistence, transactions | সংরক্ষিত run history | পরিকল্পিত |
@@ -42,3 +42,5 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-lesson.ps1
 তারপর [প্রথম lesson](01-supply-ticks.bn.md) পড়ো। অনুশীলনের উত্তর `docs/learning/my-notes/lesson-01.md` ফাইলে রাখতে পারো। নিজের লেখা কোড ও উত্তর review হওয়ার পরে শেখার অগ্রগতি update হবে।
 
 পরের পাঠ: [Lesson 02 — class, object ও List](02-shelter-objects.bn.md)। চালাতে একই command-এর শেষে `-Lesson 02` যোগ করো।
+
+তার পরের পাঠ: [Lesson 03 — tick engine](03-tick-engine.bn.md)। চালাতে `-Lesson 03`; নিয়ম যাচাই করতে সঙ্গে `-Check` যোগ করো।

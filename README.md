@@ -5,7 +5,7 @@
 ## বর্তমান অবস্থা
 
 - দুটি বাংলা পরিকল্পনার PDF আছে।
-- দুটি runnable C# console lesson প্রস্তুত; মূল WPF অ্যাপ এখনো তৈরি হয়নি।
+- তিনটি runnable C# console lesson ও Lesson 03-এর সাতটি executable check প্রস্তুত; মূল WPF অ্যাপ এখনো তৈরি হয়নি।
 - মূল নির্দেশনা: `main/AEGIS_SIM_2_Desktop_GIS_WPF_MVVM_Blueprint_Bangla (1).pdf`।
 - `partial/`-এর PDF আগের web/Blazor পরিকল্পনা; desktop পরিকল্পনাই অনুসরণ করা হবে।
 
@@ -40,6 +40,13 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-lesson.ps1
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\run-lesson.ps1 -Lesson 02
+```
+
+তৃতীয় পাঠ: [এক ধাপ করে simulation চালাও](docs/learning/03-tick-engine.bn.md)।
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-lesson.ps1 -Lesson 03
+powershell -ExecutionPolicy Bypass -File .\scripts\run-lesson.ps1 -Lesson 03 -Check
 ```
 
 ## Scope

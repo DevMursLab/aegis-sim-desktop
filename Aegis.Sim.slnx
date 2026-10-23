@@ -1,0 +1,22 @@
+<Solution>
+  <Folder Name="/lessons/" />
+  <Folder Name="/lessons/01-supply-ticks/">
+    <Project Path="lessons/01-supply-ticks/Aegis.Lesson01.csproj" />
+  </Folder>
+  <Folder Name="/lessons/02-shelter-objects/">
+    <Project Path="lessons/02-shelter-objects/Aegis.Lesson02.csproj" />
+  </Folder>
+  <Folder Name="/lessons/03-tick-engine/">
+    <Project Path="lessons/03-tick-engine/Aegis.Lesson03.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Aegis.Desktop.Wpf/Aegis.Desktop.Wpf.csproj" />
+    <Project Path="src/Aegis.Presentation/Aegis.Presentation.csproj" />
+    <Project Path="src/Aegis.Simulation/Aegis.Simulation.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Aegis.Desktop.Checks/Aegis.Desktop.Checks.csproj" />
+    <Project Path="tests/Aegis.Lesson03.Checks/Aegis.Lesson03.Checks.csproj" />
+    <Project Path="tests/Aegis.Wpf.Smoke/Aegis.Wpf.Smoke.csproj" />
+  </Folder>
+</Solution>

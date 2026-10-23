@@ -1,0 +1,74 @@
+<Window x:Class="Aegis.Desktop.Wpf.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="AEGIS-SIM | Desktop Learning Preview" Width="1040" Height="760"
+ MinWidth="820" MinHeight="650" Background="#F3F5F7" FontFamily="Segoe UI"
+ WindowStartupLocation="CenterScreen">
+ <Window.Resources>
+  <Style TargetType="Button">
+   <Setter Property="Padding" Value="22,10" />
+   <Setter Property="Margin" Value="0,0,10,0" />
+   <Setter Property="FontSize" Value="14" />
+   <Setter Property="MinWidth" Value="100" />
+  </Style>
+  <Style TargetType="DataGrid">
+   <Setter Property="AutoGenerateColumns" Value="False" />
+   <Setter Property="IsReadOnly" Value="True" />
+   <Setter Property="CanUserAddRows" Value="False" />
+   <Setter Property="HeadersVisibility" Value="Column" />
+   <Setter Property="RowHeight" Value="34" />
+   <Setter Property="GridLinesVisibility" Value="Horizontal" />
+   <Setter Property="BorderBrush" Value="#D9E1E8" />
+  </Style>
+ </Window.Resources>
+ <Grid Margin="28">
+  <Grid.RowDefinitions>
+   <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+   <RowDefinition Height="Auto"/><RowDefinition Height="*"/>
+   <RowDefinition Height="Auto"/>
+  </Grid.RowDefinitions>
+  <StackPanel Margin="0,0,0,20">
+   <TextBlock Text="AEGIS-SIM" FontSize="30" FontWeight="Bold" Foreground="#173C4F"/>
+   <TextBlock Text="Civilian supply simulation · Lesson 04 / WPF + MVVM" Foreground="#526878" FontSize="15" Margin="0,6,0,0"/>
+  </StackPanel>
+  <Border Grid.Row="1" Background="#173C4F" CornerRadius="8" Padding="20" Margin="0,0,0,20">
+   <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+    <StackPanel><TextBlock Text="RUN STATUS" Foreground="#B8D5DF"/><TextBlock x:Name="StatusText" Text="{Binding Status}" Foreground="White" FontSize="26"/></StackPanel>
+    <StackPanel Grid.Column="1"><TextBlock Text="CURRENT TICK" Foreground="#B8D5DF"/><TextBlock x:Name="TickText" Text="{Binding Tick}" Foreground="White" FontSize="26"/></StackPanel>
+    <StackPanel Grid.Column="2"><TextBlock Text="PACKETS REMAINING" Foreground="#B8D5DF"/><TextBlock Text="{Binding Remaining}" Foreground="White" FontSize="26"/></StackPanel>
+   </Grid>
+  </Border>
+  <StackPanel Grid.Row="2" Margin="0,0,0,20">
+   <StackPanel Orientation="Horizontal">
+    <Button x:Name="StartButton" Content="{Binding StartLabel}" Command="{Binding StartCommand}" AutomationProperties.Name="Start or resume simulation"/>
+    <Button x:Name="PauseButton" Content="Pause" Command="{Binding PauseCommand}"/>
+    <Button x:Name="StepButton" Content="Step" Command="{Binding StepCommand}"/>
+    <Button x:Name="ResetButton" Content="Reset" Command="{Binding ResetCommand}"/>
+   </StackPanel>
+   <TextBlock Text="{Binding Summary}" FontSize="15" Margin="0,12,0,0"/>
+  </StackPanel>
+  <Grid Grid.Row="3">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="1.2*"/><ColumnDefinition Width="20"/><ColumnDefinition/></Grid.ColumnDefinitions>
+   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+   <TextBlock Text="SHELTER DEMAND" FontWeight="SemiBold" Margin="0,0,0,10"/>
+   <TextBlock Grid.Column="2" Text="DELIVERY HISTORY" FontWeight="SemiBold" Margin="0,0,0,10"/>
+   <DataGrid x:Name="ShelterGrid" Grid.Row="1" ItemsSource="{Binding Shelters}">
+    <DataGrid.Columns>
+     <DataGridTextColumn Header="Shelter" Binding="{Binding Name}" Width="*"/>
+     <DataGridTextColumn Header="Initial" Binding="{Binding InitialDemand}" Width="80"/>
+     <DataGridTextColumn Header="Remaining" Binding="{Binding Remaining}" Width="100"/>
+    </DataGrid.Columns>
+   </DataGrid>
+   <DataGrid x:Name="EventGrid" Grid.Row="1" Grid.Column="2" ItemsSource="{Binding Events}">
+    <DataGrid.Columns>
+     <DataGridTextColumn Header="Tick" Binding="{Binding Tick}" Width="60"/>
+     <DataGridTextColumn Header="Shelter" Binding="{Binding Shelter}" Width="*"/>
+     <DataGridTextColumn Header="Packets" Binding="{Binding Amount}" Width="80"/>
+    </DataGrid.Columns>
+   </DataGrid>
+  </Grid>
+  <TextBlock Grid.Row="4" Margin="0,18,0,0" Foreground="#526878" TextWrapping="Wrap"
+   Text="SYNTHETIC TRAINING DATA · One visit per tick; fresh load each visit. No travel time or stock limit. Learning preview: history clears on reset or exit."/>
+ </Grid>
+</Window>

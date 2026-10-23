@@ -1,0 +1,18 @@
+name: Build and checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Release build, console checks and lessons
+        shell: pwsh
+        run: ./scripts/verify.ps1 -SkipUi

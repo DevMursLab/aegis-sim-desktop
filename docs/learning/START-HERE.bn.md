@@ -1,6 +1,6 @@
 # এখান থেকে শুরু করো
 
-এই repository-তে শেখার কাজ ও মূল অ্যাপের অগ্রগতি আলাদা করে লেখা থাকবে। এখন তিনটি console lesson প্রস্তুত; মূল WPF অ্যাপ এখনো তৈরি হয়নি।
+এই repository-তে শেখার কাজ ও মূল অ্যাপের অগ্রগতি আলাদা করে লেখা থাকবে। তিনটি console lesson এবং একটি WPF desktop preview প্রস্তুত; সম্পূর্ণ GIS অ্যাপ এখনো তৈরি হয়নি।
 
 ## প্রতিদিনের পদ্ধতি
 
@@ -20,7 +20,7 @@
 | 01 | variable, condition, loop, Math.Min | এক আশ্রয়কেন্দ্রে ত্রাণ পৌঁছানোর console lesson | প্রস্তুত; নিজের বোঝা যাচাই করবে |
 | 02 | class, object, List, foreach | এক গাড়ি দিয়ে একাধিক shelter-এ এক round delivery | প্রস্তুত; তোমার অনুশীলন বাকি |
 | 03 | Step method, bool, private set, executable checks | একই input-এ একই ফলের mini-engine | প্রস্তুত; তোমার অনুশীলন বাকি |
-| 04 | XAML, binding, commands, MVVM | Start/Pause সহ WPF window | পরিকল্পিত |
+| 04 | XAML, binding, commands, MVVM | Start/Pause/Resume/Step/Reset সহ WPF window | প্রস্তুত; তোমার অনুশীলন বাকি |
 | 05 | coordinates, layers, selection | offline synthetic map | পরিকল্পিত |
 | 06 | SQL, persistence, transactions | সংরক্ষিত run history | পরিকল্পিত |
 | 07 | events, snapshots, replay | আগের state পুনরায় তৈরি | পরিকল্পিত |
@@ -44,3 +44,5 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-lesson.ps1
 পরের পাঠ: [Lesson 02 — class, object ও List](02-shelter-objects.bn.md)। চালাতে একই command-এর শেষে `-Lesson 02` যোগ করো।
 
 তার পরের পাঠ: [Lesson 03 — tick engine](03-tick-engine.bn.md)। চালাতে `-Lesson 03`; নিয়ম যাচাই করতে সঙ্গে `-Check` যোগ করো।
+
+নতুন পাঠ: [Lesson 04 — WPF ও MVVM](04-wpf-mvvm.bn.md)। window খুলতে `-Lesson 04`; পুরো repository যাচাই করতে `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1` চালাও।

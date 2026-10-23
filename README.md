@@ -5,7 +5,7 @@
 ## বর্তমান অবস্থা
 
 - দুটি বাংলা পরিকল্পনার PDF আছে।
-- অ্যাপ্লিকেশনের কোড এখনো তৈরি হয়নি।
+- প্রথম runnable C# console lesson প্রস্তুত; মূল WPF অ্যাপ এখনো তৈরি হয়নি।
 - মূল নির্দেশনা: `main/AEGIS_SIM_2_Desktop_GIS_WPF_MVVM_Blueprint_Bangla (1).pdf`।
 - `partial/`-এর PDF আগের web/Blazor পরিকল্পনা; desktop পরিকল্পনাই অনুসরণ করা হবে।
 
@@ -26,7 +26,15 @@ C#, .NET, WPF, MVVM, offline synthetic maps, EF Core/SQLite এবং পরব�
 
 ## Development setup
 
-.NET SDK লাগবে। প্রাথমিক পরীক্ষায় কম্পিউটারে .NET runtime পাওয়া গেছে, কিন্তু SDK পাওয়া যায়নি। SDK স্থাপনের পরে `dotnet --list-sdks` দিয়ে যাচাই করতে হবে। অ্যাপের build/run নির্দেশনা কোড তৈরির সঙ্গে যোগ হবে।
+.NET 10 SDK লাগবে। এই কম্পিউটারের user-local SDK থাকলে lesson script সেটি ব্যবহার করবে; অন্য কম্পিউটারে .NET 10 SDK install করতে হবে।
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-lesson.ps1
+```
+
+শুরু করো: [বাংলা learning guide](docs/learning/START-HERE.bn.md)।
+
+প্রথম পাঠ: [ত্রাণ বিতরণ দিয়ে C#](docs/learning/01-supply-ticks.bn.md)।
 
 ## Scope
 

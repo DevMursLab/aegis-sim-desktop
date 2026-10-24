@@ -1,4 +1,4 @@
-AEGIS-SIM 2.1 / Windows x64 portfolio release
+AEGIS-SIM 2.2 / Windows x64 portfolio release
 
 No SDK or separately installed .NET runtime is required.
 Extract the complete ZIP to a writable folder before launching.
@@ -26,3 +26,7 @@ This is a synthetic civilian training portfolio MVP, not a production operationa
 
 Stock + travel demo: finite depot stock and vehicle travel/return ticks.
 See docs/learning/10-stock-travel.bn.md.
+
+Tools menu: offline GeoJSON layers, completion preview and diagnostics export.
+Open assets/maps/synthetic-region.geojson in the GeoJSON viewer.
+Imported layers are view-only; simulation coordinates remain synthetic local meters.

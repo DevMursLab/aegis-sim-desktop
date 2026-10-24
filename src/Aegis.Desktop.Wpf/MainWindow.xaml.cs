@@ -9,5 +9,5 @@ public partial class MainWindow : Window
     private void ZoomIn_Click(object sender, RoutedEventArgs e) => AreaMap.Zoom(1.2);
     private void ZoomOut_Click(object sender, RoutedEventArgs e) => AreaMap.Zoom(1 / 1.2);
     private void FitMap_Click(object sender, RoutedEventArgs e) => AreaMap.Fit();
-    private void Workspace_Click(object sender, RoutedEventArgs e) => WorkspaceAction?.Invoke((string)((System.Windows.Controls.Button)sender).Tag);
+    private void Workspace_Click(object sender, RoutedEventArgs e) => WorkspaceAction?.Invoke((string)((FrameworkElement)sender).Tag);
 }

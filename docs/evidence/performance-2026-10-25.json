@@ -1,0 +1,23 @@
+{
+  "Format": 1,
+  "Engine": "2.1.0",
+  "Runtime": ".NET 10.0.13",
+  "OS": "Microsoft Windows 10.0.26300",
+  "Architecture": "X64",
+  "LogicalProcessors": 8,
+  "Processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+  "EngineOnly": {
+    "Samples": 15,
+    "TicksPerSample": 1000,
+    "MedianMilliseconds": 0.1941,
+    "P95Milliseconds": 2.783
+  },
+  "VerifiedReplay": {
+    "Samples": 15,
+    "TicksPerSample": 1000,
+    "MedianMilliseconds": 4.0988,
+    "P95Milliseconds": 11.2434
+  },
+  "ExpectedHash": "E5706E01B94882F58EB64462168B3923F12EF948F23DF4BD9AC605DFBF8FF8AC",
+  "Note": "Three warmups and fifteen serial samples in this process. Includes final hash checks. No UI, SQLite, network or contention measurement. Observed profile, not a production throughput claim."
+}

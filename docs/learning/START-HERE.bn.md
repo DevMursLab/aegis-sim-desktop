@@ -27,10 +27,14 @@
 | 08 | SignalR, sequence, reconnect | দুই client-এর একই run | code ও পাঠ প্রস্তুত |
 | 09 | metrics, reporting, packaging | demo ও Windows package | code ও পাঠ প্রস্তুত |
 | 10 | stock, cargo, vehicle phase, travel ticks | সীমিত মজুত ও যাত্রার simulation | code ও পাঠ প্রস্তুত |
+| 11 | GeoJSON, geometry, coordinate system | offline layer viewer ও feature inspection | code ও পাঠ প্রস্তুত |
+| 12 | background task, continuation, diagnostics | আলাদা copy-তে preview ও measured profiling | code ও পাঠ প্রস্তুত |
 
 Testing ধাপ 03 থেকে নিয়মিত থাকবে; একদম শেষে যোগ করার বিষয় নয়। AI forecast মূল অ্যাপ স্থিতিশীল হলে ঐচ্ছিক।
 
 নতুন ধাপ: [Lesson 10 — মজুত ও যাত্রা](10-stock-travel.bn.md)। Desktop-এর **Stock + travel demo** দিয়ে শিখবে। আগে stock, cargo আর delivered-এর পার্থক্য বুঝবে; তারপর Step দিয়ে ফল মিলাবে।
+
+তারপর [Lesson 11 — GeoJSON](11-geojson.bn.md) এবং [Lesson 12 — Preview ও diagnostics](12-preview-diagnostics.bn.md)। Tools menu থেকে নতুন screen খুলবে।
 
 ## আজকের কাজ
 

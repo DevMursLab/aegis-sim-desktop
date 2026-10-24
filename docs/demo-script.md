@@ -30,3 +30,7 @@ State the limits plainly: synthetic local-meter map, fresh load per visit, no tr
 ## Optional stock/travel extension (2.1 source)
 
 Select **Stock + travel demo**. Step twice: stock is reserved and cargo is moving, but delivered remains zero. Continue to tick 16: 30 delivered, 18 pending, SupplyExhausted. Restock +20, then step to completion at tick 24: 48 delivered, 2 in stock and vehicle at depot. Save/reload or replay the run to inspect the same inventory history. Baseline 6/8 comparisons above remain schema 1.
+
+## Offline review tools (2.2 desktop)
+
+Open Tools / Completion preview before stepping: observe the same deterministic endpoint without changing commands. Open Tools / Offline GeoJSON layers and load assets/maps/synthetic-region.geojson; select the fictional depot and toggle areas/lines/points. These geographical layers are a separate inspection view. Finally export diagnostics; show engine version, verified hash and the explicit timing caveat.

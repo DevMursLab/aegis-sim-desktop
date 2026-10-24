@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using Aegis.Presentation;
+using Aegis.Infrastructure;
 
 namespace Aegis.Desktop.Wpf;
 
@@ -24,6 +25,11 @@ public sealed class SyntheticMap : FrameworkElement
     public double VehicleY { get => (double)GetValue(VehicleYProperty); set => SetValue(VehicleYProperty, value); }
     public string? VehicleDestination { get => (string?)GetValue(VehicleDestinationProperty); set => SetValue(VehicleDestinationProperty, value); }
     public MapViewport Viewport { get; } = new();
+    public GeoLayer? Layer { get; set; }
+    public string? SelectedFeatureId { get; set; }
+    public bool ShowPoints { get; set; } = true;
+    public bool ShowLines { get; set; } = true;
+    public bool ShowAreas { get; set; } = true;
     private Point dragStart, previous;
     private bool dragging;
 
@@ -47,6 +53,7 @@ public sealed class SyntheticMap : FrameworkElement
     {
         base.OnRender(dc);
         dc.DrawRectangle(Brush("#ECF3F2"), null, new Rect(0, 0, ActualWidth, ActualHeight));
+        if (Layer != null) { RenderLayer(dc); return; }
         for (int x = 0; x <= 1200; x += 100) Line(dc, new(x, 0), new(x, 800), "#D8E5E2", 1);
         for (int y = 0; y <= 800; y += 100) Line(dc, new(0, y), new(1200, y), "#D8E5E2", 1);
         // Fictional river and conceptual links, not a routing network.
@@ -80,6 +87,28 @@ public sealed class SyntheticMap : FrameworkElement
         }
         Label(dc, "Synthetic local grid · meters", 16, 14, "#526878", 12);
         Label(dc, $"Zoom {Viewport.Zoom:0.0}×", 16, ActualHeight - 28, "#526878", 12);
+    }
+
+    private void RenderLayer(DrawingContext dc)
+    {
+        foreach (var feature in Layer!.Features.OrderBy(f => f.Geometry == "Polygon" ? 0 : f.Geometry == "LineString" ? 1 : 2))
+        {
+            if (feature.Geometry == "Point" && !ShowPoints || feature.Geometry == "LineString" && !ShowLines || feature.Geometry == "Polygon" && !ShowAreas) continue;
+            bool selected = feature.Id == SelectedFeatureId;
+            string color = selected ? "#B66A11" : feature.Geometry == "Polygon" ? "#8BBEAF" : "#28778E";
+            var points = feature.Parts[0].Select(p => Screen(new(p.X, p.Y))).ToArray();
+            if (feature.Geometry == "Point") dc.DrawEllipse(Brush(color), new Pen(Brush("#FFFFFF"), 2), points[0], selected ? 10 : 7, selected ? 10 : 7);
+            else
+            {
+                var path = new StreamGeometry();
+                using (var context = path.Open()) { context.BeginFigure(points[0], feature.Geometry == "Polygon", feature.Geometry == "Polygon"); context.PolyLineTo(points.Skip(1).ToArray(), true, false); }
+                path.Freeze();
+                dc.DrawGeometry(feature.Geometry == "Polygon" ? Brush(selected ? "#F7DBAE" : "#D2E8DE") : null, new Pen(Brush(color), selected ? 4 : 2), path);
+            }
+            if (selected || feature.Geometry == "Point") Label(dc, feature.Name, points[0].X + 12, points[0].Y - 22, "#173C4F", 12, selected);
+        }
+        Label(dc, "GEOJSON / WGS84 · regional display projection", 16, 14, "#173C4F", 12);
+        Label(dc, $"Zoom {Viewport.Zoom:0.0}× · Visual layer only; simulation uses local coordinates", 16, ActualHeight - 28, "#526878", 11);
     }
 
     protected override void OnMouseWheel(MouseWheelEventArgs e)

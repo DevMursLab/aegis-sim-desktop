@@ -1,4 +1,4 @@
-# AEGIS-SIM Desktop / 2.1
+# AEGIS-SIM Desktop / 2.2
 
 A **synthetic civilian response-training simulator** built with C#, .NET 10, WPF/MVVM, EF Core/SQLite and SignalR. Run an exercise, inject a route closure, persist commands/events, reconstruct history and compare measured outcomes.
 
@@ -21,6 +21,9 @@ The supplied seed tool produces the same comparison every time: **baseline 6 tic
 |---|---|
 | Desktop | Start, Pause, Resume, Step, Reset; command enablement and error feedback |
 | Map | Offline local-meter vector view, selection, inspector, pan/zoom, keyboard alternatives |
+| Offline GIS viewer | Bounded WGS84 GeoJSON import, Point/LineString/simple Polygon, feature selection, layer toggles and pan/zoom; view-only |
+| Planning | Background deterministic completion preview, shortage explanation and cancellation; no history mutation |
+| Diagnostics | Verified run/runtime snapshot export without credentials or paths; reproducible engine/replay profiling |
 | Scenarios | Bounded/versioned JSON and XML import/export; coordinates, unique names and quantities validated; XML DTD/external resolver disabled |
 | Logistics | Finite depot stock, cargo reservation, outbound/return ticks, shortage and replayable restock; vehicle position follows state |
 | Incidents | Selected shelter route closed for five ticks; availability, ordering and completion metrics change |
@@ -57,11 +60,21 @@ The lesson launcher also supports a user-local SDK at `%LOCALAPPDATA%\Microsoft\
 
 Select **Stock + travel demo** in the source-built desktop, or import `assets/scenarios/finite-stock-travel.json`. Dispatch reserves cargo; arrival delivers it; the vehicle returns before loading again. The sample starts with 30 packets, stops at tick 16 with 18 still needed, then **Restock +20** permits completion at tick 24 with 2 in stock. Closure pauses an outbound vehicle; return travel is unaffected. [Bangla lesson 10](docs/learning/10-stock-travel.bn.md).
 
-The 2.1 source reads original 2.0 histories without changing their checksums. The published **v2.0.0 ZIP remains the earlier build**; use source for this increment. Older binaries cannot open 2.1 histories.
+Desktop 2.2 keeps simulation engine 2.1 and reads original 2.0 histories without changing their checksums. Older 2.0 binaries cannot open engine 2.1 histories. [Release notes and remaining work](docs/release-notes.md).
 
 ![Actual desktop: reserved cargo travelling before delivery](docs/images/logistics-transit.png)
 
 [Shortage screen at tick 16](docs/images/logistics-shortage.png).
+
+## Inspect and plan
+
+Open **Tools → Offline GeoJSON layers** and load `assets/maps/synthetic-region.geojson`. Inspect features from the list or toggle points, lines and areas. This is a separate view: imported geography does not change the simulation map, routes or travel times. The accepted regional GeoJSON subset and projection limits are [documented here](docs/learning/11-geojson.bn.md).
+
+**Tools → Completion preview** calculates a continuation on a separate copy, assuming no new incidents or restocks. From replay it starts at the selected tick. **Tools → Export diagnostics** saves full-run identity, verified hash, runtime and a process sample without credentials or database paths. For repeated timing measurements run `scripts/profile.ps1`.
+
+![Actual offline GeoJSON viewer with selected fictional depot](docs/images/geojson-viewer.png)
+
+[Completion preview screen](docs/images/completion-preview.png) · [Observed local timing sample and hardware](docs/evidence/performance-2026-10-25.json).
 
 ## Two desktop clients
 
@@ -82,7 +95,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\package.ps1
 ```
 
-Verification performs a locked dependency restore, full Release build with warnings treated as errors, **69 executable console checks**, all earlier console lessons, real WPF interaction checks, and a two-window host-restart/reconnect check. Checks are console executables, not an xUnit/`dotnet test` suite.
+Verification performs a locked dependency restore, full Release build with warnings treated as errors, **89 executable console checks**, all earlier console lessons, real WPF interaction checks, and a two-window host-restart/reconnect check. Checks are console executables, not an xUnit/`dotnet test` suite.
 
 [GitHub Actions](https://github.com/DevMursLab/aegis-sim-desktop/actions/workflows/build.yml) runs the same Release build and console/integration checks on Windows with `-SkipUi`. Interactive WPF checks run locally. [Evidence and limits](docs/verification.md).
 
@@ -104,4 +117,4 @@ Simulation and presentation do not depend on WPF. A candidate command is replaye
 
 This is a **portfolio MVP**, using fictional civilian scenarios. It does not reproduce an institution's internal military software. All demand begins at tick zero. Schema 1 retains instant delivery with a fresh load per visit. Schema 2 uses finite depot stock and configured travel/return ticks; it does not derive time from distance or speed. Route closure restricts a shelter's availability; links do not compute geographic routes.
 
-Coordinates are synthetic local meters, not GPS/GeoJSON/WGS84. AI forecasts, general GIS/projection import, cloud deployment, high-scale load testing, a signed installer and comprehensive accessibility/high-DPI audits are outside this release. Full snapshots and command replay favor a small, explainable demo over throughput. PDF uses ASCII labels; HTML/CSV preserve Unicode names. The initial database uses an explicit schema bootstrap/additive development upgrade; future schema evolution needs a migration plan.
+Simulation coordinates are synthetic local meters. The separate GeoJSON inspector accepts a regional WGS84 subset and does not georeference the simulation. Trained AI forecasts, general GIS/projection import, cloud deployment, high-scale load testing, a signed installer and comprehensive accessibility/high-DPI audits are outside this release. Full snapshots and command replay favor a small, explainable demo over throughput. PDF uses ASCII labels; HTML/CSV preserve Unicode names. The initial database uses an explicit schema bootstrap/additive development upgrade; future schema evolution needs a migration plan.

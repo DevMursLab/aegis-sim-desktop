@@ -1,0 +1,13 @@
+{
+  "type": "FeatureCollection",
+  "name": "Fictional training region — no real operational features",
+  "features": [
+    { "type": "Feature", "id": "area-01", "properties": { "name": "Synthetic service area" }, "geometry": { "type": "Polygon", "coordinates": [[[0,0],[0.012,0],[0.012,0.008],[0,0.008],[0,0]]] } },
+    { "type": "Feature", "id": "river-01", "properties": { "name": "Training river" }, "geometry": { "type": "LineString", "coordinates": [[0.008,0.008],[0.007,0.005],[0.008,0.002],[0.007,0]] } },
+    { "type": "Feature", "id": "road-01", "properties": { "name": "Synthetic road A" }, "geometry": { "type": "LineString", "coordinates": [[0.002,0.004],[0.004,0.006],[0.006,0.006]] } },
+    { "type": "Feature", "id": "road-02", "properties": { "name": "Synthetic road B" }, "geometry": { "type": "LineString", "coordinates": [[0.002,0.004],[0.004,0.002],[0.010,0.002]] } },
+    { "type": "Feature", "id": "depot-01", "properties": { "name": "Fictional depot" }, "geometry": { "type": "Point", "coordinates": [0.002,0.004] } },
+    { "type": "Feature", "id": "shelter-a", "properties": { "name": "Training shelter A" }, "geometry": { "type": "Point", "coordinates": [0.006,0.006] } },
+    { "type": "Feature", "id": "shelter-b", "properties": { "name": "Training shelter B" }, "geometry": { "type": "Point", "coordinates": [0.010,0.002] } }
+  ]
+}

@@ -1,4 +1,4 @@
-# AEGIS-SIM 2.1 architecture
+# AEGIS-SIM 2.2 desktop / engine 2.1 architecture
 
 ```mermaid
 flowchart TD
@@ -48,6 +48,14 @@ Native WPF renders a 1200×800 fictional local-meter plane. Scenario files provi
 
 Completion = delivered / requested. Mean service tick = Σ(tick × packets) / delivered, with all demand available at tick zero. Active tick percentage = ticks with positive deliveries / elapsed ticks. Waiting ticks are explicit zero-delivery events. Zero denominators have documented values. A/B comparisons require identical scenario definitions; all numbers are recalculated from verified replay.
 
-## Limits
+## Read-only review tools
+
+Infrastructure's GeoJSON adapter validates a bounded regional WGS84 subset and returns immutable projected vector features. The separate WPF inspector reuses viewport gestures but does not map imported geography to simulation entities. Parsing succeeds before replacing the visible layer. No layer types enter the simulation domain or checksum.
+
+CompletionPreview replays a document (or selected prefix) into a separate session, then steps it directly until completion, supply exhaustion or the 20000-tick cap. It does not repeatedly append/replay commands and does not save the continuation. WPF runs it in a background task with cancellation. New future interventions are explicitly excluded. The engine remains 2.1.0 because rules and persisted hashes are unchanged in desktop 2.2.
+
+Diagnostics export verifies full selected history and emits bounded run/runtime facts without scenario names, paths or credentials. The separate profile tool measures engine-only ticks and verified replay with warmups and repeated samples; it does not characterize SQL, WPF or multiplayer throughput.
+
+## Current scale
 
 Small single-writer exercises; local simulation and persistence currently run on the UI dispatcher. Large scenarios can block the UI. No timing benchmark or production readiness is claimed. Distance/speed physics, general GIS import/projections, predictive AI, cloud hosting and signed deployment are outside this release. See verification and learning notes.

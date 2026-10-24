@@ -88,6 +88,25 @@ internal static class Program
                 vm.LoadReplay(shortageSource); vm.ReplayTick = 2; await Flush();
                 Require(vm.DeliveredTotal == 0 && !Button(window, "RestockButton").IsEnabled, "Logistics replay is read-only");
                 vm.NewScenario(Aegis.Simulation.ScenarioDefinition.FloodDemo()); await Flush();
+                int commandsBeforePreview = vm.Document.Commands.Length;
+                ((IInvokeProvider)new MenuItemAutomationPeer((MenuItem)window.FindName("PreviewMenu")).GetPattern(PatternInterface.Invoke)).Invoke(); await Flush();
+                var preview = app.Windows.OfType<PreviewWindow>().Single();
+                await WaitUntil(() => ((TextBlock)preview.FindName("ProjectionText")).Text.Contains("Outcome:"));
+                Require(((TextBlock)preview.FindName("ProjectionText")).Text.Contains("Projected tick: 6") && vm.Document.Commands.Length == commandsBeforePreview, "Background preview leaves live history unchanged");
+                SaveImage(preview, "aegis-completion-preview.png");
+                preview.Close();
+                ((IInvokeProvider)new MenuItemAutomationPeer((MenuItem)window.FindName("LayersMenu")).GetPattern(PatternInterface.Invoke)).Invoke(); await Flush();
+                var layers = app.Windows.OfType<LayerWindow>().Single();
+                string sourceRoot = AppContext.BaseDirectory;
+                while (!File.Exists(Path.Combine(sourceRoot, "Aegis.Sim.slnx"))) sourceRoot = Directory.GetParent(sourceRoot)?.FullName ?? throw new Exception("Repository not found");
+                Require(layers.TryLoad(Path.Combine(sourceRoot, "assets", "maps", "synthetic-region.geojson")), "Offline GeoJSON load"); await Flush();
+                var geoMap = (SyntheticMap)layers.FindName("GeoMap");
+                ((ListBox)layers.FindName("FeatureList")).SelectedIndex = 4; await Flush();
+                Require(geoMap.Layer!.Features.Count == 7 && geoMap.SelectedFeatureId == "depot-01", "GIS feature inspection selects the right vector feature");
+                SaveImage(layers, "aegis-geojson-viewer.png");
+                var goodLayer = geoMap.Layer;
+                Require(!layers.TryLoad(Path.Combine(sourceRoot, "assets", "scenarios", "finite-stock-travel.json")) && ReferenceEquals(geoMap.Layer, goodLayer), "Failed map import preserves loaded layer");
+                geoMap.Zoom(1.2); geoMap.Fit(); layers.Close();
                 await NetworkWindowSmoke.Run(SaveImage);
                 Invoke(window, "StartButton"); window.Close();
                 Require(app.Windows.Count == 0, "Window closes while running");
@@ -100,7 +119,7 @@ internal static class Program
         return app.Run();
     }
     static Button Button(MainWindow window, string name) => (Button)window.FindName(name);
-    static void SaveImage(MainWindow window, string name)
+    static void SaveImage(Window window, string name)
     {
         var content = (FrameworkElement)window.Content;
         int width = (int)Math.Ceiling(content.ActualWidth + content.Margin.Left + content.Margin.Right);

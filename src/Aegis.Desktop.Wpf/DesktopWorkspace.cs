@@ -13,9 +13,15 @@ public sealed class DesktopWorkspace(MainWindow window, RunViewModel model, RunR
     {
         try
         {
-            if (model.IsRunning) model.PauseCommand.Execute(null);
+            if (model.IsRunning && action is "Logistics" or "Import" or "History") model.PauseCommand.Execute(null);
             switch (action)
             {
+                case "Layers": new LayerWindow { Owner = window }.Show(); break;
+                case "Preview": new PreviewWindow(model.Document, model.IsReplay ? model.ReplayTick : null) { Owner = window }.Show(); break;
+                case "Diagnostics":
+                    var diagnostics = new SaveFileDialog { Filter = "Diagnostics JSON|*.json", FileName = "aegis-diagnostics.json" };
+                    if (diagnostics.ShowDialog(window) == true) { System.IO.File.WriteAllText(diagnostics.FileName, Diagnostics.Create(model.Document)); model.Notify("Diagnostics exported (no credentials or file paths)."); }
+                    break;
                 case "Logistics": model.NewScenario(ScenarioDefinition.LogisticsDemo()); break;
                 case "Import":
                     var open = new OpenFileDialog { Filter = "Scenario JSON/XML|*.json;*.xml" };

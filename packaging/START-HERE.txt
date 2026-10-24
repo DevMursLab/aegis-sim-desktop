@@ -1,0 +1,25 @@
+AEGIS-SIM 2.0 / Windows x64 portfolio release
+
+No SDK or separately installed .NET runtime is required.
+Extract the complete ZIP to a writable folder before launching.
+
+Start-Local.cmd: local app with automatic SQLite history.
+Start-Seeded-Demo.cmd: two completed runs and sample reports already prepared.
+Start-Multiplayer.cmd: local host + controller + read-only observer.
+
+Optional per-user installation:
+powershell -ExecutionPolicy Bypass -File .\Install.ps1
+Close earlier copies before installing again. No administrator rights required.
+
+Saved runs: %LOCALAPPDATA%\AEGIS-SIM\local\runs.db
+Host data/credentials: %LOCALAPPDATA%\AEGIS-SIM\host
+Do not share session-secrets.json. This host accepts loopback connections only.
+Controller Reset starts a new shared network exercise and preserves earlier saved runs.
+
+Reports: choose Export report to save verified PDF, HTML and CSV.
+PDF uses English/ASCII labels; UTF-8 HTML/CSV preserve international text.
+Saved runs / A/B: select a run for replay, or Ctrl+select two runs to compare.
+Reset starts a new run and preserves saved history.
+
+See docs/demo-script.md, docs/verification.md and docs/learning/ for more.
+This is a synthetic civilian training portfolio MVP, not a production operational system.

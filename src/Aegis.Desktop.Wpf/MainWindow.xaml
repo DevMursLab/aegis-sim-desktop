@@ -2,8 +2,8 @@
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
  xmlns:local="clr-namespace:Aegis.Desktop.Wpf"
- Title="AEGIS-SIM | Synthetic Response Workspace" Width="1280" Height="900"
- MinWidth="1080" MinHeight="800" Background="#F3F5F7" FontFamily="Segoe UI"
+ Title="AEGIS-SIM | Exercise, Replay and Review" Width="1320" Height="1040"
+ MinWidth="1120" MinHeight="960" Background="#F3F5F7" FontFamily="Segoe UI"
  WindowStartupLocation="CenterScreen">
  <Window.Resources>
   <Style TargetType="Button">
@@ -31,6 +31,14 @@
   <StackPanel Margin="0,0,0,20">
    <TextBlock Text="AEGIS-SIM" FontSize="30" FontWeight="Bold" Foreground="#173C4F"/>
    <TextBlock Text="RESPONSE WORKSPACE / 01     ·     Offline synthetic map + deterministic simulation" Foreground="#526878" FontSize="15" Margin="0,6,0,0"/>
+   <WrapPanel Margin="0,12,0,0">
+    <Button Content="Import scenario" Tag="Import" Click="Workspace_Click" IsEnabled="{Binding IsLocal}" Padding="12,6"/>
+    <Button Content="Export JSON/XML" Tag="Export" Click="Workspace_Click" Padding="12,6"/>
+    <Button Content="Saved runs / A/B" Tag="History" Click="Workspace_Click" IsEnabled="{Binding IsLocal}" Padding="12,6"/>
+    <Button Content="Export report" Tag="Report" Click="Workspace_Click" Padding="12,6"/>
+    <TextBlock Text="{Binding ConnectionLabel}" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#277B65" Margin="8,0"/>
+   </WrapPanel>
+   <TextBlock Text="{Binding RunLabel}" Foreground="#526878" FontSize="12" Margin="0,10,0,0" TextTrimming="CharacterEllipsis"/>
   </StackPanel>
   <Border Grid.Row="1" Background="#173C4F" CornerRadius="8" Padding="20" Margin="0,0,0,20">
    <Grid>
@@ -46,9 +54,15 @@
     <Button x:Name="PauseButton" Content="Pause" Command="{Binding PauseCommand}"/>
     <Button x:Name="StepButton" Content="Step" Command="{Binding StepCommand}"/>
     <Button x:Name="ResetButton" Content="Reset" Command="{Binding ResetCommand}"/>
+    <Button x:Name="ClosureButton" Content="Close selected route · 5 ticks" Command="{Binding CloseRouteCommand}" Padding="14,10"/>
    </StackPanel>
    <TextBlock Text="{Binding Summary}" FontSize="15" Margin="0,12,0,0"/>
    <ProgressBar Value="{Binding CompletionPercent, Mode=OneWay}" Maximum="100" Height="5" Margin="0,10,0,0" Foreground="#277B65" Background="#DEE7E3" BorderThickness="0"/>
+   <TextBlock Text="{Binding Message}" TextWrapping="Wrap" Foreground="#526878" FontSize="12" Margin="0,8,0,0"/>
+   <DockPanel Margin="0,8,0,0" IsEnabled="{Binding IsReplay}">
+    <TextBlock Text="REPLAY TICK" DockPanel.Dock="Left" VerticalAlignment="Center" FontSize="11" Margin="0,0,12,0"/>
+    <Slider x:Name="ReplaySlider" Minimum="0" Maximum="{Binding MaxReplayTick}" Value="{Binding ReplayTick, Mode=TwoWay}" TickFrequency="1" IsSnapToTickEnabled="True"/>
+   </DockPanel>
   </StackPanel>
   <Grid Grid.Row="3">
    <Grid.ColumnDefinitions><ColumnDefinition Width="1.7*"/><ColumnDefinition Width="20"/><ColumnDefinition/></Grid.ColumnDefinitions>
@@ -66,7 +80,7 @@
      <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
      <local:SyntheticMap x:Name="AreaMap" Nodes="{Binding MapNodes}" SelectedName="{Binding SelectedShelterName, Mode=TwoWay}" LastDelivery="{Binding LastDeliveryShelter}" AutomationProperties.Name="Synthetic map. Select a shelter from the adjacent list for keyboard access."/>
      <Border Grid.Row="1" Background="White" Padding="14,10">
-      <TextBlock Text="● Waiting   ● Green: supplied   ■ Amber: last delivery visit&#x0a;Scroll: zoom · Drag: pan · Home: fit · Links show connections, not calculated routes" Foreground="#526878" FontSize="11" TextWrapping="Wrap"/>
+      <TextBlock Text="Waiting / green: supplied / red: route closed / amber: last delivery&#x0a;Scroll: zoom · Drag: pan · Home: fit · Synthetic local meters" Foreground="#526878" FontSize="11" TextWrapping="Wrap"/>
      </Border>
     </Grid>
    </Border>
@@ -93,6 +107,6 @@
    </Grid>
   </Grid>
   <TextBlock Grid.Row="4" Margin="0,18,0,0" Foreground="#526878" TextWrapping="Wrap"
-   Text="SYNTHETIC TRAINING DATA · One visit per tick; fresh load each visit. No travel time or stock limit. Learning preview: history clears on reset or exit."/>
+   Text="SYNTHETIC TRAINING DATA · Fresh load per visit; no travel-time physics. Local commands autosave to SQLite. Reset creates a new run; saved history remains."/>
  </Grid>
 </Window>

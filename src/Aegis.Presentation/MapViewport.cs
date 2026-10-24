@@ -1,7 +1,7 @@
 namespace Aegis.Presentation;
 
 public readonly record struct MapPoint(double X, double Y);
-public sealed record MapNode(string Name, double X, double Y, int InitialDemand, int Remaining);
+public sealed record MapNode(string Name, double X, double Y, int InitialDemand, int Remaining, bool IsBlocked = false);
 
 // Synthetic planar coordinates in meters, not longitude/latitude or GPS.
 public sealed class MapViewport

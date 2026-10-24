@@ -7,4 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup><ProjectReference Include="../Aegis.Presentation/Aegis.Presentation.csproj" /></ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Aegis.Infrastructure/Aegis.Infrastructure.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.13" />
+  </ItemGroup>
 </Project>

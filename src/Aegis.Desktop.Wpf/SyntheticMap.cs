@@ -50,12 +50,12 @@ public sealed class SyntheticMap : FrameworkElement
         {
             var world = new MapPoint(node.X, node.Y);
             Line(dc, depot, world, "#FCFEFD", 10);
-            Line(dc, depot, world, node.Name == LastDelivery ? "#D59935" : "#9BB8AE", 3);
+            Line(dc, depot, world, node.IsBlocked ? "#BC544B" : node.Name == LastDelivery ? "#D59935" : "#9BB8AE", 3);
             Point center = Screen(world);
             if (node.Name == SelectedName) dc.DrawEllipse(null, new Pen(Brush("#1B5E73"), 3), center, 22, 22);
-            dc.DrawEllipse(Brush(node.Remaining == 0 ? "#277B65" : "#173C4F"), new Pen(Brush("#FFFFFF"), 3), center, 14, 14);
+            dc.DrawEllipse(Brush(node.IsBlocked ? "#BC544B" : node.Remaining == 0 ? "#277B65" : "#173C4F"), new Pen(Brush("#FFFFFF"), 3), center, 14, 14);
             Label(dc, node.Name, center.X + 25, center.Y - 22, "#173C4F", 14, true);
-            Label(dc, $"{node.Remaining} packets left", center.X + 25, center.Y + 1, "#526878", 12);
+            Label(dc, node.IsBlocked ? $"CLOSED · {node.Remaining} left" : $"{node.Remaining} packets left", center.X + 25, center.Y + 1, "#526878", 12);
             if (node.Name == LastDelivery)
             {
                 dc.DrawRoundedRectangle(Brush("#E8AE48"), new Pen(Brush("#FFFFFF"), 2), new Rect(center.X - 38, center.Y - 8, 18, 16), 3, 3);

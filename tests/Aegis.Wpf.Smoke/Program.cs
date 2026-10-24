@@ -15,6 +15,7 @@ internal static class Program
     [STAThread]
     public static int Main()
     {
+        Environment.SetEnvironmentVariable("AEGIS_DATA_DIR", Path.Combine(Path.GetTempPath(), "aegis-smoke-" + Guid.NewGuid().ToString("N")));
         var errors = new BindingErrors();
         PresentationTraceSources.DataBindingSource.Listeners.Add(errors);
         PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Error;
@@ -63,6 +64,13 @@ internal static class Program
                 SaveImage(window, "aegis-map-minimum.png");
                 Invoke(window, "ResetButton"); await Flush();
                 Require(vm.Tick == 0 && vm.Remaining == 48 && vm.Events.Count == 0 && map.LastDelivery == null && map.Nodes![0].Remaining == 25 && Text(window, "StatusText") == "Ready", "Reset bindings");
+                Invoke(window, "StepButton"); await Flush();
+                var completedSource = vm.Document;
+                vm.LoadReplay(completedSource); vm.ReplayTick = 0; await Flush();
+                Require(vm.Tick == 0 && !Button(window, "StepButton").IsEnabled, "Read-only replay at tick zero");
+                vm.ReplayTick = 1; await Flush(); Require(vm.Tick == 1, "Replay slider updates rendered state");
+                Invoke(window, "ResetButton"); await Flush();
+                await NetworkWindowSmoke.Run(SaveImage);
                 Invoke(window, "StartButton"); window.Close();
                 Require(app.Windows.Count == 0, "Window closes while running");
                 Require(errors.Messages.Count == 0, string.Join(Environment.NewLine, errors.Messages));

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0": {
+      "aegis.presentation": {
+        "type": "Project",
+        "dependencies": {
+          "Aegis.Simulation": "[2.0.0, )"
+        }
+      },
+      "aegis.simulation": {
+        "type": "Project"
+      }
+    }
+  }
+}

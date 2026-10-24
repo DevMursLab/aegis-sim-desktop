@@ -1,33 +1,49 @@
-# Desktop preview architecture
-
-The desktop preview is a small learning increment, not a completed GIS platform.
+# AEGIS-SIM 2.0 architecture
 
 ```mermaid
-flowchart LR
-    View[WPF XAML View] --> VM[Presentation: RunViewModel and Commands]
-    VM --> Domain[Simulation: SimulationSession]
-    App[App composition and DispatcherTimer] --> VM
+flowchart TD
+    W[WPF map, controls and replay timeline] --> P[Presentation: RunViewModel and commands]
+    P --> D[Simulation: validated scenario, session, history and metrics]
+    P --> Port[Commit callback / remote command port]
+    Port --> DB[Infrastructure: EF Core SQLite, scenario files and reports]
+    Port --> H[SignalR local authoritative host]
+    H --> D
+    H --> DB
 ```
 
-- `Aegis.Simulation` owns scenario input, readonly shelter state, delivery rules and lifecycle. It has no WPF, database, networking or clock dependency.
-- `Aegis.Presentation` exposes observable screen state, selection and commands. `MapViewport` performs world/screen conversion and viewport hit-testing without WPF. The ViewModel uses standard .NET `ICommand` and `INotifyPropertyChanged`.
-- `Aegis.Desktop.Wpf` provides XAML layout, native vector drawing, gestures, composition and a one-second dispatcher timer. MainWindow code-behind handles initialization and visual zoom/fit actions only.
-- The timer advances only Running sessions. Manual steps are available in Ready/Paused. Completing a run disables mutation until reset.
-- The session is single-threaded. The small demo runs on the dispatcher thread. Scaling to large simulations requires a separate scheduling strategy; no throughput claim is made.
-- Source and published snapshots cannot change shelter data externally. Commands and the session validate transitions independently.
-- A reset restores the original scenario and clears the current event feed. There is no persistent run identity or storage yet.
-- Earlier lessons remain separate executable teaching examples. Production sources do not reference those lesson projects.
+## Responsibilities
 
-## Boundaries and limitations
+- **Simulation** owns immutable shelter state, bounded/versioned scenarios, lifecycle, deterministic delivery/closure rules, ordered recorded commands, checksums and metrics. No UI/database/network/clock dependency.
+- **Presentation** exposes screen state, selected shelter, command enablement, map viewport calculations and replay seeking. A local command is reconstructed into a candidate, persisted through a callback, then shown. Storage failure does not publish the candidate and stops local advancement.
+- **Infrastructure** reads validated JSON/XML, stores runs/commands/typed tick events/checkpoints in SQLite, and builds PDF/HTML/CSV from replay. Persistence uses one transaction and checks immutable history prefixes.
+- **WPF** draws the offline map, handles visual gestures and file dialogs, composes services and schedules local ticks. MainWindow code-behind wires visual actions; delivery rules stay outside it.
+- **SyncHost** serializes writes through one semaphore, owns network ticks, validates controller role and expected version, commits before broadcasting and returns full versioned snapshots. The desktop timer is disabled in network mode.
+- **Tools** seeds a pair of reproducible comparison runs and sample reports.
 
-The vehicle gets a fresh load each visit. Road travel, stock limits, GIS import/projections, incident injection, SQL persistence, replay, multiplayer, authentication and forecasts remain unimplemented. Event history is in memory. Same ordered inputs reproduce the same delivery sequence; no random seed is needed by these rules.
+## Lifecycle and replay
 
-The first map uses native WPF drawing in a 1200 × 800 synthetic local-meter plane, with a fixed layout for the three-shelter demo. It is not GeoJSON/WGS84 and is not a general map-file importer. River and links are illustrative; links do not control delivery timing. The amber glyph denotes the last delivery, not live movement. Map selection and table data use the same session snapshot. Viewport gestures cannot alter simulation outcomes. A keyboard-accessible shelter dropdown provides an alternative to pointer hit-testing.
+Ready → Running ↔ Paused → Completed. Manual Step is allowed in Ready/Paused; a completed run is immutable. Reset creates a **new run ID**, preserving old saved history. In network mode this is an authoritative controller operation.
 
-## Verification
+Commands have stable IDs and contiguous per-run sequence numbers. Reusing an ID cannot apply an action twice. A closure blocks service through a configured future tick; other unblocked shelters may receive service, or a typed Waiting tick is emitted. The same scenario and ordered commands reproduce the same state checksum.
 
-Run `scripts/verify.ps1` on Windows with the .NET 10 SDK. It builds all projects in Release with warnings treated as errors, executes 7 Lesson 03 checks and 20 desktop/map checks, runs all console lessons, and opens a real WPF window for smoke validation.
+Every save persists the document, appended command rows, typed tick events and a final checkpoint. Load compares normalized SQL commands/events/checkpoints to reconstructed state. Timeline seek rebuilds the command prefix up to a tick; stored checkpoints are integrity evidence, not yet a replay acceleration cache. SHA-256 detects inconsistent/corrupted content, not malicious edits to every database field by a privileged attacker.
 
-The smoke runner invokes real button automation peers, verifies rendered bindings and command enablement, waits for actual timer ticks, checks pause/resume/completion/reset and closes while running. Binding errors fail the run. It saves a rendered content image to the system temp directory. It is not a substitute for manual usability, keyboard, high-DPI or installation testing.
+## Data and protocol
 
-GitHub Actions builds the complete solution and runs the console checks/lessons on Windows. Interactive WPF validation is excluded from CI (`-SkipUi`). These are executable checks, not an xUnit or `dotnet test` suite.
+Scenario schema 1: name, positive capacity and up to 64 shelters with unique names, bounded quantities and finite synthetic x/y. File size ≤256 KB; total demand ≤10000. XML disables DTD and external resolution. Runs cap ticks at 20000 and recorded commands at 25000.
+
+SQLite tables: Runs, Commands (`RunId,Sequence`, unique `RunId,CommandId`), Events (`RunId,Tick`) and Snapshots (`RunId,Sequence`, indexed `RunId,Tick`). Bootstrap uses EnsureCreated and an explicit additive event-table upgrade for development databases. A general migration/backup strategy is future work.
+
+One local exercise room is exposed at `/exercise`. Authenticated clients request Snapshot or Submit(runId,expectedVersion,command). The host broadcasts State(revision,run). Clients ignore older revisions, show a stale badge while reconnecting, and request a fresh snapshot after reconnection. The room revision is process-local; reconnect resets the client cursor before snapshot recovery. Host restart loads the latest saved run. Full snapshots intentionally favor a small training demo over throughput.
+
+Separate random controller/observer tokens are stored in a local file. All non-health HTTP/hub routes require a token and reject non-loopback source addresses. Observer writes are denied server-side. This is a same-machine demonstration boundary, not multi-tenant/enterprise authentication.
+
+## Map and metrics
+
+Native WPF renders a 1200×800 fictional local-meter plane. Scenario files provide shelter positions. River/links are visual; the route-closure availability rule is explicit and separate from geometry. Amber denotes the last delivery, not a continuous movement simulation. Map/table/inspector read the same session state; gestures cannot change results.
+
+Completion = delivered / requested. Mean service tick = Σ(tick × packets) / delivered, with all demand available at tick zero. Active tick percentage = ticks with positive deliveries / elapsed ticks. Waiting ticks are explicit zero-delivery events. Zero denominators have documented values. A/B comparisons require identical scenario definitions; all numbers are recalculated from verified replay.
+
+## Limits
+
+Small single-writer exercises; local simulation and persistence currently run on the UI dispatcher. Large scenarios can block the UI. No timing benchmark or production readiness is claimed. Travel, stock, general GIS import/projections, predictive AI, cloud hosting and signed deployment are outside this release. See verification and learning notes.

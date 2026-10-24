@@ -14,9 +14,9 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-lesson.ps1 -Lesson 04
 2. **Start** চাপো: প্রায় প্রতি সেকেন্ডে এক tick এগোবে।
 3. **Pause** চাপো: হিসাব থামবে। ওই অবস্থায় Step দিয়ে শুধু একবার এগোতে পারো।
 4. **Resume** চাপলে সেখান থেকেই চলবে।
-5. Completed হলে আর এগোনো যাবে না। **Reset** চাপলে পুরো শুরুর অবস্থায় ফিরবে; history মুছে যাবে।
+5. Completed হলে আর এগোনো যাবে না। **Reset** চাপলে নতুন run ID দিয়ে শুরুর অবস্থায় ফিরবে; আগের run saved history-তে থাকবে।
 
-Start করার আগেও Step চাপতে পারো। Reset চলন্ত অবস্থাতেও করা যায়। এই version-এ save নেই; window বন্ধ হলে history হারাবে।
+Start করার আগেও Step চাপতে পারো। Reset চলন্ত অবস্থাতেও করা যায়। পরের lesson-গুলো যুক্ত হওয়ায় বর্তমান app-এ SQLite autosave ও startup replay আছে; প্রথমবার ছাড়া app saved replay খুললে Reset দিয়ে নতুন run নেবে।
 
 ## আজ শুধু তিনটি দায়িত্ব বোঝো
 
@@ -64,7 +64,7 @@ App-এর `DispatcherTimer` প্রায় এক সেকেন্ড পর
 
 আগের তিনটি lesson স্বাধীনভাবে আগের মতোই চলবে। নতুন app-এর shared model `src/`-এ। এখানে engine নিজের data ধরে, readonly shelter state প্রকাশ করে, input পুরো validate করে, এবং Ready/Running/Paused/Completed status রাখে। তাই বাইরে থেকে shelter-এর remaining বদলে app-এর হিসাব নষ্ট করা যায় না।
 
-Reset এখন একই local exercise-এর তথ্য মুছে শুরু করে। database-backed run ID, durable history, SQL replay, map, networking এখনো নেই।
+বর্তমান release-এ Reset নতুন run তৈরি করে এবং পুরোনো history রাখে। Database/replay/networking-এর বিস্তারিত Lesson 06–08-এ আছে; এই পাঠে শুধু screen ও command-এর সম্পর্ক শেখো।
 
 ## পরীক্ষা চালাও
 
@@ -72,7 +72,7 @@ Reset এখন একই local exercise-এর তথ্য মুছে শু
 # Window না খুলে model, command ও map-এর ২০টি check
 powershell -ExecutionPolicy Bypass -File .\scripts\run-lesson.ps1 -Lesson 04 -Check
 
-# সব lesson, Release build, ২৭টি console check এবং real-window smoke check
+# সব lesson, Release build, ৪৯টি console check এবং real-window smoke check
 powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 ```
 

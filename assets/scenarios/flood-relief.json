@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "name": "Flood Relief / Synthetic-01",
+  "capacity": 10,
+  "shelters": [
+    { "name": "Shelter-A", "demand": 25, "x": 480, "y": 180 },
+    { "name": "Shelter-B", "demand": 5, "x": 910, "y": 180 },
+    { "name": "Shelter-C", "demand": 18, "x": 480, "y": 490 }
+  ]
+}

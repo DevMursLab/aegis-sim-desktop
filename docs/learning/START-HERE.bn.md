@@ -1,6 +1,6 @@
 # এখান থেকে শুরু করো
 
-এই repository-তে শেখার কাজ ও মূল অ্যাপের অগ্রগতি আলাদা করে লেখা থাকবে। তিনটি console lesson এবং একটি WPF desktop preview প্রস্তুত; সম্পূর্ণ GIS অ্যাপ এখনো তৈরি হয়নি।
+এই repository-তে শেখার কাজ ও মূল অ্যাপের অগ্রগতি আলাদা করে লেখা থাকবে। তিনটি console lesson ও একটি portfolio MVP প্রস্তুত: desktop map, incident, SQLite history, replay, local multiplayer ও report। Full GIS/AI/production deployment এই version-এর scope নয়।
 
 ## প্রতিদিনের পদ্ধতি
 
@@ -22,10 +22,10 @@
 | 03 | Step method, bool, private set, executable checks | একই input-এ একই ফলের mini-engine | প্রস্তুত; তোমার অনুশীলন বাকি |
 | 04 | XAML, binding, commands, MVVM | Start/Pause/Resume/Step/Reset সহ WPF window | প্রস্তুত; তোমার অনুশীলন বাকি |
 | 05 | local coordinates, zoom/pan, selection | native WPF offline synthetic map | প্রথম সংস্করণ প্রস্তুত; GIS import পরে |
-| 06 | SQL, persistence, transactions | সংরক্ষিত run history | পরিকল্পিত |
-| 07 | events, snapshots, replay | আগের state পুনরায় তৈরি | পরিকল্পিত |
-| 08 | SignalR, sequence, reconnect | দুই client-এর একই run | পরিকল্পিত |
-| 09 | metrics, reporting, packaging | demo ও release | পরিকল্পিত |
+| 06 | SQL, persistence, transactions | সংরক্ষিত run history | code ও পাঠ প্রস্তুত |
+| 07 | events, snapshots, replay | আগের state পুনরায় তৈরি | code ও পাঠ প্রস্তুত |
+| 08 | SignalR, sequence, reconnect | দুই client-এর একই run | code ও পাঠ প্রস্তুত |
+| 09 | metrics, reporting, packaging | demo ও Windows package | code ও পাঠ প্রস্তুত |
 
 Testing ধাপ 03 থেকে নিয়মিত থাকবে; একদম শেষে যোগ করার বিষয় নয়। AI forecast মূল অ্যাপ স্থিতিশীল হলে ঐচ্ছিক।
 
@@ -48,3 +48,5 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-lesson.ps1
 নতুন পাঠ: [Lesson 04 — WPF ও MVVM](04-wpf-mvvm.bn.md)। window খুলতে `-Lesson 04`; পুরো repository যাচাই করতে `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1` চালাও।
 
 মানচিত্রের পাঠ: [Lesson 05 — offline map](05-offline-map.bn.md)। `-Lesson 05` দিয়ে একই desktop app খুলে map selection ও zoom/pan শেখো।
+
+তারপর ক্রমে পড়ো: [06 — SQL history](06-sql-history.bn.md), [07 — Replay](07-replay.bn.md), [08 — Multiplayer](08-multiplayer.bn.md), [09 — Report ও release](09-release.bn.md)। প্রথম তিনটি lesson স্বাধীন console project; পরের পাঠগুলো একই updated app-এর অংশ ধরে বোঝায়।

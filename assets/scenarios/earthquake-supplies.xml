@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Scenario version="1" name="Earthquake Supplies / Synthetic-02" capacity="8">
+  <Shelter name="Clinic-North" demand="24" x="450" y="150" />
+  <Shelter name="Shelter-East" demand="32" x="900" y="250" />
+  <Shelter name="Shelter-South" demand="16" x="650" y="600" />
+</Scenario>

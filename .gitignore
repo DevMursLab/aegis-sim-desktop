@@ -20,3 +20,6 @@ TestResults/
 *.sqlite
 *.sqlite3
 tmp/
+artifacts/
+session-secrets.json
+*.log

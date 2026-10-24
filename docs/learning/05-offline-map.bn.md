@@ -14,7 +14,7 @@ Lesson 04-ও এই একই updated desktop app খোলে; console lesson-
 2. **Step** চাপো। map, inspector ও table—সবখানে ১৫ remaining হবে।
 3. Mouse wheel দিয়ে zoom, drag করে pan করো। **Fit map** চাপলে মূল view ফিরে আসবে।
 4. **Start → Pause → Resume** করে delivery দেখো। সব চাহিদা পূরণ হলে সব shelter সবুজ হবে।
-5. **Reset** করলে চাহিদা ফিরবে, delivery highlight ও history মুছবে। map-এর zoom আলাদা visual setting; Fit map দিয়ে সেটি reset করবে।
+5. **Reset** করলে নতুন run-এ চাহিদা ফিরবে এবং তার event feed খালি হবে; আগের saved run অক্ষত থাকে। map-এর zoom আলাদা visual setting; Fit map দিয়ে সেটি reset করবে।
 
 ## Map-এর জিনিসগুলো কী?
 
@@ -27,7 +27,7 @@ Lesson 04-ও এই একই updated desktop app খোলে; console lesson-
 
 ## Coordinates: x আর y
 
-Map একটি কাল্পনিক ১২০০ × ৮০০ meter-এর local plane। `x` ডান দিকে বাড়ে, `y` নিচের দিকে বাড়ে। এগুলো GPS বা বাস্তব এলাকার latitude/longitude নয়। Shelter-এর position ViewModel-এর demo layout থেকে তৈরি হয়।
+Map একটি কাল্পনিক ১২০০ × ৮০০ meter-এর local plane। `x` ডান দিকে বাড়ে, `y` নিচের দিকে বাড়ে। এগুলো GPS বা বাস্তব এলাকার latitude/longitude নয়। Shelter-এর position এখন validated scenario JSON/XML থেকে ViewModel-এ আসে।
 
 ```csharp
 new MapNode(s.Name, x, y, s.InitialDemand, s.Remaining)
@@ -60,7 +60,7 @@ Map-এ click করে focus দিলে arrow keys দিয়ে pan, `+`/`-` 
 
 1. একটি shelter select করে Step চাপলে তার remaining কীভাবে বদলায় দেখো।
 2. Zoom করেও কেন delivery-র পরিমাণ বদলায় না, নিজের ভাষায় বলো।
-3. `RunViewModel.MapNodes`-এ প্রথম x-coordinate-এর মান সামান্য বদলাও। শুধু position বদলায় কি না পরীক্ষা করো; পরে মূল মান ফিরিয়ে রাখো।
+3. sample scenario JSON-এর প্রথম x-coordinate সামান্য বদলে Import করো। শুধু position বদলায় কি না পরীক্ষা করো; পরে মূল sample আবার Import করো।
 4. Map-এর zoom করা অবস্থায় marker select করে Fit চাপো। selection আর view position-এর পার্থক্য বোঝো।
 
 ## যাচাই
@@ -69,4 +69,4 @@ Map-এ click করে focus দিলে arrow keys দিয়ে pan, `+`/`-` 
 powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 ```
 
-মোট ২৭টি console check এবং actual WPF window smoke check চলে। Geometry checks coordinate round-trip, zoom anchor/limit, pan/fit ও hit-testing দেখে। Window smoke check map selection binding, inspector update, zoom/fit buttons, completion ও reset দেখে। Rendering default ও minimum window size-এ পরিদর্শন করা হয়েছে; সব DPI বা monitor পরীক্ষা করা হয়নি।
+মোট ৪৯টি console check এবং actual WPF window smoke check চলে। Geometry checks coordinate round-trip, zoom anchor/limit, pan/fit ও hit-testing দেখে। Window smoke check map selection binding, inspector update, zoom/fit buttons, completion ও reset দেখে। Rendering default ও minimum window size-এ পরিদর্শন করা হয়েছে; সব DPI বা monitor পরীক্ষা করা হয়নি।

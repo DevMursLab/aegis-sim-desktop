@@ -1,4 +1,4 @@
-AEGIS-SIM 2.0 / Windows x64 portfolio release
+AEGIS-SIM 2.1 / Windows x64 portfolio release
 
 No SDK or separately installed .NET runtime is required.
 Extract the complete ZIP to a writable folder before launching.
@@ -23,3 +23,6 @@ Reset starts a new run and preserves saved history.
 
 See docs/demo-script.md, docs/verification.md and docs/learning/ for more.
 This is a synthetic civilian training portfolio MVP, not a production operational system.
+
+Stock + travel demo: finite depot stock and vehicle travel/return ticks.
+See docs/learning/10-stock-travel.bn.md.

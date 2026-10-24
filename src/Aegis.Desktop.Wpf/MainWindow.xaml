@@ -33,6 +33,7 @@
    <TextBlock Text="RESPONSE WORKSPACE / 01     ·     Offline synthetic map + deterministic simulation" Foreground="#526878" FontSize="15" Margin="0,6,0,0"/>
    <WrapPanel Margin="0,12,0,0">
     <Button Content="Import scenario" Tag="Import" Click="Workspace_Click" IsEnabled="{Binding IsLocal}" Padding="12,6"/>
+    <Button x:Name="LogisticsDemoButton" Content="Stock + travel demo" Tag="Logistics" Click="Workspace_Click" IsEnabled="{Binding IsLocal}" Padding="12,6"/>
     <Button Content="Export JSON/XML" Tag="Export" Click="Workspace_Click" Padding="12,6"/>
     <Button Content="Saved runs / A/B" Tag="History" Click="Workspace_Click" IsEnabled="{Binding IsLocal}" Padding="12,6"/>
     <Button Content="Export report" Tag="Report" Click="Workspace_Click" Padding="12,6"/>
@@ -49,14 +50,17 @@
    </Grid>
   </Border>
   <StackPanel Grid.Row="2" Margin="0,0,0,20">
-   <StackPanel Orientation="Horizontal">
+   <WrapPanel>
     <Button x:Name="StartButton" Content="{Binding StartLabel}" Command="{Binding StartCommand}" AutomationProperties.Name="Start or resume simulation"/>
     <Button x:Name="PauseButton" Content="Pause" Command="{Binding PauseCommand}"/>
     <Button x:Name="StepButton" Content="Step" Command="{Binding StepCommand}"/>
     <Button x:Name="ResetButton" Content="Reset" Command="{Binding ResetCommand}"/>
     <Button x:Name="ClosureButton" Content="Close selected route · 5 ticks" Command="{Binding CloseRouteCommand}" Padding="14,10"/>
-   </StackPanel>
+    <Button x:Name="RestockButton" Content="Restock +20" Command="{Binding RestockCommand}" Padding="14,10"/>
+   </WrapPanel>
    <TextBlock Text="{Binding Summary}" FontSize="15" Margin="0,12,0,0"/>
+   <TextBlock x:Name="StockText" Text="{Binding StockLabel}" Foreground="#173C4F" FontSize="12" Margin="0,6,0,0"/>
+   <TextBlock x:Name="VehicleText" Text="{Binding VehicleLabel}" Foreground="#526878" FontSize="12" Margin="0,3,0,0"/>
    <ProgressBar Value="{Binding CompletionPercent, Mode=OneWay}" Maximum="100" Height="5" Margin="0,10,0,0" Foreground="#277B65" Background="#DEE7E3" BorderThickness="0"/>
    <TextBlock Text="{Binding Message}" TextWrapping="Wrap" Foreground="#526878" FontSize="12" Margin="0,8,0,0"/>
    <DockPanel Margin="0,8,0,0" IsEnabled="{Binding IsReplay}">
@@ -78,9 +82,9 @@
    <Border Grid.Row="1" BorderBrush="#D9E1E8" BorderThickness="1" CornerRadius="6" ClipToBounds="True">
     <Grid>
      <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-     <local:SyntheticMap x:Name="AreaMap" Nodes="{Binding MapNodes}" SelectedName="{Binding SelectedShelterName, Mode=TwoWay}" LastDelivery="{Binding LastDeliveryShelter}" AutomationProperties.Name="Synthetic map. Select a shelter from the adjacent list for keyboard access."/>
+     <local:SyntheticMap x:Name="AreaMap" Nodes="{Binding MapNodes}" SelectedName="{Binding SelectedShelterName, Mode=TwoWay}" LastDelivery="{Binding LastDeliveryShelter}" HasVehicle="{Binding UsesLogistics}" VehicleX="{Binding VehiclePosition.X}" VehicleY="{Binding VehiclePosition.Y}" VehicleDestination="{Binding VehicleDestination}" AutomationProperties.Name="Synthetic map. Select a shelter from the adjacent list for keyboard access."/>
      <Border Grid.Row="1" Background="White" Padding="14,10">
-      <TextBlock Text="Waiting / green: supplied / red: route closed / amber: last delivery&#x0a;Scroll: zoom · Drag: pan · Home: fit · Synthetic local meters" Foreground="#526878" FontSize="11" TextWrapping="Wrap"/>
+      <TextBlock Text="Green: supplied / red: closed / amber: vehicle (schema 2), last visit (schema 1)&#x0a;Scroll: zoom · Drag: pan · Home: fit · Synthetic local meters" Foreground="#526878" FontSize="11" TextWrapping="Wrap"/>
      </Border>
     </Grid>
    </Border>
@@ -96,17 +100,18 @@
      <DataGridTextColumn Header="Remaining" Binding="{Binding Remaining}" Width="85"/>
     </DataGrid.Columns>
    </DataGrid>
-   <TextBlock Grid.Row="4" Text="DELIVERY HISTORY" FontWeight="SemiBold" Margin="0,16,0,10"/>
+   <TextBlock Grid.Row="4" Text="EXERCISE HISTORY" FontWeight="SemiBold" Margin="0,16,0,10"/>
    <DataGrid x:Name="EventGrid" Grid.Row="5" ItemsSource="{Binding Events}" RowHeight="26">
     <DataGrid.Columns>
-     <DataGridTextColumn Header="Tick" Binding="{Binding Tick}" Width="60"/>
+     <DataGridTextColumn Header="Tick" Binding="{Binding Tick}" Width="40"/>
+     <DataGridTextColumn Header="Event" Binding="{Binding Kind}" Width="95"/>
      <DataGridTextColumn Header="Shelter" Binding="{Binding Shelter}" Width="*"/>
-     <DataGridTextColumn Header="Packets" Binding="{Binding Amount}" Width="80"/>
+     <DataGridTextColumn Header="Packets" Binding="{Binding Amount}" Width="60"/>
     </DataGrid.Columns>
    </DataGrid>
    </Grid>
   </Grid>
   <TextBlock Grid.Row="4" Margin="0,18,0,0" Foreground="#526878" TextWrapping="Wrap"
-   Text="SYNTHETIC TRAINING DATA · Fresh load per visit; no travel-time physics. Local commands autosave to SQLite. Reset creates a new run; saved history remains."/>
+   Text="SYNTHETIC TRAINING DATA · Schema 1: instant visits. Schema 2: finite stock and configured travel ticks. SQLite autosave; Reset creates a new run."/>
  </Grid>
 </Window>

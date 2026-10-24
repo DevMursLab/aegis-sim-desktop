@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using Microsoft.Win32;
 using Aegis.Infrastructure;
 using Aegis.Presentation;
+using Aegis.Simulation;
 
 namespace Aegis.Desktop.Wpf;
 
@@ -15,6 +16,7 @@ public sealed class DesktopWorkspace(MainWindow window, RunViewModel model, RunR
             if (model.IsRunning) model.PauseCommand.Execute(null);
             switch (action)
             {
+                case "Logistics": model.NewScenario(ScenarioDefinition.LogisticsDemo()); break;
                 case "Import":
                     var open = new OpenFileDialog { Filter = "Scenario JSON/XML|*.json;*.xml" };
                     if (open.ShowDialog(window) == true) model.NewScenario(ScenarioFiles.Load(open.FileName));

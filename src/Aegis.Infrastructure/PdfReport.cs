@@ -32,10 +32,13 @@ public static class PdfReport
             graphics.DrawString($"Created: {document.CreatedAt:yyyy-MM-dd HH:mm} UTC | Engine: {document.EngineVersion}", small, ink, 44, 149);
             graphics.DrawString($"{result.Session.Status}  /  {result.Session.Tick} ticks  /  {result.Session.DeliveredTotal} of {result.Session.InitialDemand} packets", body, ink, 44, 180);
             graphics.DrawString($"Mean service tick: {metrics.MeanServiceTick:0.00} | Active ticks: {metrics.ActiveTickPercent:0.0}% | Waiting ticks: {metrics.WaitingTicks}", small, ink, 44, 199);
-            graphics.DrawLine(new XPen(XColors.LightGray), 44, 214, 550, 214);
-            graphics.DrawString("SHELTER", small, ink, 44, 235);
-            graphics.DrawString("DELIVERED / REQUESTED", small, ink, 290, 235);
-            int y = 260;
+            int offset = result.Session.UsesLogistics ? 22 : 0;
+            if (result.Session.UsesLogistics)
+                graphics.DrawString($"Depot stock: {metrics.DepotStockRemaining} | In transit: {metrics.InTransit} | Restocked: {metrics.RestockedTotal} | Return ticks: {metrics.ReturnTicks}", small, ink, 44, 218);
+            graphics.DrawLine(new XPen(XColors.LightGray), 44, 214 + offset, 550, 214 + offset);
+            graphics.DrawString("SHELTER", small, ink, 44, 235 + offset);
+            graphics.DrawString("DELIVERED / REQUESTED", small, ink, 290, 235 + offset);
+            int y = 260 + offset;
             foreach (var shelter in result.Session.Shelters.Skip(start).Take(18))
             {
                 graphics.DrawString(Ascii(shelter.Name), body, ink, 44, y);
@@ -49,7 +52,7 @@ public static class PdfReport
             graphics.DrawString($"Verified ordered commands: {document.Commands.Length}. Final state SHA-256:", small, ink, 44, 680);
             graphics.DrawString(hash[..32], small, ink, 44, 696);
             graphics.DrawString(hash[32..], small, ink, 44, 710);
-            graphics.DrawString("Model limits: fresh load per visit, no travel-time physics or real-world efficacy claim.", small, ink, 44, 742);
+            graphics.DrawString(result.Session.UsesLogistics ? "Model: finite stock and configured travel ticks; no distance/speed physics or efficacy claim." : "Model: unlimited reload and instant visits; no real-world efficacy claim.", small, ink, 44, 742);
             graphics.DrawString("Route closure restricts a shelter for logical ticks. Full Unicode labels: UTF-8 HTML/CSV.", small, ink, 44, 757);
             graphics.DrawString($"Page {++pageNumber} / {Math.Max(1, (result.Session.Shelters.Count + 17) / 18)}", small, ink, 44, 790);
         }

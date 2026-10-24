@@ -1,4 +1,4 @@
-# Verification / 2.0 release
+# Verification / 2.1 source
 
 Local environment: Windows x64, .NET SDK **10.0.402**, 24 October 2026.
 
@@ -12,14 +12,19 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 | Lesson 03 | 7 checks: delivery bounds, determinism, input validation and completion |
 | Desktop/model/map | 20 checks: lifecycle, commands, reset, conservation, map transforms/hit-testing and notifications |
 | Integration | 22 checks: scenario interchange, SQL/replay integrity, storage failure, metrics/reports, independent process reload and actual SignalR host/client behavior |
-| Local WPF | Actual buttons/bindings/timer, map/inspector sync, replay seek, reset, close; default/minimum window rendering |
+| Logistics | 20 checks: cargo/stock conservation, travel boundaries, shortage/restock, closure, JSON/XML, legacy 2.0 golden history/SQL, persistence, replay, metrics/reports and live host roles |
+| Local WPF | Actual buttons/bindings/timer, map/inspector sync, replay seek, reset, close; default/minimum window rendering; stock/travel demo, moving cargo, shortage controls, restock completion and read-only logistics replay |
 | Two WPF clients | Incident sync, observer write disabled, stale state, automatic reconnect after actual host restart |
 
-**49 console checks**, plus the interactive WPF flows. These are executable checks; run the script rather than `dotnet test`. GitHub Actions runs build/console/integration validation with `-SkipUi`; inspect the actual workflow result for each commit.
+**69 console checks**, plus the interactive WPF flows. These are executable checks; run the script rather than `dotnet test`. GitHub Actions runs build/console/integration validation with `-SkipUi`; inspect the actual workflow result for each commit.
 
 ## Observed reproducible result
 
 Default scenario: demands 25, 5, 18; vehicle capacity 10. Baseline completes in **6 ticks**, delivers **48**, remaining **0**. Closing Shelter-A for five ticks produces **8 ticks**, **48 delivered**, **2 waiting ticks**, **75% active ticks**, mean service tick **219/48 ≈4.56**. Baseline mean service tick is **163/48 ≈3.40**. These are deterministic model results, not real-world rescue claims.
+
+Schema 2 demo: initial stock 30; shortage at tick 16 with 30 delivered; restock 20; completion at tick 24 with 48 delivered, 2 in stock and no cargo. Each of the six trips costs one dispatch tick, two outbound ticks and one return tick.
+
+The committed legacy fixture was extracted from the original v2.0 package database. Its original hash, commands, events and checkpoint must remain byte-compatible after loading in 2.1.
 
 ## Reliability checks
 

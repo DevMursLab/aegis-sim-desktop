@@ -1,0 +1,114 @@
+{
+  "run": {
+    "schemaVersion": 1,
+    "engineVersion": "2.0.0",
+    "id": "9fa2423b-273a-4353-acb0-84c6eedaa6a2",
+    "createdAt": "2026-10-24T05:58:31.300425+00:00",
+    "scenario": {
+      "schemaVersion": 1,
+      "name": "Flood Relief / Synthetic-01",
+      "capacity": 10,
+      "shelters": [
+        {
+          "name": "Shelter-A",
+          "demand": 25,
+          "x": 480,
+          "y": 180
+        },
+        {
+          "name": "Shelter-B",
+          "demand": 5,
+          "x": 910,
+          "y": 180
+        },
+        {
+          "name": "Shelter-C",
+          "demand": 18,
+          "x": 480,
+          "y": 490
+        }
+      ]
+    },
+    "commands": [
+      {
+        "sequence": 1,
+        "command": {
+          "id": "5dd02641-26ce-4308-b515-66d65a69e47c",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "FF867E806BD70827C23CCF997BB46309798FAD2D94B966536CA4F819E60FB5FB"
+      },
+      {
+        "sequence": 2,
+        "command": {
+          "id": "10258108-058d-43d4-b3a6-4ea9c9fbf608",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "AB65F51438E9B253DECEADECB20485D92A92CF393555CDA0B325E53A56F4AFFB"
+      },
+      {
+        "sequence": 3,
+        "command": {
+          "id": "6b9b57af-abae-4a46-b483-8dde664fb431",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "E4E8E3F34DCB8CCF5CD03AD2BC944F6C801B38C078B6109BB50E92FDC5B15DCE"
+      },
+      {
+        "sequence": 4,
+        "command": {
+          "id": "fce5c1ed-f5a7-49c7-a083-765e63ed228e",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "30FAECE63CBAEF6998DD8D8A4A2E5F458802B7D1E4FBDAE5540D55996B4B7E36"
+      },
+      {
+        "sequence": 5,
+        "command": {
+          "id": "e51bb1aa-9df1-4187-8caf-91c1ed201c34",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "4EEC6BDFC770108245459E7C228A67316990C4FEB897A933F1812E4AA0FFB4E4"
+      },
+      {
+        "sequence": 6,
+        "command": {
+          "id": "c462979a-dd7e-4e39-a9c3-b9e39180c4c2",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "35766074D615EC1220878825923E4C7D8D92FD783141F8EE710001789101CD63"
+      }
+    ],
+    "creationCommandId": "00000000-0000-0000-0000-000000000000"
+  },
+  "expectedHash": "35766074D615EC1220878825923E4C7D8D92FD783141F8EE710001789101CD63",
+  "checkpointJson": "{\"tick\":6,\"deliveredTotal\":48,\"shelters\":[{\"name\":\"Shelter-A\",\"initialDemand\":25,\"remaining\":0,\"blockedUntil\":0},{\"name\":\"Shelter-B\",\"initialDemand\":5,\"remaining\":0,\"blockedUntil\":0},{\"name\":\"Shelter-C\",\"initialDemand\":18,\"remaining\":0,\"blockedUntil\":0}]}",
+  "commandJson": [
+    "{\"sequence\":1,\"command\":{\"id\":\"5dd02641-26ce-4308-b515-66d65a69e47c\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"FF867E806BD70827C23CCF997BB46309798FAD2D94B966536CA4F819E60FB5FB\"}",
+    "{\"sequence\":2,\"command\":{\"id\":\"10258108-058d-43d4-b3a6-4ea9c9fbf608\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"AB65F51438E9B253DECEADECB20485D92A92CF393555CDA0B325E53A56F4AFFB\"}",
+    "{\"sequence\":3,\"command\":{\"id\":\"6b9b57af-abae-4a46-b483-8dde664fb431\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"E4E8E3F34DCB8CCF5CD03AD2BC944F6C801B38C078B6109BB50E92FDC5B15DCE\"}",
+    "{\"sequence\":4,\"command\":{\"id\":\"fce5c1ed-f5a7-49c7-a083-765e63ed228e\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"30FAECE63CBAEF6998DD8D8A4A2E5F458802B7D1E4FBDAE5540D55996B4B7E36\"}",
+    "{\"sequence\":5,\"command\":{\"id\":\"e51bb1aa-9df1-4187-8caf-91c1ed201c34\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"4EEC6BDFC770108245459E7C228A67316990C4FEB897A933F1812E4AA0FFB4E4\"}",
+    "{\"sequence\":6,\"command\":{\"id\":\"c462979a-dd7e-4e39-a9c3-b9e39180c4c2\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"35766074D615EC1220878825923E4C7D8D92FD783141F8EE710001789101CD63\"}"
+  ],
+  "eventJson": [
+    "{\"tick\":1,\"shelter\":\"Shelter-A\",\"amount\":10,\"kind\":\"Delivery\"}",
+    "{\"tick\":2,\"shelter\":\"Shelter-A\",\"amount\":10,\"kind\":\"Delivery\"}",
+    "{\"tick\":3,\"shelter\":\"Shelter-A\",\"amount\":5,\"kind\":\"Delivery\"}",
+    "{\"tick\":4,\"shelter\":\"Shelter-B\",\"amount\":5,\"kind\":\"Delivery\"}",
+    "{\"tick\":5,\"shelter\":\"Shelter-C\",\"amount\":10,\"kind\":\"Delivery\"}",
+    "{\"tick\":6,\"shelter\":\"Shelter-C\",\"amount\":8,\"kind\":\"Delivery\"}"
+  ]
+}

@@ -1,6 +1,8 @@
 namespace Aegis.Simulation;
 
-public enum RunStatus { Ready, Running, Paused, Completed }
+public enum RunStatus { Ready, Running, Paused, Completed, SupplyExhausted }
+public enum VehiclePhase { AtDepot, Outbound, Returning }
+public sealed record VehicleState(VehiclePhase Phase, string? Destination, int Load, int TicksRemaining, int Duration);
 public sealed record ShelterState(string Name, int InitialDemand, int Remaining, int BlockedUntil = 0);
 public sealed record DeliveryEvent(int Tick, string Shelter, int Amount, string Kind = "Delivery");
 
@@ -15,6 +17,10 @@ public sealed class SimulationSession
     public int InitialDemand { get; }
     public ScenarioDefinition Scenario { get; }
     public RunStatus Status { get; private set; }
+    public bool UsesLogistics => Scenario.SchemaVersion == 2;
+    public int? DepotStockRemaining { get; private set; }
+    public int RestockedTotal { get; private set; }
+    public VehicleState Vehicle { get; private set; } = new(VehiclePhase.AtDepot, null, 0, 0, 0);
     public IReadOnlyList<ShelterState> Shelters => Array.AsReadOnly(shelters);
 
     public SimulationSession(IEnumerable<(string Name, int Demand)> definitions, int capacity)
@@ -36,6 +42,19 @@ public sealed class SimulationSession
     public SimulationSession(ScenarioDefinition scenario) : this(Validated(scenario).Shelters.Select(s => (s.Name, s.Demand)), scenario.Capacity)
     {
         Scenario = scenario with { Shelters = scenario.Shelters.ToArray() };
+        DepotStockRemaining = scenario.DepotStock;
+        UpdateLogisticsStatus();
+    }
+
+    public void Restock(int amount)
+    {
+        if (!UsesLogistics) throw new InvalidOperationException("Restocking requires a schema 2 logistics scenario.");
+        if (Status == RunStatus.Completed) throw new InvalidOperationException("Completed runs are immutable.");
+        if (amount <= 0 || (long)Scenario.DepotStock!.Value + RestockedTotal + amount > 10000)
+            throw new ArgumentOutOfRangeException(nameof(amount), "Total supplied stock must stay within 10000 packets.");
+        DepotStockRemaining += amount;
+        RestockedTotal += amount;
+        if (Status == RunStatus.SupplyExhausted) Status = RunStatus.Paused;
     }
 
     private static ScenarioDefinition Validated(ScenarioDefinition scenario)
@@ -70,8 +89,9 @@ public sealed class SimulationSession
     // Running: automatic tick. Ready/Paused: one manual tick. Completed: reject.
     public DeliveryEvent Step()
     {
-        if (Status == RunStatus.Completed) throw new InvalidOperationException("Reset before advancing a completed run.");
+        if (Status is RunStatus.Completed or RunStatus.SupplyExhausted) throw new InvalidOperationException("Reset a completed run, or restock a supply-exhausted run before advancing.");
         if (Tick >= 20000) throw new InvalidOperationException("Exercise tick limit reached; reset or use a smaller scenario.");
+        if (UsesLogistics) return StepLogistics();
         int nextTick = Tick + 1;
         int index = Array.FindIndex(shelters, s => s.Remaining > 0 && s.BlockedUntil < nextTick);
         if (index < 0) { Tick = nextTick; return new DeliveryEvent(Tick, "All pending routes closed", 0, "Waiting"); }
@@ -90,6 +110,53 @@ public sealed class SimulationSession
         Tick = 0;
         DeliveredTotal = 0;
         Status = InitialDemand == 0 ? RunStatus.Completed : RunStatus.Ready;
+        DepotStockRemaining = Scenario.DepotStock;
+        RestockedTotal = 0;
+        Vehicle = new(VehiclePhase.AtDepot, null, 0, 0, 0);
+        UpdateLogisticsStatus();
+    }
+
+    private DeliveryEvent StepLogistics()
+    {
+        Tick++;
+        if (Vehicle.Phase == VehiclePhase.Outbound)
+        {
+            int index = Array.FindIndex(shelters, s => s.Name == Vehicle.Destination);
+            if (shelters[index].BlockedUntil >= Tick) return new(Tick, Vehicle.Destination!, 0, "RouteWait");
+            Vehicle = Vehicle with { TicksRemaining = Vehicle.TicksRemaining - 1 };
+            if (Vehicle.TicksRemaining > 0) return new(Tick, Vehicle.Destination!, 0, "Travelling");
+            int amount = Vehicle.Load;
+            string destination = Vehicle.Destination!;
+            shelters[index] = shelters[index] with { Remaining = shelters[index].Remaining - amount };
+            DeliveredTotal += amount;
+            Vehicle = Scenario.ReturnTicks == 0 ? new(VehiclePhase.AtDepot, null, 0, 0, 0) :
+                new(VehiclePhase.Returning, destination, 0, Scenario.ReturnTicks, Scenario.ReturnTicks);
+            UpdateLogisticsStatus();
+            return new(Tick, destination, amount);
+        }
+        if (Vehicle.Phase == VehiclePhase.Returning)
+        {
+            string destination = Vehicle.Destination!;
+            Vehicle = Vehicle with { TicksRemaining = Vehicle.TicksRemaining - 1 };
+            if (Vehicle.TicksRemaining == 0) Vehicle = new(VehiclePhase.AtDepot, null, 0, 0, 0);
+            UpdateLogisticsStatus();
+            return new(Tick, destination, 0, Vehicle.Phase == VehiclePhase.AtDepot ? "Returned" : "Returning");
+        }
+        int target = Array.FindIndex(shelters, s => s.Remaining > 0 && s.BlockedUntil < Tick);
+        if (target < 0) return new(Tick, "All pending routes closed", 0, "Waiting");
+        int load = Math.Min(Math.Min(Capacity, DepotStockRemaining!.Value), shelters[target].Remaining);
+        DepotStockRemaining -= load;
+        var definition = Scenario.Shelters.First(s => s.Name == shelters[target].Name);
+        int duration = definition.TravelTicks ?? Scenario.TravelTicks;
+        Vehicle = new(VehiclePhase.Outbound, shelters[target].Name, load, duration, duration);
+        return new(Tick, shelters[target].Name, 0, "Dispatched");
+    }
+
+    private void UpdateLogisticsStatus()
+    {
+        if (!UsesLogistics || Vehicle.Phase != VehiclePhase.AtDepot) return;
+        if (DeliveredTotal == InitialDemand) Status = RunStatus.Completed;
+        else if (DepotStockRemaining == 0) Status = RunStatus.SupplyExhausted;
     }
 
     public static SimulationSession CreateDemo() => new(ScenarioDefinition.FloodDemo());

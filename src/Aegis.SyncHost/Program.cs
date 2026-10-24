@@ -16,6 +16,7 @@ var secrets = File.Exists(secretPath) ? JsonSerializer.Deserialize<SessionSecret
 if (!File.Exists(secretPath)) File.WriteAllText(secretPath, JsonSerializer.Serialize(secrets));
 builder.Services.AddSignalR(options => { options.MaximumReceiveMessageSize = 32768; options.EnableDetailedErrors = false; });
 builder.Services.AddSingleton(new RunRepository(Path.Combine(directory, "runs.db")));
+builder.Services.AddSingleton(builder.Configuration["scenario"] is { } scenarioFile ? ScenarioFiles.Load(scenarioFile) : ScenarioDefinition.FloodDemo());
 builder.Services.AddSingleton<ExerciseRoom>();
 builder.Services.AddHostedService<ExerciseClock>();
 var app = builder.Build();
@@ -45,11 +46,11 @@ public sealed class ExerciseRoom
     private readonly RunRepository repository;
     private RunDocument current;
     private long revision;
-    public ExerciseRoom(RunRepository repository)
+    public ExerciseRoom(RunRepository repository, ScenarioDefinition initialScenario)
     {
         this.repository = repository;
         var saved = repository.List().FirstOrDefault();
-        current = saved == null ? RunHistory.New(ScenarioDefinition.FloodDemo()) : repository.Load(saved.Id);
+        current = saved == null ? RunHistory.New(initialScenario) : repository.Load(saved.Id);
         repository.Save(current);
     }
     public async Task<RoomSnapshot> Read()
@@ -62,7 +63,7 @@ public sealed class ExerciseRoom
         await gate.WaitAsync();
         try
         {
-            if (request.Command.Id == Guid.Empty || request.Command.Type == "Reset" && (request.Command.Target != null || request.Command.Duration != 0))
+            if (request.Command.Id == Guid.Empty || request.Command.Type == "Reset" && (request.Command.Target != null || request.Command.Duration != 0 || request.Command.Amount != 0))
                 throw new ArgumentException("Invalid command identity or fields.");
             if (request.Command.Type == "Reset" && current.CreationCommandId == request.Command.Id) return new(revision, current);
             var duplicate = current.Commands.FirstOrDefault(c => c.Command.Id == request.Command.Id);

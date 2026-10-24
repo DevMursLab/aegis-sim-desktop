@@ -42,6 +42,8 @@ public static class Reports
             <p>Status: {{replay.Session.Status}} / Tick: {{metrics.Ticks}} / Delivered: {{metrics.Delivered}} / Remaining: {{metrics.Remaining}}</p>
             <p>Completion: {{metrics.CompletionPercent:0.0}}% / Mean service tick: {{metrics.MeanServiceTick:0.00}} / Active ticks: {{metrics.ActiveTickPercent:0.0}}%</p>
             <p>Waiting ticks: {{metrics.WaitingTicks}} / Closure commands: {{metrics.Closures}}</p>
+            <p>Model schema: {{document.Scenario.SchemaVersion}} / Depot stock: {{(metrics.DepotStockRemaining.HasValue ? metrics.DepotStockRemaining.Value.ToString(CultureInfo.InvariantCulture) : "unlimited (legacy)")}} / In transit: {{metrics.InTransit}} / Restocked: {{metrics.RestockedTotal}}</p>
+            <p>Outbound travel ticks (including arrival and blocked-route delays): {{metrics.OutboundTicks}} / Return ticks: {{metrics.ReturnTicks}}</p>
             </div>
             <table><tr><th>Shelter</th><th>Initial</th><th>Remaining</th></tr>{{rows}}</table>
             <h2>Reproducibility</h2><p>Verified ordered commands: {{document.Commands.Length}}. Final state SHA-256:</p>
@@ -49,8 +51,9 @@ public static class Reports
             <h2>Methods and limitations</h2>
             <p>All demand is available at tick zero. Mean service tick is packet-weighted delivery tick; it is not measured real-world waiting time.
             Active tick percentage is delivery ticks divided by elapsed ticks; zero elapsed ticks give zero active percentage.
-            Fixed-step synthetic model, fresh load per visit, no travel-time physics or real-world effectiveness claim.
-            Route closure makes a shelter unavailable for logical ticks. PDF, HTML and CSV derive from verified replay.</p></html>
+            Schema 1 uses instant visits and unlimited reload supply. Schema 2 reserves finite stock at dispatch and delivers after configured outbound ticks;
+            it waits for the final return to complete. Travel ticks are scenario settings, not distance/speed physics. Route closure freezes outbound progress;
+            return travel is unaffected. PDF, HTML and CSV derive from verified replay. No real-world effectiveness claim.</p></html>
             """;
         File.WriteAllText(stem + ".html", html);
     }

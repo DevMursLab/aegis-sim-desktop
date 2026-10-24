@@ -1,4 +1,4 @@
-# AEGIS-SIM Desktop / 2.0
+# AEGIS-SIM Desktop / 2.1
 
 A **synthetic civilian response-training simulator** built with C#, .NET 10, WPF/MVVM, EF Core/SQLite and SignalR. Run an exercise, inject a route closure, persist commands/events, reconstruct history and compare measured outcomes.
 
@@ -22,6 +22,7 @@ The supplied seed tool produces the same comparison every time: **baseline 6 tic
 | Desktop | Start, Pause, Resume, Step, Reset; command enablement and error feedback |
 | Map | Offline local-meter vector view, selection, inspector, pan/zoom, keyboard alternatives |
 | Scenarios | Bounded/versioned JSON and XML import/export; coordinates, unique names and quantities validated; XML DTD/external resolver disabled |
+| Logistics | Finite depot stock, cargo reservation, outbound/return ticks, shortage and replayable restock; vehicle position follows state |
 | Incidents | Selected shelter route closed for five ticks; availability, ordering and completion metrics change |
 | Persistence | Transactional EF Core SQLite runs, unique commands, typed tick events and checksummed checkpoints |
 | Replay | Durable command replay, state-hash validation, read-only timeline; original history remains immutable |
@@ -52,11 +53,23 @@ dotnet run --project src/Aegis.Desktop.Wpf -- --data-dir .\artifacts\review-demo
 
 The lesson launcher also supports a user-local SDK at `%LOCALAPPDATA%\Microsoft\dotnet`.
 
+## Stock and travel exercise
+
+Select **Stock + travel demo** in the source-built desktop, or import `assets/scenarios/finite-stock-travel.json`. Dispatch reserves cargo; arrival delivers it; the vehicle returns before loading again. The sample starts with 30 packets, stops at tick 16 with 18 still needed, then **Restock +20** permits completion at tick 24 with 2 in stock. Closure pauses an outbound vehicle; return travel is unaffected. [Bangla lesson 10](docs/learning/10-stock-travel.bn.md).
+
+The 2.1 source reads original 2.0 histories without changing their checksums. The published **v2.0.0 ZIP remains the earlier build**; use source for this increment. Older binaries cannot open 2.1 histories.
+
+![Actual desktop: reserved cargo travelling before delivery](docs/images/logistics-transit.png)
+
+[Shortage screen at tick 16](docs/images/logistics-shortage.png).
+
 ## Two desktop clients
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\start-multiplayer.ps1
 ```
+
+For a fresh logistics room, add `-DataDirectory .\artifacts\logistics-host -Scenario .\assets\scenarios\finite-stock-travel.json`. Existing saved room state takes precedence over the scenario option.
 
 This starts a hidden local host plus controller and observer windows. **Only the host advances a network run.** Controller Reset starts a new shared run; previous runs remain in the host database. The script prints the host PID so it can be stopped after the demo.
 
@@ -69,7 +82,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\package.ps1
 ```
 
-Verification performs a locked dependency restore, full Release build with warnings treated as errors, **49 executable console checks**, all earlier console lessons, real WPF interaction checks, and a two-window host-restart/reconnect check. Checks are console executables, not an xUnit/`dotnet test` suite.
+Verification performs a locked dependency restore, full Release build with warnings treated as errors, **69 executable console checks**, all earlier console lessons, real WPF interaction checks, and a two-window host-restart/reconnect check. Checks are console executables, not an xUnit/`dotnet test` suite.
 
 [GitHub Actions](https://github.com/DevMursLab/aegis-sim-desktop/actions/workflows/build.yml) runs the same Release build and console/integration checks on Windows with `-SkipUi`. Interactive WPF checks run locally. [Evidence and limits](docs/verification.md).
 
@@ -89,6 +102,6 @@ Simulation and presentation do not depend on WPF. A candidate command is replaye
 
 ## Scope and limits
 
-This is a **portfolio MVP**, using fictional civilian scenarios. It does not reproduce an institution's internal military software. All demand begins at tick zero; each delivery visit receives a fresh load. There is no stock/travel-time physics. Route closure restricts a shelter's availability; links do not compute geographic routes.
+This is a **portfolio MVP**, using fictional civilian scenarios. It does not reproduce an institution's internal military software. All demand begins at tick zero. Schema 1 retains instant delivery with a fresh load per visit. Schema 2 uses finite depot stock and configured travel/return ticks; it does not derive time from distance or speed. Route closure restricts a shelter's availability; links do not compute geographic routes.
 
 Coordinates are synthetic local meters, not GPS/GeoJSON/WGS84. AI forecasts, general GIS/projection import, cloud deployment, high-scale load testing, a signed installer and comprehensive accessibility/high-DPI audits are outside this release. Full snapshots and command replay favor a small, explainable demo over throughput. PDF uses ASCII labels; HTML/CSV preserve Unicode names. The initial database uses an explicit schema bootstrap/additive development upgrade; future schema evolution needs a migration plan.

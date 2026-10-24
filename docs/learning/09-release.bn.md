@@ -29,4 +29,4 @@ Windows x64 runtime-সহ ZIP তৈরি হয়। reviewer extract করে
 
 Demo চালানোর আগে [তিন মিনিটের script](../demo-script.md) অনুশীলন করো। প্রত্যেক গুরুত্বপূর্ণ class-এর দায়িত্ব বুঝে নিজের ভাষায় বলবে। নিজের বোঝা যাচাই না করে code প্রস্তুত হওয়াকে skill mastery ধরবে না।
 
-Known limits বলবে: কাল্পনিক map, প্রতিবার fresh load, travel-time physics নেই, loopback-only network, ছোট history-র synchronous replay, signed installer/AI/full GIS নেই। সত্যি working feature ও পরীক্ষার প্রমাণ দেখানোই review-এর ভিত্তি।
+Known limits বলবে: কাল্পনিক map, schema 1-এ প্রতিবার fresh load, schema 2-এ নির্দিষ্ট travel ticks আছে কিন্তু distance/speed physics নেই, loopback-only network, ছোট history-র synchronous replay, signed installer/AI/full GIS নেই। সত্যি working feature ও পরীক্ষার প্রমাণ দেখানোই review-এর ভিত্তি।

@@ -26,8 +26,11 @@
 | 07 | events, snapshots, replay | আগের state পুনরায় তৈরি | code ও পাঠ প্রস্তুত |
 | 08 | SignalR, sequence, reconnect | দুই client-এর একই run | code ও পাঠ প্রস্তুত |
 | 09 | metrics, reporting, packaging | demo ও Windows package | code ও পাঠ প্রস্তুত |
+| 10 | stock, cargo, vehicle phase, travel ticks | সীমিত মজুত ও যাত্রার simulation | code ও পাঠ প্রস্তুত |
 
 Testing ধাপ 03 থেকে নিয়মিত থাকবে; একদম শেষে যোগ করার বিষয় নয়। AI forecast মূল অ্যাপ স্থিতিশীল হলে ঐচ্ছিক।
+
+নতুন ধাপ: [Lesson 10 — মজুত ও যাত্রা](10-stock-travel.bn.md)। Desktop-এর **Stock + travel demo** দিয়ে শিখবে। আগে stock, cargo আর delivered-এর পার্থক্য বুঝবে; তারপর Step দিয়ে ফল মিলাবে।
 
 ## আজকের কাজ
 

@@ -15,6 +15,14 @@ public sealed class SyntheticMap : FrameworkElement
     public IReadOnlyList<MapNode>? Nodes { get => (IReadOnlyList<MapNode>?)GetValue(NodesProperty); set => SetValue(NodesProperty, value); }
     public string? SelectedName { get => (string?)GetValue(SelectedNameProperty); set => SetValue(SelectedNameProperty, value); }
     public string? LastDelivery { get => (string?)GetValue(LastDeliveryProperty); set => SetValue(LastDeliveryProperty, value); }
+    public static readonly DependencyProperty HasVehicleProperty = DependencyProperty.Register(nameof(HasVehicle), typeof(bool), typeof(SyntheticMap), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
+    public static readonly DependencyProperty VehicleXProperty = DependencyProperty.Register(nameof(VehicleX), typeof(double), typeof(SyntheticMap), new FrameworkPropertyMetadata(170.0, FrameworkPropertyMetadataOptions.AffectsRender));
+    public static readonly DependencyProperty VehicleYProperty = DependencyProperty.Register(nameof(VehicleY), typeof(double), typeof(SyntheticMap), new FrameworkPropertyMetadata(410.0, FrameworkPropertyMetadataOptions.AffectsRender));
+    public static readonly DependencyProperty VehicleDestinationProperty = DependencyProperty.Register(nameof(VehicleDestination), typeof(string), typeof(SyntheticMap), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+    public bool HasVehicle { get => (bool)GetValue(HasVehicleProperty); set => SetValue(HasVehicleProperty, value); }
+    public double VehicleX { get => (double)GetValue(VehicleXProperty); set => SetValue(VehicleXProperty, value); }
+    public double VehicleY { get => (double)GetValue(VehicleYProperty); set => SetValue(VehicleYProperty, value); }
+    public string? VehicleDestination { get => (string?)GetValue(VehicleDestinationProperty); set => SetValue(VehicleDestinationProperty, value); }
     public MapViewport Viewport { get; } = new();
     private Point dragStart, previous;
     private bool dragging;
@@ -50,13 +58,13 @@ public sealed class SyntheticMap : FrameworkElement
         {
             var world = new MapPoint(node.X, node.Y);
             Line(dc, depot, world, "#FCFEFD", 10);
-            Line(dc, depot, world, node.IsBlocked ? "#BC544B" : node.Name == LastDelivery ? "#D59935" : "#9BB8AE", 3);
+            Line(dc, depot, world, node.IsBlocked ? "#BC544B" : node.Name == (HasVehicle ? VehicleDestination : LastDelivery) ? "#D59935" : "#9BB8AE", 3);
             Point center = Screen(world);
             if (node.Name == SelectedName) dc.DrawEllipse(null, new Pen(Brush("#1B5E73"), 3), center, 22, 22);
             dc.DrawEllipse(Brush(node.IsBlocked ? "#BC544B" : node.Remaining == 0 ? "#277B65" : "#173C4F"), new Pen(Brush("#FFFFFF"), 3), center, 14, 14);
             Label(dc, node.Name, center.X + 25, center.Y - 22, "#173C4F", 14, true);
             Label(dc, node.IsBlocked ? $"CLOSED · {node.Remaining} left" : $"{node.Remaining} packets left", center.X + 25, center.Y + 1, "#526878", 12);
-            if (node.Name == LastDelivery)
+            if (node.Name == LastDelivery && !HasVehicle)
             {
                 dc.DrawRoundedRectangle(Brush("#E8AE48"), new Pen(Brush("#FFFFFF"), 2), new Rect(center.X - 38, center.Y - 8, 18, 16), 3, 3);
             }
@@ -64,6 +72,12 @@ public sealed class SyntheticMap : FrameworkElement
         var origin = Screen(depot);
         dc.DrawRoundedRectangle(Brush("#173C4F"), new Pen(Brush("#FFFFFF"), 3), new Rect(origin.X - 17, origin.Y - 17, 34, 34), 5, 5);
         Label(dc, "DEPOT", origin.X - 25, origin.Y + 26, "#173C4F", 13, true);
+        if (HasVehicle)
+        {
+            var vehicle = Screen(new(VehicleX, VehicleY));
+            dc.DrawRoundedRectangle(Brush("#E8AE48"), new Pen(Brush("#FFFFFF"), 2), new Rect(vehicle.X - 10, vehicle.Y - 8, 20, 16), 3, 3);
+            Label(dc, "VEHICLE", vehicle.X - 25, vehicle.Y - 30, "#735016", 10, true);
+        }
         Label(dc, "Synthetic local grid · meters", 16, 14, "#526878", 12);
         Label(dc, $"Zoom {Viewport.Zoom:0.0}×", 16, ActualHeight - 28, "#526878", 12);
     }

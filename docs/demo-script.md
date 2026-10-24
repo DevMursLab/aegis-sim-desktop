@@ -26,3 +26,7 @@ For a longer technical review, stop/restart the host while clients stay open. Wa
 - Which parts would need changing before internet deployment or large scenarios?
 
 State the limits plainly: synthetic local-meter map, fresh load per visit, no travel-time physics, local demo tokens, synchronous small-run persistence and no predictive AI claim.
+
+## Optional stock/travel extension (2.1 source)
+
+Select **Stock + travel demo**. Step twice: stock is reserved and cargo is moving, but delivered remains zero. Continue to tick 16: 30 delivered, 18 pending, SupplyExhausted. Restock +20, then step to completion at tick 24: 48 delivered, 2 in stock and vehicle at depot. Save/reload or replay the run to inspect the same inventory history. Baseline 6/8 comparisons above remain schema 1.

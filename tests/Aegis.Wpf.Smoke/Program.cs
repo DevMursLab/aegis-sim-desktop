@@ -70,6 +70,24 @@ internal static class Program
                 Require(vm.Tick == 0 && !Button(window, "StepButton").IsEnabled, "Read-only replay at tick zero");
                 vm.ReplayTick = 1; await Flush(); Require(vm.Tick == 1, "Replay slider updates rendered state");
                 Invoke(window, "ResetButton"); await Flush();
+                window.Width = 1320; window.Height = 1040; await Flush();
+                Invoke(window, "LogisticsDemoButton"); await Flush();
+                Require(vm.UsesLogistics && map.HasVehicle, "Logistics demo opens in actual window");
+                Invoke(window, "StepButton"); await Flush();
+                Invoke(window, "StepButton"); await Flush();
+                Require(vm.DeliveredTotal == 0 && map.VehicleX > 170, "Cargo moves before delivery");
+                SaveImage(window, "aegis-logistics-transit.png");
+                while (vm.Status != "SupplyExhausted" && vm.Tick < 30) { Invoke(window, "StepButton"); await Flush(); }
+                Require(vm.Tick == 16 && vm.DeliveredTotal == 30 && Button(window, "RestockButton").IsEnabled && !Button(window, "StepButton").IsEnabled, "Shortage controls and inventory");
+                SaveImage(window, "aegis-logistics-shortage.png");
+                var shortageSource = vm.Document;
+                Invoke(window, "RestockButton"); await Flush();
+                while (vm.Status != "Completed" && vm.Tick < 40) { Invoke(window, "StepButton"); await Flush(); }
+                Require(vm.Tick == 24 && vm.DeliveredTotal == 48, "Restock completes finite supply exercise");
+                SaveImage(window, "aegis-logistics-completed.png");
+                vm.LoadReplay(shortageSource); vm.ReplayTick = 2; await Flush();
+                Require(vm.DeliveredTotal == 0 && !Button(window, "RestockButton").IsEnabled, "Logistics replay is read-only");
+                vm.NewScenario(Aegis.Simulation.ScenarioDefinition.FloodDemo()); await Flush();
                 await NetworkWindowSmoke.Run(SaveImage);
                 Invoke(window, "StartButton"); window.Close();
                 Require(app.Windows.Count == 0, "Window closes while running");

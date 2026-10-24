@@ -101,7 +101,7 @@ public sealed class RunRepository
         if (savedEvents.Length != replay.Events.Length || savedEvents.Where((e, i) => e.Json != JsonSerializer.Serialize(replay.Events[i], ScenarioFiles.JsonOptions)).Any())
             throw new InvalidDataException("SQL event history does not match replay.");
         var checkpoint = db.Snapshots.AsNoTracking().Single(s => s.RunId == id && s.Sequence == document.Commands.Length);
-        if (checkpoint.Hash != row.StateHash || checkpoint.StateJson != JsonSerializer.Serialize(new { replay.Session.Tick, replay.Session.DeliveredTotal, replay.Session.Shelters }, ScenarioFiles.JsonOptions))
+        if (checkpoint.Hash != row.StateHash || checkpoint.StateJson != CheckpointJson(replay.Session))
             throw new InvalidDataException("SQL checkpoint does not match replay.");
         return document;
     }
@@ -138,9 +138,12 @@ public sealed class RunRepository
             Sequence = document.Commands.Length,
             Tick = row.Tick,
             Hash = row.StateHash,
-            StateJson = JsonSerializer.Serialize(new { replay.Session.Tick, replay.Session.DeliveredTotal, replay.Session.Shelters }, ScenarioFiles.JsonOptions)
+            StateJson = CheckpointJson(replay.Session)
         });
         db.SaveChanges();
         transaction.Commit();
     }
+    private static string CheckpointJson(SimulationSession session) => session.UsesLogistics ?
+        JsonSerializer.Serialize(new { session.Tick, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicle }, ScenarioFiles.JsonOptions) :
+        JsonSerializer.Serialize(new { session.Tick, session.DeliveredTotal, session.Shelters }, ScenarioFiles.JsonOptions);
 }

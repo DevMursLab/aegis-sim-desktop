@@ -23,6 +23,24 @@ public sealed class RunViewModel : INotifyPropertyChanged
     public int Tick => session.Tick;
     public int DeliveredTotal => session.DeliveredTotal;
     public int Remaining => session.InitialDemand - session.DeliveredTotal;
+    public bool UsesLogistics => session.UsesLogistics;
+    public string? VehicleDestination => session.Vehicle.Destination;
+    public string StockLabel => UsesLogistics ? $"Depot: {session.DepotStockRemaining} packets | In transit: {session.Vehicle.Load} | Added supply: {session.RestockedTotal}" : "Schema 1: legacy instant visits / unlimited reload supply";
+    public string VehicleLabel => !UsesLogistics ? "Vehicle: instantaneous lesson model" : session.Vehicle.Phase == VehiclePhase.AtDepot ?
+        session.Status == RunStatus.SupplyExhausted ? "Vehicle at depot / supply exhausted. Restock to resume." : "Vehicle at depot / ready" :
+        $"Vehicle {session.Vehicle.Phase}: {session.Vehicle.Destination} | Load {session.Vehicle.Load} | {session.Vehicle.TicksRemaining} travel ticks left";
+    public MapPoint VehiclePosition
+    {
+        get
+        {
+            var origin = new MapPoint(170, 410);
+            if (!UsesLogistics || session.Vehicle.Phase == VehiclePhase.AtDepot) return origin;
+            var target = document.Scenario.Shelters.First(s => s.Name == session.Vehicle.Destination);
+            double progress = 1.0 - (double)session.Vehicle.TicksRemaining / session.Vehicle.Duration;
+            if (session.Vehicle.Phase == VehiclePhase.Returning) progress = 1 - progress;
+            return new(origin.X + (target.X - origin.X) * progress, origin.Y + (target.Y - origin.Y) * progress);
+        }
+    }
     public string Status => faulted ? "Storage error" : IsReplay ? "Replay" : session.Status.ToString();
     public bool IsRunning => !remote && !IsReplay && !faulted && session.Status == RunStatus.Running;
     public bool IsLocal => !remote;
@@ -76,6 +94,7 @@ public sealed class RunViewModel : INotifyPropertyChanged
     public RelayCommand StepCommand { get; }
     public RelayCommand ResetCommand { get; }
     public RelayCommand CloseRouteCommand { get; }
+    public RelayCommand RestockCommand { get; }
     private bool CanControl => !busy && !faulted && !IsReplay && (!remote || connected && !observer);
 
     public RunViewModel(SimulationSession initialSession)
@@ -90,11 +109,13 @@ public sealed class RunViewModel : INotifyPropertyChanged
         ResetCommand = new(() => { if (remote) Submit("Reset"); else NewScenario(document.Scenario); }, () => !busy && (!remote || connected && !observer));
         CloseRouteCommand = new(() => Submit("CloseRoute", SelectedShelterName, 5),
             () => CanControl && session.Status != RunStatus.Completed && SelectedShelterName != null);
+        RestockCommand = new(() => Submit("Restock", amount: 20),
+            () => CanControl && UsesLogistics && session.Status != RunStatus.Completed && session.Scenario.DepotStock!.Value + session.RestockedTotal + 20 <= 10000);
     }
     public void Advance() { if (IsRunning && !busy) Submit("Step"); }
-    private void Submit(string type, string? target = null, int duration = 0)
+    private void Submit(string type, string? target = null, int duration = 0, int amount = 0)
     {
-        var command = new ExerciseCommand(Guid.NewGuid(), type, target, duration);
+        var command = new ExerciseCommand(Guid.NewGuid(), type, target, duration, amount);
         if (remote) { _ = SendRemote(command); return; }
         try
         {
@@ -153,6 +174,6 @@ public sealed class RunViewModel : INotifyPropertyChanged
     private void Refresh()
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
-        StartCommand.Refresh(); PauseCommand.Refresh(); StepCommand.Refresh(); ResetCommand.Refresh(); CloseRouteCommand.Refresh();
+        StartCommand.Refresh(); PauseCommand.Refresh(); StepCommand.Refresh(); ResetCommand.Refresh(); CloseRouteCommand.Refresh(); RestockCommand.Refresh();
     }
 }

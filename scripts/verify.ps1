@@ -9,7 +9,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Locked dependency restore failed.' }
     & $dotnet build Aegis.Sim.slnx -c Release --no-restore -warnaserror
     if ($LASTEXITCODE -ne 0) { throw 'Release build failed.' }
-    foreach ($project in @('tests/Aegis.Lesson03.Checks', 'tests/Aegis.Desktop.Checks', 'tests/Aegis.Integration.Checks')) {
+    foreach ($project in @('tests/Aegis.Lesson03.Checks', 'tests/Aegis.Desktop.Checks', 'tests/Aegis.Integration.Checks', 'tests/Aegis.Logistics.Checks')) {
         & $dotnet run --project $project -c Release --no-build
         if ($LASTEXITCODE -ne 0) { throw "Checks failed: $project" }
     }

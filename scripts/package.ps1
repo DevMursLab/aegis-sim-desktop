@@ -7,8 +7,8 @@ New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 $localDotnet = Join-Path $env:LOCALAPPDATA 'Microsoft\dotnet\dotnet.exe'
 $dotnet = if (Test-Path -LiteralPath $localDotnet) { $localDotnet } else { 'dotnet' }
 foreach ($item in @(@('Aegis.Desktop.Wpf','app'), @('Aegis.SyncHost','host'), @('Aegis.Tools','tools'))) {
-    $releaseLock = Join-Path $OutputDirectory ($item[0] + '.packages.lock.json')
-    & $dotnet publish (Join-Path $repoRoot "src\$($item[0])") -c Release -r win-x64 --self-contained true -p:DebugType=None -p:DebugSymbols=false "-p:NuGetLockFilePath=$releaseLock" -o (Join-Path $OutputDirectory $item[1])
+    $releaseLocks = Join-Path $OutputDirectory 'dependency-locks'
+    & $dotnet publish (Join-Path $repoRoot "src\$($item[0])") -c Release -r win-x64 --self-contained true -p:DebugType=None -p:DebugSymbols=false "-p:ReleaseLockRoot=$releaseLocks" -o (Join-Path $OutputDirectory $item[1])
     if ($LASTEXITCODE -ne 0) { throw "Publishing failed: $($item[0])" }
 }
 Copy-Item -LiteralPath (Join-Path $repoRoot 'README.md') -Destination $OutputDirectory

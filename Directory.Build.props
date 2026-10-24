@@ -6,5 +6,6 @@
   <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   <NuGetAudit>true</NuGetAudit>
   <NuGetAuditMode>all</NuGetAuditMode>
+  <NuGetLockFilePath Condition="'$(ReleaseLockRoot)' != ''">$(ReleaseLockRoot)\$(MSBuildProjectName).packages.lock.json</NuGetLockFilePath>
  </PropertyGroup>
 </Project>

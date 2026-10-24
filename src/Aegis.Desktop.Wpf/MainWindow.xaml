@@ -39,6 +39,7 @@
     <Button Content="Export report" Tag="Report" Click="Workspace_Click" Padding="12,6"/>
     <Menu Background="Transparent" VerticalAlignment="Center" Margin="0,0,8,0">
      <MenuItem Header="Tools">
+      <MenuItem x:Name="EditorMenu" Header="Scenario editor" Tag="Editor" Click="Workspace_Click" IsEnabled="{Binding IsLocal}"/>
       <MenuItem x:Name="LayersMenu" Header="Offline GeoJSON layers" Tag="Layers" Click="Workspace_Click"/>
       <MenuItem x:Name="PreviewMenu" Header="Completion preview" Tag="Preview" Click="Workspace_Click"/>
       <MenuItem x:Name="DiagnosticsMenu" Header="Export diagnostics" Tag="Diagnostics" Click="Workspace_Click"/>

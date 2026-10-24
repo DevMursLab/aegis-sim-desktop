@@ -1,4 +1,12 @@
-# 2.2.0 — offline inspection and planning
+# 2.3 source - local scenario editor
+
+Adds a separate draft editor for schema 1/2 scenarios: editable shelter table, bounded numeric fields, stock/travel settings, validation, JSON/XML save and creation of a new saved run. Original scenario/history remains available. Editor is local only. Failed validation or storage keeps the draft open.
+
+101 console checks and extended real WPF flows cover this increment. The simulation engine stays 2.1.0; persisted hash semantics do not change. The published 2.2.0 binary remains the previous release and does not contain the editor.
+
+Remaining: multiple vehicles, priority dispatch, geographical simulation integration, migration/performance work and the deployment/acceptance items below.
+
+## Historical 2.2.0 — offline inspection and planning
 
 This desktop release combines the 2.1 finite-stock/travel increment with three review tools:
 

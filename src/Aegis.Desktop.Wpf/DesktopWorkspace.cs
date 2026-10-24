@@ -16,6 +16,14 @@ public sealed class DesktopWorkspace(MainWindow window, RunViewModel model, RunR
             if (model.IsRunning && action is "Logistics" or "Import" or "History") model.PauseCommand.Execute(null);
             switch (action)
             {
+                case "Editor":
+                    if (!model.IsLocal) throw new InvalidOperationException("Scenario editing is local only.");
+                    new ScenarioEditorWindow(model.Document.Scenario, scenario =>
+                    {
+                        Guid previous = model.Document.Id; model.NewScenario(scenario);
+                        return model.Document.Id != previous ? null : model.Message;
+                    }) { Owner = window }.Show();
+                    break;
                 case "Layers": new LayerWindow { Owner = window }.Show(); break;
                 case "Preview": new PreviewWindow(model.Document, model.IsReplay ? model.ReplayTick : null) { Owner = window }.Show(); break;
                 case "Diagnostics":

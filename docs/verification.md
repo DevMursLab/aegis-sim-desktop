@@ -1,6 +1,6 @@
-# Verification / 2.2 desktop
+# Verification / 2.3 source
 
-Local environment: Windows x64, .NET SDK **10.0.402**, 24 October 2026.
+Local environment: Windows x64, .NET SDK **10.0.402**, 25 October 2026.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
@@ -13,11 +13,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 | Desktop/model/map | 20 checks: lifecycle, commands, reset, conservation, map transforms/hit-testing and notifications |
 | Integration | 22 checks: scenario interchange, SQL/replay integrity, storage failure, metrics/reports, independent process reload and actual SignalR host/client behavior |
 | Logistics | 20 checks: cargo/stock conservation, travel boundaries, shortage/restock, closure, JSON/XML, legacy 2.0 golden history/SQL, persistence, replay, metrics/reports and live host roles |
-| Quality | 20 checks: GeoJSON validation/projection, geometry bounds, deterministic completion/shortage/replay preview, cancellation, tick limit and diagnostics privacy |
+| Quality | 32 checks: GeoJSON validation/projection, geometry bounds, deterministic completion/shortage/replay preview, cancellation, tick limit, diagnostics privacy and 12 editor checks (validation, isolation, culture, row bounds, JSON/XML interchange) |
 | Local WPF | Actual buttons/bindings/timer, map/inspector sync, replay seek, reset, close; default/minimum window rendering; stock/travel demo, moving cargo, shortage controls, restock completion and read-only logistics replay; actual GIS viewer import/selection/error preservation and asynchronous completion preview |
 | Two WPF clients | Incident sync, observer write disabled, stale state, automatic reconnect after actual host restart |
 
-**89 console checks**, plus the interactive WPF flows. These are executable checks; run the script rather than `dotnet test`. GitHub Actions runs build/console/integration validation with `-SkipUi`; inspect the actual workflow result for each commit.
+**101 console checks**, plus the interactive WPF flows. These are executable checks; run the script rather than `dotnet test`. GitHub Actions runs build/console/integration validation with `-SkipUi`; inspect the actual workflow result for each commit.
 
 ## Observed reproducible result
 
@@ -55,3 +55,5 @@ PDF uses ASCII labels with Unicode replacements; HTML/CSV preserve full Unicode.
 Run `scripts/profile.ps1` to write `artifacts/performance.json`. Three warmups, fifteen measured serial samples, 1000 ticks or verified commands per sample, processor/runtime/OS and hash included. This measures engine and replay only; SQL, UI and network are excluded. Diagnostics export is a single process observation, not this repeated profile.
 
 [Observed local sample, 25 October 2026](evidence/performance-2026-10-25.json): median 0.1941 ms per 1000 engine ticks and 4.0988 ms per 1000 verified replay commands on the recorded Windows x64 / Intel environment. Includes final hash checks and three warmups; these small, uncontended samples do not measure user-visible latency or promise performance on another machine.
+
+Editor WPF flow: open via Tools, reject invalid capacity, add/remove rows, save/reload XML, create a new run without changing the old scenario, discard a draft and retain input after a failed creation callback.

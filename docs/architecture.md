@@ -1,4 +1,4 @@
-# AEGIS-SIM 2.2 desktop / engine 2.1 architecture
+# AEGIS-SIM 2.3 source / engine 2.1 architecture
 
 ```mermaid
 flowchart TD
@@ -59,3 +59,7 @@ Diagnostics export verifies full selected history and emits bounded run/runtime 
 ## Current scale
 
 Small single-writer exercises; local simulation and persistence currently run on the UI dispatcher. Large scenarios can block the UI. No timing benchmark or production readiness is claimed. Distance/speed physics, general GIS import/projections, predictive AI, cloud hosting and signed deployment are outside this release. See verification and learning notes.
+
+## Scenario draft editing
+
+Presentation ScenarioDraft retains incomplete form input as strings, parses invariant numbers and builds a fresh validated ScenarioDefinition. Original and previously built shelter arrays are never edited. The WPF editor commits cell edits before validation, saves only validated JSON/XML, and starts a separate local run through the existing persist-before-publish path. Failed storage preserves the draft. Opening/closing a draft does not submit simulation commands; a running exercise may continue until the user starts a new run. Multiplayer scenario editing is disabled and rejected by the workspace.

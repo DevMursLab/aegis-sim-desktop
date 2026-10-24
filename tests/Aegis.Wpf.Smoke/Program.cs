@@ -107,6 +107,37 @@ internal static class Program
                 var goodLayer = geoMap.Layer;
                 Require(!layers.TryLoad(Path.Combine(sourceRoot, "assets", "scenarios", "finite-stock-travel.json")) && ReferenceEquals(geoMap.Layer, goodLayer), "Failed map import preserves loaded layer");
                 geoMap.Zoom(1.2); geoMap.Fit(); layers.Close();
+                var beforeEditing = vm.Document;
+                ((IInvokeProvider)new MenuItemAutomationPeer((MenuItem)window.FindName("EditorMenu")).GetPattern(PatternInterface.Invoke)).Invoke(); await Flush();
+                var editor = app.Windows.OfType<ScenarioEditorWindow>().Single();
+                Require(!((TextBox)editor.FindName("DepotStockInput")).IsEnabled, "Legacy editor disables stock fields");
+                ((IToggleProvider)new CheckBoxAutomationPeer((CheckBox)editor.FindName("LogisticsMode")).GetPattern(PatternInterface.Toggle)).Toggle(); await Flush();
+                Require(editor.Draft.UsesLogistics && ((TextBox)editor.FindName("DepotStockInput")).IsEnabled, "Mode toggle enables stock inputs through binding");
+                ((TextBox)editor.FindName("CapacityInput")).Text = "bad";
+                InvokeButton(editor, "StartScenarioButton"); await Flush();
+                Require(editor.IsVisible && vm.Document.Id == beforeEditing.Id && ((TextBlock)editor.FindName("EditorStatus")).Text.Contains("Capacity"), "Invalid editor input cannot create a run");
+                ((TextBox)editor.FindName("CapacityInput")).Text = "12";
+                ((TextBox)editor.FindName("NameInput")).Text = "Edited training exercise";
+                InvokeButton(editor, "AddShelterButton"); await Flush();
+                Require(editor.Draft.Shelters.Count == 4, "Editor add row");
+                ((DataGrid)editor.FindName("ShelterEditorGrid")).SelectedItem = editor.Draft.Shelters[^1];
+                InvokeButton(editor, "RemoveShelterButton"); await Flush(); Require(editor.Draft.Shelters.Count == 3, "Editor remove selected row");
+                string editedPath = Path.Combine(Path.GetTempPath(), "aegis-ui-edited-" + Guid.NewGuid().ToString("N") + ".xml");
+                Require(editor.SaveTo(editedPath) && Aegis.Infrastructure.ScenarioFiles.Load(editedPath).Capacity == 12, "Editor saves validated XML");
+                InvokeButton(editor, "ValidateScenarioButton"); await Flush();
+                SaveImage(editor, "aegis-scenario-editor.png");
+                InvokeButton(editor, "StartScenarioButton"); await Flush();
+                Require(!editor.IsVisible && vm.Document.Id != beforeEditing.Id && vm.Tick == 0 && vm.Document.Scenario.Capacity == 12 && beforeEditing.Scenario.Capacity == 10, "Start edited scenario creates a separate saved run");
+                var createdId = vm.Document.Id;
+                ((IInvokeProvider)new MenuItemAutomationPeer((MenuItem)window.FindName("EditorMenu")).GetPattern(PatternInterface.Invoke)).Invoke(); await Flush();
+                var cancelledEditor = app.Windows.OfType<ScenarioEditorWindow>().Single();
+                ((TextBox)cancelledEditor.FindName("CapacityInput")).Text = "99";
+                InvokeButton(cancelledEditor, "CloseEditorButton"); await Flush();
+                Require(vm.Document.Id == createdId && vm.Document.Scenario.Capacity == 12, "Closing draft discards unapplied changes");
+                var failedEditor = new ScenarioEditorWindow(vm.Document.Scenario, _ => "simulated storage failure") { Owner = window }; failedEditor.Show(); await Flush();
+                InvokeButton(failedEditor, "StartScenarioButton"); await Flush();
+                Require(failedEditor.IsVisible && ((TextBlock)failedEditor.FindName("EditorStatus")).Text.Contains("storage failure"), "Failed creation preserves editor draft"); failedEditor.Close();
+                vm.NewScenario(Aegis.Simulation.ScenarioDefinition.FloodDemo()); await Flush();
                 await NetworkWindowSmoke.Run(SaveImage);
                 Invoke(window, "StartButton"); window.Close();
                 Require(app.Windows.Count == 0, "Window closes while running");
@@ -119,6 +150,11 @@ internal static class Program
         return app.Run();
     }
     static Button Button(MainWindow window, string name) => (Button)window.FindName(name);
+    static void InvokeButton(Window window, string name)
+    {
+        var button = (Button)window.FindName(name); Require(button.IsEnabled, name + " must be enabled");
+        ((IInvokeProvider)new ButtonAutomationPeer(button).GetPattern(PatternInterface.Invoke)).Invoke();
+    }
     static void SaveImage(Window window, string name)
     {
         var content = (FrameworkElement)window.Content;

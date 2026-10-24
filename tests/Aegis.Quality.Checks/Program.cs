@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Aegis.Infrastructure;
 using Aegis.Simulation;
+using Aegis.Presentation;
 
 int passed = 0;
 string sample = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "synthetic-region.geojson"));
@@ -124,6 +125,94 @@ Check("Completed and zero-demand projections do not invent extra ticks", () =>
     Require(CompletionPreview.Calculate(run).AdditionalTicks == 0);
     var empty = ScenarioDefinition.FloodDemo() with { Shelters = Array.Empty<ShelterDefinition>() };
     Require(CompletionPreview.Calculate(RunHistory.New(empty)).EndTick == 0);
+});
+Check("Editor copies both scenario schemas without changing their settings", () =>
+{
+    foreach (var scenario in new[] { ScenarioDefinition.FloodDemo(), ScenarioDefinition.LogisticsDemo() })
+    {
+        var draft = new ScenarioDraft(scenario); Require(draft.TryBuild(out var built, out _));
+        Require(JsonSerializer.Serialize(scenario) == JsonSerializer.Serialize(built));
+    }
+});
+Check("Draft edits do not mutate source or prior validated snapshots", () =>
+{
+    var source = ScenarioDefinition.LogisticsDemo(); var draft = new ScenarioDraft(source);
+    Require(draft.TryBuild(out var first, out _)); draft.Shelters[0].Demand = "1";
+    Require(source.Shelters[0].Demand == 25 && first!.Shelters[0].Demand == 25);
+    Require(draft.TryBuild(out var second, out _) && second!.Shelters[0].Demand == 1);
+});
+Check("Editor reports partial and malformed numeric fields without throwing", () =>
+{
+    foreach (string value in new[] { "", "-", "1.5", "abc", "2147483648" })
+    {
+        var draft = new ScenarioDraft(ScenarioDefinition.FloodDemo()) { Capacity = value };
+        Require(!draft.TryBuild(out var built, out string error) && built == null && error.Contains("Capacity"));
+    }
+});
+Check("Editor rejects duplicate shelter names and total demand overflow", () =>
+{
+    var draft = new ScenarioDraft(ScenarioDefinition.FloodDemo()); draft.Shelters[1].Name = " shelter-a ";
+    Require(!draft.TryBuild(out _, out _)); draft.Shelters[1].Name = "B"; draft.Shelters[0].Demand = "10000";
+    Require(!draft.TryBuild(out _, out _));
+});
+Check("Editor rejects nonfinite and out-of-bounds coordinates", () =>
+{
+    foreach (string coordinate in new[] { "NaN", "Infinity", "49", "1051", "1,000" })
+    {
+        var draft = new ScenarioDraft(ScenarioDefinition.FloodDemo()); draft.Shelters[0].X = coordinate;
+        Require(!draft.TryBuild(out _, out _));
+    }
+});
+Check("Editor preserves timing overrides and validates their bounds", () =>
+{
+    var draft = new ScenarioDraft(ScenarioDefinition.LogisticsDemo()); draft.Shelters[0].TravelTicks = "3";
+    Require(draft.TryBuild(out var built, out _) && built!.Shelters[0].TravelTicks == 3);
+    draft.Shelters[0].TravelTicks = "21"; Require(!draft.TryBuild(out _, out _));
+});
+Check("Legacy mode ignores disabled logistics fields without changing old rules", () =>
+{
+    var draft = new ScenarioDraft(ScenarioDefinition.LogisticsDemo()) { UsesLogistics = false, DepotStock = "bad", TravelTicks = "bad" };
+    Require(draft.TryBuild(out var built, out _) && built!.SchemaVersion == 1 && built.DepotStock == null && built.TravelTicks == 1 && built.ReturnTicks == 0);
+});
+Check("Adding shelters uses unique names and respects the 64-row limit", () =>
+{
+    var draft = new ScenarioDraft(ScenarioDefinition.FloodDemo());
+    while (draft.Shelters.Count < 64) Require(draft.AddShelter());
+    Require(!draft.AddShelter() && draft.Shelters.Select(s => s.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count() == 64);
+});
+Check("Editor accepts empty demand, zero stock and return zero", () =>
+{
+    var draft = new ScenarioDraft(ScenarioDefinition.LogisticsDemo()) { DepotStock = "0", ReturnTicks = "0" };
+    draft.Shelters.Clear(); Require(draft.TryBuild(out var built, out _));
+    Require(new SimulationSession(built!).Status == RunStatus.Completed);
+});
+Check("Editor parsing is invariant under a comma-decimal user culture", () =>
+{
+    var previous = System.Globalization.CultureInfo.CurrentCulture;
+    try
+    {
+        System.Globalization.CultureInfo.CurrentCulture = new("de-DE");
+        var draft = new ScenarioDraft(ScenarioDefinition.FloodDemo()); draft.Shelters[0].X = "480.5";
+        Require(draft.TryBuild(out var built, out _) && built!.Shelters[0].X == 480.5);
+    }
+    finally { System.Globalization.CultureInfo.CurrentCulture = previous; }
+});
+Check("Edited scenario JSON/XML saves reload with the same deterministic outcome", () =>
+{
+    string folder = Path.Combine(Path.GetTempPath(), "aegis-editor-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(folder);
+    var draft = new ScenarioDraft(ScenarioDefinition.LogisticsDemo()) { DepotStock = "48" };
+    Require(draft.TryBuild(out var built, out _));
+    foreach (string extension in new[] { ".json", ".xml" })
+    {
+        string path = Path.Combine(folder, "edited" + extension); ScenarioFiles.Save(path, built!);
+        var loaded = ScenarioFiles.Load(path); Require(CompletionPreview.Calculate(RunHistory.New(loaded)).EndTick == 24);
+    }
+});
+Check("Editor reports invalid names and notifies model-mode changes", () =>
+{
+    var draft = new ScenarioDraft(ScenarioDefinition.FloodDemo()); bool notified = false;
+    draft.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(ScenarioDraft.UsesLogistics)) notified = true; };
+    draft.UsesLogistics = true; Require(notified); draft.Name = "bad\nname"; Require(!draft.TryBuild(out _, out _));
 });
 Console.WriteLine($"All {passed} quality checks passed.");
 

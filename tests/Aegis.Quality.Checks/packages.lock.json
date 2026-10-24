@@ -192,10 +192,16 @@
       "aegis.infrastructure": {
         "type": "Project",
         "dependencies": {
-          "Aegis.Simulation": "[2.2.0, )",
+          "Aegis.Simulation": "[2.3.0, )",
           "Microsoft.EntityFrameworkCore.Sqlite": "[10.0.13, )",
           "PDFsharp": "[6.2.4, )",
           "System.Security.Cryptography.Pkcs": "[10.0.13, )"
+        }
+      },
+      "aegis.presentation": {
+        "type": "Project",
+        "dependencies": {
+          "Aegis.Simulation": "[2.3.0, )"
         }
       },
       "aegis.simulation": {

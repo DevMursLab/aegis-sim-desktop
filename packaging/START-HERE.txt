@@ -1,4 +1,4 @@
-AEGIS-SIM 2.2 / Windows x64 portfolio release
+AEGIS-SIM 2.3 / Windows x64 portfolio release
 
 No SDK or separately installed .NET runtime is required.
 Extract the complete ZIP to a writable folder before launching.
@@ -30,3 +30,5 @@ See docs/learning/10-stock-travel.bn.md.
 Tools menu: offline GeoJSON layers, completion preview and diagnostics export.
 Open assets/maps/synthetic-region.geojson in the GeoJSON viewer.
 Imported layers are view-only; simulation coordinates remain synthetic local meters.
+
+Tools / Scenario editor: local draft, validation, JSON/XML save and start as a new run.

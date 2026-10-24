@@ -1,4 +1,4 @@
-param([string]$Destination = (Join-Path $env:LOCALAPPDATA 'Programs\AEGIS-SIM\2.2.0'), [switch]$SkipShortcut)
+param([string]$Destination = (Join-Path $env:LOCALAPPDATA 'Programs\AEGIS-SIM\2.3.0'), [switch]$SkipShortcut)
 $ErrorActionPreference = 'Stop'
 $destination = [IO.Path]::GetFullPath($Destination)
 New-Item -ItemType Directory -Path $destination -Force | Out-Null

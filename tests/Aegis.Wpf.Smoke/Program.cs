@@ -157,6 +157,23 @@ internal static class Program
                 Require(vm.MapVehicles.Count == 4 && vm.Document.Id != fleetDone.Id, "Editor creates a four-vehicle scenario");
                 vm.LoadReplay(fleetDone); vm.ReplayTick = 3; await Flush();
                 Require(vm.DeliveredTotal == 25 && vm.EventRows.Count == 9 && !Button(window, "RestockButton").IsEnabled, "Fleet replay reconstructs simultaneous delivery read-only");
+                ((IInvokeProvider)new MenuItemAutomationPeer((MenuItem)window.FindName("PriorityDemoMenu")).GetPattern(PatternInterface.Invoke)).Invoke(); await Flush();
+                vm.SelectedShelterName = "Shelter-C";
+                while (vm.Status != "SupplyExhausted" && vm.Tick < 10) { Invoke(window, "StepButton"); await Flush(); }
+                Require(vm.Tick == 4 && vm.DeliveredTotal == 20 && vm.Shelters[2].Remaining == 0 && vm.Shelters[0].Remaining == 25, "Scarce stock protects the urgent shelter in the actual UI");
+                ((DataGrid)window.FindName("EventGrid")).SelectedIndex = 0; await Flush();
+                Require(Text(window, "DecisionReasonText").Contains("Priority 9") && Text(window, "SelectedDetailText").Contains("priority 9"), "Selected dispatch explanation and priority inspector bind");
+                SaveImage(window, "aegis-priority-demo.png");
+                var priorityDone = vm.Document;
+                ((IInvokeProvider)new MenuItemAutomationPeer((MenuItem)window.FindName("EditorMenu")).GetPattern(PatternInterface.Invoke)).Invoke(); await Flush();
+                var priorityEditor = app.Windows.OfType<ScenarioEditorWindow>().Single();
+                await EditPriority(priorityEditor, "10"); InvokeButton(priorityEditor, "StartScenarioButton"); await Flush();
+                Require(priorityEditor.IsVisible && vm.Document.Id == priorityDone.Id, "Invalid edited rank cannot create a run");
+                await EditPriority(priorityEditor, "8"); InvokeButton(priorityEditor, "StartScenarioButton"); await Flush();
+                Require(vm.Shelters[0].Priority == 8 && priorityDone.Scenario.Shelters[0].Priority == 0, "Actual grid edit changes only the new scenario");
+                Invoke(window, "StepButton"); await Flush(); Require(vm.EventRows[2].Shelter == "Shelter-A", "Edited priority changes dispatch order");
+                vm.LoadReplay(priorityDone); vm.ReplayTick = 1; await Flush();
+                Require(vm.EventRows[0].Reason!.Contains("Priority 9") && !Button(window, "RestockButton").IsEnabled, "Priority replay preserves provenance and stays read-only");
                 vm.NewScenario(Aegis.Simulation.ScenarioDefinition.FloodDemo()); await Flush();
                 Invoke(window, "StartButton"); window.Close();
                 Require(app.Windows.Count == 0, "Window closes while running");
@@ -169,6 +186,15 @@ internal static class Program
         return app.Run();
     }
     static Button Button(MainWindow window, string name) => (Button)window.FindName(name);
+    static async Task EditPriority(ScenarioEditorWindow editor, string text)
+    {
+        var grid = (DataGrid)editor.FindName("ShelterEditorGrid"); var row = editor.Draft.Shelters[0]; var column = grid.Columns[^1];
+        grid.ScrollIntoView(row, column); grid.UpdateLayout(); grid.SelectedItem = row; grid.CurrentCell = new(row, column); grid.Focus();
+        Require(grid.BeginEdit(), "Priority cell begins editing"); await Flush();
+        Require(column.GetCellContent(row) is TextBox, "Priority edit uses a real text cell");
+        ((TextBox)column.GetCellContent(row)).Text = text;
+        grid.CommitEdit(DataGridEditingUnit.Cell, true); grid.CommitEdit(DataGridEditingUnit.Row, true); await Flush();
+    }
     static void InvokeButton(Window window, string name)
     {
         var button = (Button)window.FindName(name); Require(button.IsEnabled, name + " must be enabled");

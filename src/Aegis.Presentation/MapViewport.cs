@@ -1,9 +1,9 @@
 namespace Aegis.Presentation;
 
 public readonly record struct MapPoint(double X, double Y);
-public sealed record MapNode(string Name, double X, double Y, int InitialDemand, int Remaining, bool IsBlocked = false);
+public sealed record MapNode(string Name, double X, double Y, int InitialDemand, int Remaining, bool IsBlocked = false, int Priority = 0);
 public sealed record MapVehicle(string Id, MapPoint Position, string? Destination, string Phase, int Load);
-public sealed record ExerciseEventRow(int Tick, string Vehicle, string Shelter, int Amount, string Kind);
+public sealed record ExerciseEventRow(int Tick, string Vehicle, string Shelter, int Amount, string Kind, string? Reason = null);
 
 // Synthetic planar coordinates in meters, not longitude/latitude or GPS.
 public sealed class MapViewport

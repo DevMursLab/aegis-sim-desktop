@@ -28,12 +28,13 @@ public static class Reports
         File.WriteAllText(stem + ".csv", csv.ToString(), new UTF8Encoding(true));
         if (replay.Session.UsesFleet)
         {
-            var detail = new StringBuilder("tick,vehicle,shelter,packets,kind\r\n");
+            bool priority = replay.Session.Shelters.Any(s => s.Priority != 0);
+            var detail = new StringBuilder("tick,vehicle,shelter,packets,kind" + (priority ? ",reason" : "") + "\r\n");
             foreach (var e in replay.Events)
-                foreach (var action in e.Actions!) detail.AppendLine($"{e.Tick},{Cell(action.VehicleId)},{Cell(action.Shelter)},{action.Amount},{Cell(action.Kind)}");
+                foreach (var action in e.Actions!) detail.AppendLine($"{e.Tick},{Cell(action.VehicleId)},{Cell(action.Shelter)},{action.Amount},{Cell(action.Kind)}" + (priority ? "," + Cell(action.Reason ?? "") : ""));
             File.WriteAllText(stem + "-vehicles.csv", detail.ToString(), new UTF8Encoding(true));
         }
-        string rows = string.Join("", replay.Session.Shelters.Select(s => $"<tr><td>{WebUtility.HtmlEncode(s.Name)}</td><td>{s.InitialDemand}</td><td>{s.Remaining}</td></tr>"));
+        string rows = string.Join("", replay.Session.Shelters.Select(s => $"<tr><td>{WebUtility.HtmlEncode(s.Name)}</td><td>{s.InitialDemand}</td><td>{s.Remaining}</td><td>{s.Priority}</td></tr>"));
         string html = $$"""
             <!doctype html>
             <html lang="en"><meta charset="utf-8"><title>AEGIS-SIM Run Report</title>
@@ -52,7 +53,7 @@ public static class Reports
             <p>Model schema: {{document.Scenario.SchemaVersion}} / Depot stock: {{(metrics.DepotStockRemaining.HasValue ? metrics.DepotStockRemaining.Value.ToString(CultureInfo.InvariantCulture) : "unlimited (legacy)")}} / In transit: {{metrics.InTransit}} / Restocked: {{metrics.RestockedTotal}}</p>
             <p>Vehicles: {{replay.Session.Vehicles.Count}} / Outbound vehicle-ticks (including arrival and blocked-route delays): {{metrics.OutboundTicks}} / Return ticks: {{metrics.ReturnTicks}}</p>
             </div>
-            <table><tr><th>Shelter</th><th>Initial</th><th>Remaining</th></tr>{{rows}}</table>
+            <table><tr><th>Shelter</th><th>Initial</th><th>Remaining</th><th>Priority</th></tr>{{rows}}</table>
             <h2>Reproducibility</h2><p>Verified ordered commands: {{document.Commands.Length}}. Final state SHA-256:</p>
             <code>{{RunHistory.Hash(replay.Session)}}</code>
             <h2>Methods and limitations</h2>
@@ -60,6 +61,7 @@ public static class Reports
             Active tick percentage is delivery ticks divided by elapsed ticks; zero elapsed ticks give zero active percentage.
             Schema 1 uses instant visits and unlimited reload supply. Schemas 2 and 3 reserve finite stock at dispatch and deliver after configured outbound ticks;
             schema 3 advances all vehicles on a shared tick, in stable vehicle-ID order. Outbound/return counts sum vehicle-ticks; waiting counts elapsed ticks with any route wait.
+            Fleet dispatch chooses the highest-priority open shelter with unreserved demand; ties preserve shelter-list order. Existing cargo is not reassigned. Priority is static per scenario, and no starvation-freedom or real-world urgency claim is made.
             it waits for the final return to complete. Travel ticks are scenario settings, not distance/speed physics. Route closure freezes outbound progress;
             return travel is unaffected. PDF, HTML and CSV derive from verified replay. No real-world effectiveness claim.</p></html>
             """;

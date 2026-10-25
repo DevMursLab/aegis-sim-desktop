@@ -12,6 +12,7 @@ public sealed class ShelterDraft
     public string X { get; set; } = "480";
     public string Y { get; set; } = "180";
     public string TravelTicks { get; set; } = "";
+    public string Priority { get; set; } = "0";
 }
 
 // Strings preserve incomplete user input until explicit validation. The source is never edited.
@@ -37,7 +38,7 @@ public sealed class ScenarioDraft : INotifyPropertyChanged
         FleetSize = Number(source.FleetSize ?? 3);
         DepotStock = Number(source.DepotStock ?? source.Shelters.Sum(s => s.Demand));
         TravelTicks = Number(source.TravelTicks); ReturnTicks = Number(source.ReturnTicks);
-        foreach (var s in source.Shelters) Shelters.Add(new() { Name = s.Name, Demand = Number(s.Demand), X = Number(s.X), Y = Number(s.Y), TravelTicks = s.TravelTicks.HasValue ? Number(s.TravelTicks.Value) : "" });
+        foreach (var s in source.Shelters) Shelters.Add(new() { Name = s.Name, Demand = Number(s.Demand), X = Number(s.X), Y = Number(s.Y), TravelTicks = s.TravelTicks.HasValue ? Number(s.TravelTicks.Value) : "", Priority = Number(s.Priority) });
     }
 
     public bool AddShelter()
@@ -59,7 +60,8 @@ public sealed class ScenarioDraft : INotifyPropertyChanged
             {
                 if (string.IsNullOrWhiteSpace(row.Name) || row.Name.Any(char.IsControl)) throw new ArgumentException("Each shelter needs a printable name.");
                 rows.Add(new(row.Name.Trim(), Integer(row.Demand, $"{row.Name}: demand"), Coordinate(row.X, $"{row.Name}: X"), Coordinate(row.Y, $"{row.Name}: Y"),
-                    UsesLogistics && !string.IsNullOrWhiteSpace(row.TravelTicks) ? Integer(row.TravelTicks, $"{row.Name}: travel override") : null));
+                    UsesLogistics && !string.IsNullOrWhiteSpace(row.TravelTicks) ? Integer(row.TravelTicks, $"{row.Name}: travel override") : null,
+                    UsesFleet ? Integer(row.Priority, $"{row.Name}: priority") : 0));
             }
             var candidate = new ScenarioDefinition(UsesFleet ? 3 : UsesLogistics ? 2 : 1, Name.Trim(), Integer(Capacity, "Capacity"), rows.ToArray(),
                 UsesLogistics ? Integer(DepotStock, "Depot stock") : null,

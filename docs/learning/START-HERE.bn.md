@@ -31,6 +31,7 @@
 | 12 | background task, continuation, diagnostics | আলাদা copy-তে preview ও measured profiling | code ও পাঠ প্রস্তুত |
 | 13 | draft model, validation, input binding | app-এর ভেতরে scenario editor | code ও পাঠ প্রস্তুত |
 | 14 | shared stock, reserved demand, deterministic scheduling | একসঙ্গে ১–৮টি গাড়ি | code ও পাঠ প্রস্তুত |
+| 15 | priority ordering, stable ties, decision trace | জরুরি shelter-কে আগে dispatch | code ও পাঠ প্রস্তুত |
 
 Testing ধাপ 03 থেকে নিয়মিত থাকবে; একদম শেষে যোগ করার বিষয় নয়। AI forecast মূল অ্যাপ স্থিতিশীল হলে ঐচ্ছিক।
 
@@ -41,6 +42,8 @@ Testing ধাপ 03 থেকে নিয়মিত থাকবে; একদ�
 নিজের exercise বানাতে [Lesson 13 — Scenario editor](13-scenario-editor.bn.md) পড়ো।
 
 তারপর [Lesson 14 — একাধিক গাড়ি](14-multiple-vehicles.bn.md)। Tools থেকে Three-vehicle demo চালাও।
+
+এরপর [Lesson 15 — Priority dispatch](15-priority-dispatch.bn.md)। একই কম stock কে আগে পাবে তা নির্ধারণ করো।
 
 ## আজকের কাজ
 

@@ -1,4 +1,4 @@
-# AEGIS-SIM Desktop / 2.4 source
+# AEGIS-SIM Desktop / 2.5 source
 
 A **synthetic civilian response-training simulator** built with C#, .NET 10, WPF/MVVM, EF Core/SQLite and SignalR. Run an exercise, inject a route closure, persist commands/events, reconstruct history and compare measured outcomes.
 
@@ -60,17 +60,23 @@ The lesson launcher also supports a user-local SDK at `%LOCALAPPDATA%\Microsoft\
 
 Select **Stock + travel demo** in the source-built desktop, or import `assets/scenarios/finite-stock-travel.json`. Dispatch reserves cargo; arrival delivers it; the vehicle returns before loading again. The sample starts with 30 packets, stops at tick 16 with 18 still needed, then **Restock +20** permits completion at tick 24 with 2 in stock. Closure pauses an outbound vehicle; return travel is unaffected. [Bangla lesson 10](docs/learning/10-stock-travel.bn.md).
 
-Desktop/engine 2.4 reads original 2.0 and 2.1 histories without changing their old hashes. Older binaries cannot open new engine 2.4 histories. [Release notes and remaining work](docs/release-notes.md).
+Desktop/engine 2.5 reads original 2.0, 2.1 and 2.4 histories without changing their old hashes. Older binaries cannot open new engine 2.5 histories. [Release notes and remaining work](docs/release-notes.md).
 
 ![Actual desktop: reserved cargo travelling before delivery](docs/images/logistics-transit.png)
 
 [Shortage screen at tick 16](docs/images/logistics-shortage.png).
 
-## Fleet simulation (2.4 source)
+## Priority dispatch (2.5 source)
+
+Select **Tools / Priority + limited stock demo** or import `assets/scenarios/priority-limited-stock.json`. Priority 0-9 applies to fleet scenarios only. Higher ranks go first among open routes with unreserved demand; ties keep source-list order. With 20 packets, C (rank 9) receives 18 and B (rank 5) receives 2; A (rank 0) waits. All vehicles return at tick 4 before supply exhaustion. Select a dispatch row for its decision trace. The editor exposes ranks; replay and per-vehicle CSV preserve reasons. [Bangla lesson 15](docs/learning/15-priority-dispatch.bn.md). Priority is static, not a live command or starvation-prevention guarantee.
+
+![Actual priority demo after scarce stock reaches the highest-priority shelters](docs/images/priority-demo.png)
+
+## Fleet simulation
 
 Select **Tools / Three-vehicle demo**, or import `assets/scenarios/three-vehicle-fleet.json`. Three capacity-10 vehicles share 48 packets and complete at tick 8 with outbound=2 and return=1. The matching one-vehicle model needs 24 ticks. All vehicles use stable IDs, cargo reservations prevent double allocation, and completion waits for every return. The editor accepts 1-8 vehicles. [Bangla lesson 14](docs/learning/14-multiple-vehicles.bn.md).
 
-Fleet actions persist inside one aggregate event per tick, preserving the SQL event key. The map and event table show each vehicle. PDF/HTML use replayed metrics; fleet export adds a per-vehicle CSV. Outbound/return counts are vehicle-ticks, while active percentage still counts elapsed ticks with any delivery. Priority dispatch is not implemented.
+Fleet actions persist inside one aggregate event per tick, preserving the SQL event key. The map and event table show each vehicle. PDF/HTML use replayed metrics; fleet export adds a per-vehicle CSV. Outbound/return counts are vehicle-ticks, while active percentage still counts elapsed ticks with any delivery. Static priority dispatch is supported: highest eligible rank first, with source-list order resolving ties; cargo already assigned is never redirected.
 
 ![Actual three-vehicle exercise with reserved cargo and per-vehicle history](docs/images/fleet-transit.png)
 
@@ -111,7 +117,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\package.ps1
 ```
 
-Verification performs a locked dependency restore, full Release build with warnings treated as errors, **121 executable console checks**, all earlier console lessons, real WPF interaction checks, and a two-window host-restart/reconnect check. Checks are console executables, not an xUnit/`dotnet test` suite.
+Verification performs a locked dependency restore, full Release build with warnings treated as errors, **137 executable console checks**, all earlier console lessons, real WPF interaction checks, and a two-window host-restart/reconnect check. Checks are console executables, not an xUnit/`dotnet test` suite.
 
 [GitHub Actions](https://github.com/DevMursLab/aegis-sim-desktop/actions/workflows/build.yml) runs the same Release build and console/integration checks on Windows with `-SkipUi`. Interactive WPF checks run locally. [Evidence and limits](docs/verification.md).
 

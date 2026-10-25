@@ -17,6 +17,7 @@ public sealed class DesktopWorkspace(MainWindow window, RunViewModel model, RunR
             switch (action)
             {
                 case "Fleet": model.NewScenario(ScenarioDefinition.FleetDemo()); break;
+                case "Priority": model.NewScenario(ScenarioDefinition.PriorityDemo()); break;
                 case "Editor":
                     if (!model.IsLocal) throw new InvalidOperationException("Scenario editing is local only.");
                     new ScenarioEditorWindow(model.Document.Scenario, scenario =>

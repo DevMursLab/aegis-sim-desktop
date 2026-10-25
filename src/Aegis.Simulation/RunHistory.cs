@@ -14,7 +14,7 @@ public sealed record ReconstructedRun(SimulationSession Session, DeliveryEvent[]
 
 public static class RunHistory
 {
-    public const string EngineVersion = "2.4.0";
+    public const string EngineVersion = "2.5.0";
     public static RunDocument New(ScenarioDefinition scenario)
     {
         scenario.Validate();
@@ -34,13 +34,15 @@ public static class RunHistory
 
     public static ReconstructedRun Replay(RunDocument document, int? targetTick = null)
     {
-        if (document == null || document.SchemaVersion != 1 || document.EngineVersion is not ("2.0.0" or "2.1.0" or EngineVersion) || document.Id == Guid.Empty ||
+        if (document == null || document.SchemaVersion != 1 || document.EngineVersion is not ("2.0.0" or "2.1.0" or "2.4.0" or EngineVersion) || document.Id == Guid.Empty ||
             document.Commands == null || document.Commands.Length > 25000)
             throw new InvalidDataException("Unsupported or invalid run document.");
         if (document.EngineVersion == "2.0.0" && document.Scenario.SchemaVersion != 1)
             throw new InvalidDataException("Engine 2.0 archives cannot contain schema 2 logistics.");
-        if (document.EngineVersion != EngineVersion && document.Scenario.SchemaVersion == 3)
+        if ((document.EngineVersion is "2.0.0" or "2.1.0") && document.Scenario.SchemaVersion == 3)
             throw new InvalidDataException("Fleet scenarios require engine 2.4.");
+        if (document.EngineVersion != EngineVersion && document.Scenario.Shelters.Any(s => s.Priority != 0))
+            throw new InvalidDataException("Nonzero priority requires engine 2.5.");
         var session = new SimulationSession(document.Scenario);
         var events = new List<DeliveryEvent>();
         var ids = new HashSet<Guid>();

@@ -24,6 +24,7 @@
     <Project Path="tests/Aegis.Logistics.Checks/Aegis.Logistics.Checks.csproj" />
     <Project Path="tests/Aegis.Quality.Checks/Aegis.Quality.Checks.csproj" />
     <Project Path="tests/Aegis.Fleet.Checks/Aegis.Fleet.Checks.csproj" />
+    <Project Path="tests/Aegis.Priority.Checks/Aegis.Priority.Checks.csproj" />
     <Project Path="tests/Aegis.Wpf.Smoke/Aegis.Wpf.Smoke.csproj" />
   </Folder>
 </Solution>

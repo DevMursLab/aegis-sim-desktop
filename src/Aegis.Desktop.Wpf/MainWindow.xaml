@@ -41,6 +41,7 @@
      <MenuItem Header="Tools">
       <MenuItem x:Name="EditorMenu" Header="Scenario editor" Tag="Editor" Click="Workspace_Click" IsEnabled="{Binding IsLocal}"/>
       <MenuItem x:Name="FleetDemoMenu" Header="Three-vehicle demo" Tag="Fleet" Click="Workspace_Click" IsEnabled="{Binding IsLocal}"/>
+      <MenuItem x:Name="PriorityDemoMenu" Header="Priority + limited stock demo" Tag="Priority" Click="Workspace_Click" IsEnabled="{Binding IsLocal}"/>
       <MenuItem x:Name="LayersMenu" Header="Offline GeoJSON layers" Tag="Layers" Click="Workspace_Click"/>
       <MenuItem x:Name="PreviewMenu" Header="Completion preview" Tag="Preview" Click="Workspace_Click"/>
       <MenuItem x:Name="DiagnosticsMenu" Header="Export diagnostics" Tag="Diagnostics" Click="Workspace_Click"/>
@@ -98,7 +99,7 @@
     </Grid>
    </Border>
    <Grid Grid.RowSpan="2" Grid.Column="2">
-    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="140"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="140"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
     <TextBlock Text="INSPECT SHELTER" FontWeight="SemiBold" Margin="0,0,0,10"/>
     <ComboBox x:Name="ShelterPicker" Grid.Row="1" ItemsSource="{Binding ShelterNames}" SelectedItem="{Binding SelectedShelterName, Mode=TwoWay}" Padding="8" AutomationProperties.Name="Select shelter"/>
     <TextBlock x:Name="SelectedDetailText" Grid.Row="2" Text="{Binding SelectedDetail}" TextWrapping="Wrap" Margin="0,8,0,14" Foreground="#526878"/>
@@ -107,8 +108,10 @@
      <DataGridTextColumn Header="Shelter" Binding="{Binding Name}" Width="*"/>
      <DataGridTextColumn Header="Initial" Binding="{Binding InitialDemand}" Width="65"/>
      <DataGridTextColumn Header="Remaining" Binding="{Binding Remaining}" Width="85"/>
+     <DataGridTextColumn Header="Priority" Binding="{Binding Priority}" Width="60"/>
     </DataGrid.Columns>
    </DataGrid>
+   <TextBlock x:Name="DecisionReasonText" Grid.Row="6" Text="{Binding ElementName=EventGrid, Path=SelectedItem.Reason, TargetNullValue='Select a priority dispatch row to inspect its decision.'}" TextWrapping="Wrap" FontSize="11" Foreground="#526878" Margin="0,8,0,0"/>
    <TextBlock Grid.Row="4" Text="EXERCISE HISTORY" FontWeight="SemiBold" Margin="0,16,0,10"/>
    <DataGrid x:Name="EventGrid" Grid.Row="5" ItemsSource="{Binding EventRows}" RowHeight="26">
     <DataGrid.Columns>

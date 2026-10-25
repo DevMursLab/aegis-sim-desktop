@@ -73,7 +73,7 @@ public sealed class SyntheticMap : FrameworkElement
             if (node.Name == SelectedName) dc.DrawEllipse(null, new Pen(Brush("#1B5E73"), 3), center, 22, 22);
             dc.DrawEllipse(Brush(node.IsBlocked ? "#BC544B" : node.Remaining == 0 ? "#277B65" : "#173C4F"), new Pen(Brush("#FFFFFF"), 3), center, 14, 14);
             Label(dc, node.Name, center.X + 25, center.Y - 22, "#173C4F", 14, true);
-            Label(dc, node.IsBlocked ? $"CLOSED · {node.Remaining} left" : $"{node.Remaining} packets left", center.X + 25, center.Y + 1, "#526878", 12);
+            Label(dc, (node.Priority > 0 ? $"P{node.Priority} · " : "") + (node.IsBlocked ? $"CLOSED · {node.Remaining} left" : $"{node.Remaining} packets left"), center.X + 25, center.Y + 1, "#526878", 12);
             if (node.Name == LastDelivery && !HasVehicle)
             {
                 dc.DrawRoundedRectangle(Brush("#E8AE48"), new Pen(Brush("#FFFFFF"), 2), new Rect(center.X - 38, center.Y - 8, 18, 16), 3, 3);

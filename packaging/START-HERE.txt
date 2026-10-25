@@ -1,4 +1,4 @@
-AEGIS-SIM 2.4 / Windows x64 portfolio release
+AEGIS-SIM 2.5 / Windows x64 portfolio release
 
 No SDK or separately installed .NET runtime is required.
 Extract the complete ZIP to a writable folder before launching.

@@ -1,4 +1,4 @@
-# AEGIS-SIM 2.4 source / engine 2.4 architecture
+# AEGIS-SIM 2.5 source / engine 2.5 architecture
 
 ```mermaid
 flowchart TD
@@ -52,7 +52,7 @@ Completion = delivered / requested. Mean service tick = Σ(tick × packets) / de
 
 Infrastructure's GeoJSON adapter validates a bounded regional WGS84 subset and returns immutable projected vector features. The separate WPF inspector reuses viewport gestures but does not map imported geography to simulation entities. Parsing succeeds before replacing the visible layer. No layer types enter the simulation domain or checksum.
 
-CompletionPreview replays a document (or selected prefix) into a separate session, then steps it directly until completion, supply exhaustion or the 20000-tick cap. It does not repeatedly append/replay commands and does not save the continuation. WPF runs it in a background task with cancellation. New future interventions are explicitly excluded. Engine 2.4 adds schema 3 fleet rules while retaining legacy hashes for schemas 1/2.
+CompletionPreview replays a document (or selected prefix) into a separate session, then steps it directly until completion, supply exhaustion or the 20000-tick cap. It does not repeatedly append/replay commands and does not save the continuation. WPF runs it in a background task with cancellation. New future interventions are explicitly excluded. Engine 2.5 adds static schema 3 priorities while retaining legacy hashes and normalized payloads when priorities are zero.
 
 Diagnostics export verifies full selected history and emits bounded run/runtime facts without scenario names, paths or credentials. The separate profile tool measures engine-only ticks and verified replay with warmups and repeated samples; it does not characterize SQL, WPF or multiplayer throughput.
 
@@ -68,4 +68,10 @@ Presentation ScenarioDraft retains incomplete form input as strings, parses inva
 
 Schema 3 requires fleetSize 1-8 and the existing stock/travel settings. Every Step emits a single FleetTick containing exactly one ordered action per vehicle. Movement updates existing trips before dispatch. Only vehicles idle at tick start can dispatch; remaining demand is reduced by all outstanding outbound cargo when reserving loads. Stable IDs use invariant formatting. Completion/exhaustion require every vehicle at depot. Old schema 1/2 state hashes, event serialization and checkpoint shapes are unchanged. Schema 3 hashes/checkpoints include every vehicle.
 
-WPF flattens tick actions into per-vehicle rows while persistence retains one event row per tick. Fleet map icon offsets separate co-located markers in screen space only. Metrics preserve elapsed delivery-tick percentages and packet-weighted service time; outbound/return sum vehicle actions. A per-vehicle CSV accompanies fleet reports. No dispatch priority, distance routing or true multi-threaded mutation is introduced.
+WPF flattens tick actions into per-vehicle rows while persistence retains one event row per tick. Fleet map icon offsets separate co-located markers in screen space only. Metrics preserve elapsed delivery-tick percentages and packet-weighted service time; outbound/return sum vehicle actions. A per-vehicle CSV accompanies fleet reports. Static priority dispatch is described below; no distance routing or true multi-threaded mutation is introduced.
+
+## Static priority and provenance
+
+Schema 3 shelter priorities are bounded 0-9. Eligible targets must have open routes and unreserved demand; sort by descending priority then original list index. Existing outbound cargo never changes destination when another route becomes eligible. Priority does not age dynamically and may defer lower ranks while scarce stock is consumed.
+
+ShelterState includes priority in hashes/checkpoints only when nonzero. Default-zero priority and default-null action reasons are omitted during JSON serialization, preserving original engine 2.4 fleet SQL events/checkpoints as well as 2.0/2.1 archives. Old engine documents with nonzero priority are rejected; new histories use engine 2.5. Dispatch reasons report the chosen rank, unreserved demand, loaded amount, resulting stock and tie rule; the engine creates these strings with invariant formatting. WPF and CSV display persisted/replayed provenance.

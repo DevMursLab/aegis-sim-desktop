@@ -52,8 +52,9 @@ public sealed partial class SimulationSession
         for (int i = 0; i < fleet.Length; i++)
         {
             if (!idleAtStart[i]) continue;
-            int target = Array.FindIndex(shelters, s => s.BlockedUntil < Tick && s.Remaining >
-                fleet.Where(v => v.State.Phase == VehiclePhase.Outbound && v.State.Destination == s.Name).Sum(v => v.State.Load));
+            int target = Enumerable.Range(0, shelters.Length).Where(index => shelters[index].BlockedUntil < Tick && shelters[index].Remaining >
+                fleet.Where(v => v.State.Phase == VehiclePhase.Outbound && v.State.Destination == shelters[index].Name).Sum(v => v.State.Load))
+                .OrderByDescending(index => shelters[index].Priority).ThenBy(index => index).DefaultIfEmpty(-1).First();
             if (target < 0 || DepotStockRemaining == 0)
             {
                 bool unassigned = shelters.Any(s => s.Remaining > fleet.Where(v => v.State.Phase == VehiclePhase.Outbound && v.State.Destination == s.Name).Sum(v => v.State.Load));
@@ -65,7 +66,8 @@ public sealed partial class SimulationSession
             int duration = Scenario.Shelters[target].TravelTicks ?? Scenario.TravelTicks;
             DepotStockRemaining -= load;
             fleet[i] = fleet[i] with { State = new(VehiclePhase.Outbound, shelters[target].Name, load, duration, duration) };
-            actions[i] = new(fleet[i].Id, shelters[target].Name, 0, "Dispatched");
+            string? reason = shelters.Any(s => s.Priority != 0) ? FormattableString.Invariant($"Priority {shelters[target].Priority}; unreserved demand {shelters[target].Remaining - reserved}; loaded {load}; stock after {DepotStockRemaining}. Eligible highest priority first; ties keep shelter-list order.") : null;
+            actions[i] = new(fleet[i].Id, shelters[target].Name, 0, "Dispatched", reason);
         }
         UpdateFleetStatus();
         return new(Tick, "Fleet", actions.Sum(a => a.Amount), "FleetTick", actions);

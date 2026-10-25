@@ -44,7 +44,7 @@ public sealed class ScenarioEditorWindow : Window
         AddField(inventory, "Vehicles (1–8)", nameof(ScenarioDraft.FleetSize), 150);
         ((TextBox)FindName("FleetSizeInput")).SetBinding(IsEnabledProperty, nameof(ScenarioDraft.UsesFleet));
         top.Children.Add(inventory);
-        top.Children.Add(new TextBlock { Text = "Local coordinates: X 50–1050, Y 70–700. Demand 0–10000; max 64 shelters / 10000 total packets. Travel override is optional and used only by schema 2.", TextWrapping = TextWrapping.Wrap, Margin = new(0, 0, 0, 12), Foreground = Brushes.DarkSlateGray });
+        top.Children.Add(new TextBlock { Text = "Local X 50–1050, Y 70–700. Demand 0–10000; max 64 shelters / 10000 packets. Travel override is optional. Priority 0–9 is used in fleet mode; higher goes first, ties keep list order.", TextWrapping = TextWrapping.Wrap, Margin = new(0, 0, 0, 12), Foreground = Brushes.DarkSlateGray });
         panel.Children.Add(top);
         var bottom = new StackPanel { Margin = new(0, 14, 0, 0) }; DockPanel.SetDock(bottom, Dock.Bottom);
         var actions = new WrapPanel();
@@ -72,7 +72,7 @@ public sealed class ScenarioEditorWindow : Window
         bottom.Children.Add(actions); bottom.Children.Add(status); panel.Children.Add(bottom);
         grid = new DataGrid { ItemsSource = Draft.Shelters, AutoGenerateColumns = false, CanUserAddRows = false, CanUserDeleteRows = false, SelectionMode = DataGridSelectionMode.Single, HeadersVisibility = DataGridHeadersVisibility.Column, RowHeight = 34, BorderBrush = Brushes.LightGray };
         RegisterName("ShelterEditorGrid", grid); RegisterName("EditorStatus", status);
-        foreach (var (header, property, width) in new[] { ("Shelter name", "Name", 240), ("Demand", "Demand", 110), ("X", "X", 110), ("Y", "Y", 110), ("Travel override", "TravelTicks", 160) })
+        foreach (var (header, property, width) in new[] { ("Shelter name", "Name", 210), ("Demand", "Demand", 90), ("X", "X", 90), ("Y", "Y", 90), ("Travel override", "TravelTicks", 140), ("Priority (fleet)", "Priority", 110) })
             grid.Columns.Add(new DataGridTextColumn { Header = header, Binding = new Binding(property) { Mode = BindingMode.TwoWay, UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged }, Width = width });
         panel.Children.Add(grid); Content = panel;
         Feedback("Draft copied from the selected scenario. Numbers use a dot for decimals. Close discards unsaved edits.", true);

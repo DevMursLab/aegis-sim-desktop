@@ -27,7 +27,7 @@ public sealed class RunViewModel : INotifyPropertyChanged
     public bool UsesFleet => session.UsesFleet;
     public IReadOnlyList<ExerciseEventRow> EventRows => events.SelectMany(e => e.Actions == null ?
         new[] { new ExerciseEventRow(e.Tick, "Vehicle-01", e.Shelter, e.Amount, e.Kind) } :
-        e.Actions.Select(a => new ExerciseEventRow(e.Tick, a.VehicleId, a.Shelter, a.Amount, a.Kind))).ToArray();
+        e.Actions.Select(a => new ExerciseEventRow(e.Tick, a.VehicleId, a.Shelter, a.Amount, a.Kind, a.Reason))).ToArray();
     public IReadOnlyList<MapVehicle> MapVehicles => UsesFleet ? session.Vehicles.Select(v =>
         new MapVehicle(v.Id, PositionOf(v.State), v.State.Destination, v.State.Phase.ToString(), v.State.Load)).ToArray() : Array.Empty<MapVehicle>();
     public string? VehicleDestination => session.Vehicle.Destination;
@@ -59,7 +59,7 @@ public sealed class RunViewModel : INotifyPropertyChanged
     public IReadOnlyList<MapNode> MapNodes => Shelters.Select(s =>
     {
         var position = document.Scenario.Shelters.First(d => d.Name == s.Name);
-        return new MapNode(s.Name, position.X, position.Y, s.InitialDemand, s.Remaining, s.BlockedUntil > session.Tick);
+        return new MapNode(s.Name, position.X, position.Y, s.InitialDemand, s.Remaining, s.BlockedUntil > session.Tick, s.Priority);
     }).ToArray();
     public string? SelectedShelterName
     {
@@ -78,6 +78,7 @@ public sealed class RunViewModel : INotifyPropertyChanged
             var shelter = Shelters.FirstOrDefault(s => s.Name == selectedShelterName);
             return shelter == null ? "Choose a shelter on the map or in the list." :
                 $"{shelter.InitialDemand - shelter.Remaining} delivered / {shelter.InitialDemand} requested · {shelter.Remaining} remaining" +
+                (UsesFleet ? $" · priority {shelter.Priority}" : "") +
                 (shelter.BlockedUntil > Tick ? $" · route closed through tick {shelter.BlockedUntil}" : "");
         }
     }

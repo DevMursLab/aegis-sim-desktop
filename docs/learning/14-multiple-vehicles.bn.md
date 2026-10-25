@@ -24,7 +24,7 @@ A-এর চাহিদা ২৫। প্রথম গাড়িতে ১০ 
 
 ## Editor ও history
 
-**Scenario editor**-এ Multiple vehicles চালিয়ে ১–৮টি গাড়ি দাও। Capacity প্রতিটি গাড়ির জন্য প্রযোজ্য; stock সবার জন্য একটাই। Shelter বাছাইয়ের নিয়ম এখনো তালিকার ক্রম; priority dispatch পরের কাজ।
+**Scenario editor**-এ Multiple vehicles চালিয়ে ১–৮টি গাড়ি দাও। Capacity প্রতিটি গাড়ির জন্য প্রযোজ্য; stock সবার জন্য একটাই। এই demo-তে priority সব শূন্য, তাই shelter তালিকার ক্রমে বাছাই হয়। Priority শেখো [Lesson 15](15-priority-dispatch.bn.md)-এ।
 
 Event table-এ vehicle ID দেখবে। Database-এ প্রতি tick-এর মধ্যে সব গাড়ির action থাকে। Replay, completion preview ও multiplayer একই fleet ফের তৈরি করে। Fleet report-এ অতিরিক্ত `-vehicles.csv` থাকে। Outbound/return metrics হলো **vehicle-ticks**; তিন গাড়ি এক tick চললে সেখানে ৩ যোগ হবে।
 

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 3,
+  "name": "Priority / Limited Stock Training",
+  "capacity": 10,
+  "depotStock": 20,
+  "travelTicks": 2,
+  "returnTicks": 1,
+  "fleetSize": 3,
+  "shelters": [
+    { "name": "Shelter-A", "demand": 25, "x": 480, "y": 180 },
+    { "name": "Shelter-B", "demand": 5, "x": 910, "y": 180, "priority": 5 },
+    { "name": "Shelter-C", "demand": 18, "x": 480, "y": 490, "priority": 9 }
+  ]
+}

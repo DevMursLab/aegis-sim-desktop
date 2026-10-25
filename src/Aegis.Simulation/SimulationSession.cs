@@ -4,8 +4,10 @@ namespace Aegis.Simulation;
 public enum RunStatus { Ready, Running, Paused, Completed, SupplyExhausted }
 public enum VehiclePhase { AtDepot, Outbound, Returning }
 public sealed record VehicleState(VehiclePhase Phase, string? Destination, int Load, int TicksRemaining, int Duration);
-public sealed record ShelterState(string Name, int InitialDemand, int Remaining, int BlockedUntil = 0);
-public sealed record VehicleAction(string VehicleId, string Shelter, int Amount, string Kind);
+public sealed record ShelterState(string Name, int InitialDemand, int Remaining, int BlockedUntil = 0,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] int Priority = 0);
+public sealed record VehicleAction(string VehicleId, string Shelter, int Amount, string Kind,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Reason = null);
 public sealed record DeliveryEvent(int Tick, string Shelter, int Amount, string Kind = "Delivery",
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] VehicleAction[]? Actions = null);
 
@@ -48,6 +50,8 @@ public sealed partial class SimulationSession
     public SimulationSession(ScenarioDefinition scenario) : this(Validated(scenario).Shelters.Select(s => (s.Name, s.Demand)), scenario.Capacity)
     {
         Scenario = scenario with { Shelters = scenario.Shelters.ToArray() };
+        initial = scenario.Shelters.Select(s => new ShelterState(s.Name, s.Demand, s.Demand, Priority: s.Priority)).ToArray();
+        shelters = initial.ToArray();
         DepotStockRemaining = scenario.DepotStock;
         InitializeFleet();
         UpdateLogisticsStatus();

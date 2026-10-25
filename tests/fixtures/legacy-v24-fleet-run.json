@@ -1,0 +1,147 @@
+{
+  "run": {
+    "schemaVersion": 1,
+    "engineVersion": "2.4.0",
+    "id": "44a626ed-ca63-47bf-a30e-f50577c02661",
+    "createdAt": "2026-10-25T04:54:27.8948183+00:00",
+    "scenario": {
+      "schemaVersion": 3,
+      "name": "Three Vehicle / Shared Stock Training",
+      "capacity": 10,
+      "shelters": [
+        {
+          "name": "Shelter-A",
+          "demand": 25,
+          "x": 480,
+          "y": 180,
+          "travelTicks": null
+        },
+        {
+          "name": "Shelter-B",
+          "demand": 5,
+          "x": 910,
+          "y": 180,
+          "travelTicks": null
+        },
+        {
+          "name": "Shelter-C",
+          "demand": 18,
+          "x": 480,
+          "y": 490,
+          "travelTicks": null
+        }
+      ],
+      "depotStock": 48,
+      "travelTicks": 2,
+      "returnTicks": 1,
+      "fleetSize": 3
+    },
+    "commands": [
+      {
+        "sequence": 1,
+        "command": {
+          "id": "3f9ca5f4-3ce0-4e43-9ebf-92c11910804c",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "61A1E18580F507FC298FBC48A31BC43640E7EE7A91D34E8A06A26D0D94685043"
+      },
+      {
+        "sequence": 2,
+        "command": {
+          "id": "28ba6446-caf4-4254-ae98-7bfa3729cbaf",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "28FA8DD57D36E0EA590005DE2EEDCFB93CFAFFEE030C426941F3287E743A3589"
+      },
+      {
+        "sequence": 3,
+        "command": {
+          "id": "332dd310-28be-4725-b63c-2e60b0129bea",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "7BF328EDFD6FD7B0908C295473D17D3C6D305812EF11C4A7E77A033475F4FE12"
+      },
+      {
+        "sequence": 4,
+        "command": {
+          "id": "d1e8fba9-221d-4fb5-9031-4d05c18456d8",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "43FE4C897B747EA30ED25093568039C76DB7EEE5CD10CB57D9D19619AD2C6630"
+      },
+      {
+        "sequence": 5,
+        "command": {
+          "id": "0c898d0c-29eb-4886-87b1-25c6f65bf6d3",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "5DF6EBCD80B7999AB6CC42A3004EA8DE5D7D4C9DE5C9393FA63754A9B6A56DB2"
+      },
+      {
+        "sequence": 6,
+        "command": {
+          "id": "7ab3456b-a112-406d-b528-47d0b2c30da8",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "E3151C6AC319A14AA3F05446DA3C764C8B3C7EE8113ABF52FF0D76C598817F5C"
+      },
+      {
+        "sequence": 7,
+        "command": {
+          "id": "d66f38c9-7f07-409c-8e95-83960596d716",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "405AFF16F3DEDBC55DBC8798746F004C6DB6342669B56E4CE02516509A978051"
+      },
+      {
+        "sequence": 8,
+        "command": {
+          "id": "bf12f9c8-0bba-43c8-82d7-87b4ca2489a4",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "16A704D082A8FE39A4C903811E399C2205BE8AC88FEFF74D3DCFA08C7952C69A"
+      }
+    ],
+    "creationCommandId": "00000000-0000-0000-0000-000000000000"
+  },
+  "expectedHash": "16A704D082A8FE39A4C903811E399C2205BE8AC88FEFF74D3DCFA08C7952C69A",
+  "tick": 8,
+  "status": "Completed",
+  "commandJson": [
+    "{\"sequence\":1,\"command\":{\"id\":\"3f9ca5f4-3ce0-4e43-9ebf-92c11910804c\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"61A1E18580F507FC298FBC48A31BC43640E7EE7A91D34E8A06A26D0D94685043\"}",
+    "{\"sequence\":2,\"command\":{\"id\":\"28ba6446-caf4-4254-ae98-7bfa3729cbaf\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"28FA8DD57D36E0EA590005DE2EEDCFB93CFAFFEE030C426941F3287E743A3589\"}",
+    "{\"sequence\":3,\"command\":{\"id\":\"332dd310-28be-4725-b63c-2e60b0129bea\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"7BF328EDFD6FD7B0908C295473D17D3C6D305812EF11C4A7E77A033475F4FE12\"}",
+    "{\"sequence\":4,\"command\":{\"id\":\"d1e8fba9-221d-4fb5-9031-4d05c18456d8\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"43FE4C897B747EA30ED25093568039C76DB7EEE5CD10CB57D9D19619AD2C6630\"}",
+    "{\"sequence\":5,\"command\":{\"id\":\"0c898d0c-29eb-4886-87b1-25c6f65bf6d3\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"5DF6EBCD80B7999AB6CC42A3004EA8DE5D7D4C9DE5C9393FA63754A9B6A56DB2\"}",
+    "{\"sequence\":6,\"command\":{\"id\":\"7ab3456b-a112-406d-b528-47d0b2c30da8\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"E3151C6AC319A14AA3F05446DA3C764C8B3C7EE8113ABF52FF0D76C598817F5C\"}",
+    "{\"sequence\":7,\"command\":{\"id\":\"d66f38c9-7f07-409c-8e95-83960596d716\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"405AFF16F3DEDBC55DBC8798746F004C6DB6342669B56E4CE02516509A978051\"}",
+    "{\"sequence\":8,\"command\":{\"id\":\"bf12f9c8-0bba-43c8-82d7-87b4ca2489a4\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"16A704D082A8FE39A4C903811E399C2205BE8AC88FEFF74D3DCFA08C7952C69A\"}"
+  ],
+  "eventJson": [
+    "{\"tick\":1,\"shelter\":\"Fleet\",\"amount\":0,\"kind\":\"FleetTick\",\"actions\":[{\"vehicleId\":\"Vehicle-01\",\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Dispatched\"},{\"vehicleId\":\"Vehicle-02\",\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Dispatched\"},{\"vehicleId\":\"Vehicle-03\",\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Dispatched\"}]}",
+    "{\"tick\":2,\"shelter\":\"Fleet\",\"amount\":0,\"kind\":\"FleetTick\",\"actions\":[{\"vehicleId\":\"Vehicle-01\",\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Travelling\"},{\"vehicleId\":\"Vehicle-02\",\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Travelling\"},{\"vehicleId\":\"Vehicle-03\",\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Travelling\"}]}",
+    "{\"tick\":3,\"shelter\":\"Fleet\",\"amount\":25,\"kind\":\"FleetTick\",\"actions\":[{\"vehicleId\":\"Vehicle-01\",\"shelter\":\"Shelter-A\",\"amount\":10,\"kind\":\"Delivery\"},{\"vehicleId\":\"Vehicle-02\",\"shelter\":\"Shelter-A\",\"amount\":10,\"kind\":\"Delivery\"},{\"vehicleId\":\"Vehicle-03\",\"shelter\":\"Shelter-A\",\"amount\":5,\"kind\":\"Delivery\"}]}",
+    "{\"tick\":4,\"shelter\":\"Fleet\",\"amount\":0,\"kind\":\"FleetTick\",\"actions\":[{\"vehicleId\":\"Vehicle-01\",\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Returned\"},{\"vehicleId\":\"Vehicle-02\",\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Returned\"},{\"vehicleId\":\"Vehicle-03\",\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Returned\"}]}",
+    "{\"tick\":5,\"shelter\":\"Fleet\",\"amount\":0,\"kind\":\"FleetTick\",\"actions\":[{\"vehicleId\":\"Vehicle-01\",\"shelter\":\"Shelter-B\",\"amount\":0,\"kind\":\"Dispatched\"},{\"vehicleId\":\"Vehicle-02\",\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Dispatched\"},{\"vehicleId\":\"Vehicle-03\",\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Dispatched\"}]}",
+    "{\"tick\":6,\"shelter\":\"Fleet\",\"amount\":0,\"kind\":\"FleetTick\",\"actions\":[{\"vehicleId\":\"Vehicle-01\",\"shelter\":\"Shelter-B\",\"amount\":0,\"kind\":\"Travelling\"},{\"vehicleId\":\"Vehicle-02\",\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Travelling\"},{\"vehicleId\":\"Vehicle-03\",\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Travelling\"}]}",
+    "{\"tick\":7,\"shelter\":\"Fleet\",\"amount\":23,\"kind\":\"FleetTick\",\"actions\":[{\"vehicleId\":\"Vehicle-01\",\"shelter\":\"Shelter-B\",\"amount\":5,\"kind\":\"Delivery\"},{\"vehicleId\":\"Vehicle-02\",\"shelter\":\"Shelter-C\",\"amount\":10,\"kind\":\"Delivery\"},{\"vehicleId\":\"Vehicle-03\",\"shelter\":\"Shelter-C\",\"amount\":8,\"kind\":\"Delivery\"}]}",
+    "{\"tick\":8,\"shelter\":\"Fleet\",\"amount\":0,\"kind\":\"FleetTick\",\"actions\":[{\"vehicleId\":\"Vehicle-01\",\"shelter\":\"Shelter-B\",\"amount\":0,\"kind\":\"Returned\"},{\"vehicleId\":\"Vehicle-02\",\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Returned\"},{\"vehicleId\":\"Vehicle-03\",\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Returned\"}]}"
+  ],
+  "checkpointJson": "{\"tick\":8,\"deliveredTotal\":48,\"shelters\":[{\"name\":\"Shelter-A\",\"initialDemand\":25,\"remaining\":0,\"blockedUntil\":0},{\"name\":\"Shelter-B\",\"initialDemand\":5,\"remaining\":0,\"blockedUntil\":0},{\"name\":\"Shelter-C\",\"initialDemand\":18,\"remaining\":0,\"blockedUntil\":0}],\"depotStockRemaining\":0,\"restockedTotal\":0,\"vehicles\":[{\"id\":\"Vehicle-01\",\"state\":{\"phase\":0,\"destination\":null,\"load\":0,\"ticksRemaining\":0,\"duration\":0}},{\"id\":\"Vehicle-02\",\"state\":{\"phase\":0,\"destination\":null,\"load\":0,\"ticksRemaining\":0,\"duration\":0}},{\"id\":\"Vehicle-03\",\"state\":{\"phase\":0,\"destination\":null,\"load\":0,\"ticksRemaining\":0,\"duration\":0}}]}"
+}

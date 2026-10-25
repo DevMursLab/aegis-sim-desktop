@@ -31,7 +31,7 @@ public static class ScenarioFiles
             var root = XDocument.Load(reader).Root ?? throw new InvalidDataException("Missing Scenario element.");
             if (root.Name != "Scenario" || root.Elements().Any(e => e.Name != "Shelter")) throw new InvalidDataException("Unknown XML element.");
             var rootAttributes = new[] { "version", "name", "capacity", "stock", "travelTicks", "returnTicks", "fleetSize" };
-            var shelterAttributes = new[] { "name", "demand", "x", "y", "travelTicks" };
+            var shelterAttributes = new[] { "name", "demand", "x", "y", "travelTicks", "priority" };
             if (root.Attributes().Any(a => !rootAttributes.Contains(a.Name.ToString())) || root.Elements().Any(s =>
                 s.HasElements || !string.IsNullOrWhiteSpace(s.Value) || s.Attributes().Any(a => !shelterAttributes.Contains(a.Name.ToString()))))
                 throw new InvalidDataException("Unknown XML attribute or nested shelter content.");
@@ -39,7 +39,7 @@ public static class ScenarioFiles
                 int.Parse(Required(root, "capacity"), CultureInfo.InvariantCulture), root.Elements("Shelter").Select(s => new ShelterDefinition(
                     Required(s, "name"), int.Parse(Required(s, "demand"), CultureInfo.InvariantCulture),
                     double.Parse(Required(s, "x"), CultureInfo.InvariantCulture), double.Parse(Required(s, "y"), CultureInfo.InvariantCulture),
-                    OptionalInt(s, "travelTicks"))).ToArray(), OptionalInt(root, "stock"), OptionalInt(root, "travelTicks") ?? 1, OptionalInt(root, "returnTicks") ?? 0, OptionalInt(root, "fleetSize"));
+                    OptionalInt(s, "travelTicks"), OptionalInt(s, "priority") ?? 0)).ToArray(), OptionalInt(root, "stock"), OptionalInt(root, "travelTicks") ?? 1, OptionalInt(root, "returnTicks") ?? 0, OptionalInt(root, "fleetSize"));
         }
         scenario.Validate();
         return scenario;
@@ -53,7 +53,8 @@ public static class ScenarioFiles
                 scenario.SchemaVersion >= 2 ? new object[] { new XAttribute("stock", scenario.DepotStock!.Value), new XAttribute("travelTicks", scenario.TravelTicks), new XAttribute("returnTicks", scenario.ReturnTicks) } : null,
                 scenario.FleetSize.HasValue ? new XAttribute("fleetSize", scenario.FleetSize.Value) : null,
                 scenario.Shelters.Select(s => new XElement("Shelter", new XAttribute("name", s.Name), new XAttribute("demand", s.Demand), new XAttribute("x", s.X), new XAttribute("y", s.Y),
-                    s.TravelTicks.HasValue ? new XAttribute("travelTicks", s.TravelTicks.Value) : null)))).Save(path);
+                    s.TravelTicks.HasValue ? new XAttribute("travelTicks", s.TravelTicks.Value) : null,
+                    s.Priority != 0 ? new XAttribute("priority", s.Priority) : null)))).Save(path);
         else File.WriteAllText(path, JsonSerializer.Serialize(scenario, new JsonSerializerOptions(JsonOptions) { WriteIndented = true }));
     }
     private static string Required(XElement element, string attribute) => (string?)element.Attribute(attribute) ?? throw new InvalidDataException($"Missing {attribute}.");

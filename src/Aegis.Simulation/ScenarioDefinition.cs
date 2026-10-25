@@ -1,7 +1,8 @@
 using System.Text.Json.Serialization;
 namespace Aegis.Simulation;
 
-public sealed record ShelterDefinition(string Name, int Demand, double X, double Y, int? TravelTicks = null);
+public sealed record ShelterDefinition(string Name, int Demand, double X, double Y, int? TravelTicks = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] int Priority = 0);
 public sealed record ScenarioDefinition(int SchemaVersion, string Name, int Capacity, ShelterDefinition[] Shelters,
     int? DepotStock = null, int TravelTicks = 1, int ReturnTicks = 0,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? FleetSize = null)
@@ -19,6 +20,8 @@ public sealed record ScenarioDefinition(int SchemaVersion, string Name, int Capa
             throw new ArgumentException("Shelters need names, demand 0–10000 and finite local coordinates x=50–1050, y=70–700.");
         if (Shelters.Select(s => s.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count() != Shelters.Length)
             throw new ArgumentException("Shelter names must be unique.");
+        if (Shelters.Any(s => s.Priority is < 0 or > 9 || SchemaVersion != 3 && s.Priority != 0))
+            throw new ArgumentException("Priority must be 0–9 and nonzero priority requires schema 3. Higher values dispatch first.");
         if (Shelters.Sum(s => s.Demand) > 10000) throw new ArgumentException("Total scenario demand is limited to 10000 packets.");
         if (SchemaVersion == 1 && (DepotStock != null || TravelTicks != 1 || ReturnTicks != 0 || Shelters.Any(s => s.TravelTicks != null)))
             throw new ArgumentException("Stock and travel settings require schema 2; schema 1 preserves legacy instant visits.");
@@ -32,4 +35,9 @@ public sealed record ScenarioDefinition(int SchemaVersion, string Name, int Capa
     { SchemaVersion = 2, Name = "Finite Stock / Travel Training", DepotStock = 30, TravelTicks = 2, ReturnTicks = 1 };
     public static ScenarioDefinition FleetDemo() => LogisticsDemo() with
     { SchemaVersion = 3, Name = "Three Vehicle / Shared Stock Training", DepotStock = 48, FleetSize = 3 };
+    public static ScenarioDefinition PriorityDemo() => FleetDemo() with
+    { Name = "Priority / Limited Stock Training", DepotStock = 20, Shelters = new[] {
+        new ShelterDefinition("Shelter-A", 25, 480, 180, Priority: 0),
+        new ShelterDefinition("Shelter-B", 5, 910, 180, Priority: 5),
+        new ShelterDefinition("Shelter-C", 18, 480, 490, Priority: 9) } };
 }

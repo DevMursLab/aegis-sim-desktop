@@ -1,4 +1,14 @@
-# 2.4 source - shared-stock multi-vehicle simulation
+# 2.5 source - static shelter priorities
+
+Fleet scenarios accept ranks 0-9. Dispatch selects the highest-priority open shelter with unreserved demand; equal ranks retain list order. Closed routes are skipped. Existing cargo is not reassigned, and ranks are static per scenario. Scarcity can defer lower-priority shelters; no fairness or real-world urgency guarantee is claimed.
+
+Editor, map, inspector, selected dispatch explanation, JSON/XML, replay and reports expose priorities. Priority CSV exports include engine-generated reasons. A 20-packet demo serves C with 18 and B with 2, then exhausts after the final return at tick 4. Exact restock of 28 permits completion at tick 12.
+
+Engine 2.5 reads original 2.0/2.1/2.4 histories. Zero priority and null reasons preserve old serialization and hashes. Original 2.4 SQL fixture coverage checks commands, events and checkpoints. Nonzero priority cannot masquerade as an older engine document. 137 executable console checks and extended WPF flows cover the increment.
+
+This source increment does not publish a new binary; the downloadable 2.2.0 ZIP lacks the editor, fleet and priorities. Remaining: geographic simulation integration, database migration/scale work and deployment/acceptance gates below.
+
+## Historical 2.4 source - shared-stock multi-vehicle simulation
 
 Schema 3 supports 1-8 identical-capacity vehicles, stable vehicle IDs and shared stock. Movement precedes dispatch; only vehicles at depot at tick start may dispatch. Outstanding cargo is reserved against shelter demand, preventing double allocation. All vehicles return before completion or supply exhaustion. Closure freezes affected outbound vehicles only. Dispatch order remains shelter-list order; priority allocation is future work.
 

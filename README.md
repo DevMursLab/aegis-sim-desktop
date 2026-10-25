@@ -1,4 +1,4 @@
-# AEGIS-SIM Desktop / 2.3 source
+# AEGIS-SIM Desktop / 2.4 source
 
 A **synthetic civilian response-training simulator** built with C#, .NET 10, WPF/MVVM, EF Core/SQLite and SignalR. Run an exercise, inject a route closure, persist commands/events, reconstruct history and compare measured outcomes.
 
@@ -60,17 +60,25 @@ The lesson launcher also supports a user-local SDK at `%LOCALAPPDATA%\Microsoft\
 
 Select **Stock + travel demo** in the source-built desktop, or import `assets/scenarios/finite-stock-travel.json`. Dispatch reserves cargo; arrival delivers it; the vehicle returns before loading again. The sample starts with 30 packets, stops at tick 16 with 18 still needed, then **Restock +20** permits completion at tick 24 with 2 in stock. Closure pauses an outbound vehicle; return travel is unaffected. [Bangla lesson 10](docs/learning/10-stock-travel.bn.md).
 
-Desktop 2.3 source keeps simulation engine 2.1 and reads original 2.0 histories without changing their checksums. Older 2.0 binaries cannot open engine 2.1 histories. [Release notes and remaining work](docs/release-notes.md).
+Desktop/engine 2.4 reads original 2.0 and 2.1 histories without changing their old hashes. Older binaries cannot open new engine 2.4 histories. [Release notes and remaining work](docs/release-notes.md).
 
 ![Actual desktop: reserved cargo travelling before delivery](docs/images/logistics-transit.png)
 
 [Shortage screen at tick 16](docs/images/logistics-shortage.png).
 
-## Scenario editor (2.3 source)
+## Fleet simulation (2.4 source)
+
+Select **Tools / Three-vehicle demo**, or import `assets/scenarios/three-vehicle-fleet.json`. Three capacity-10 vehicles share 48 packets and complete at tick 8 with outbound=2 and return=1. The matching one-vehicle model needs 24 ticks. All vehicles use stable IDs, cargo reservations prevent double allocation, and completion waits for every return. The editor accepts 1-8 vehicles. [Bangla lesson 14](docs/learning/14-multiple-vehicles.bn.md).
+
+Fleet actions persist inside one aggregate event per tick, preserving the SQL event key. The map and event table show each vehicle. PDF/HTML use replayed metrics; fleet export adds a per-vehicle CSV. Outbound/return counts are vehicle-ticks, while active percentage still counts elapsed ticks with any delivery. Priority dispatch is not implemented.
+
+![Actual three-vehicle exercise with reserved cargo and per-vehicle history](docs/images/fleet-transit.png)
+
+## Scenario editor
 
 Open **Tools / Scenario editor** to edit a separate local draft: capacity, shelter names/demand/positions, finite stock and travel settings. Validate, save JSON/XML or start a separate run with a new ID. Invalid input cannot create a run; existing saved history remains available. Shared multiplayer scenarios cannot be edited here. [Bangla lesson 13](docs/learning/13-scenario-editor.bn.md).
 
-The downloadable **2.2.0 ZIP does not contain the editor**; run from source for this increment.
+The downloadable **2.2.0 ZIP does not contain the editor or fleet model**; run from source for these increments.
 
 ![Actual local scenario editor after validation](docs/images/scenario-editor.png)
 
@@ -103,7 +111,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\package.ps1
 ```
 
-Verification performs a locked dependency restore, full Release build with warnings treated as errors, **101 executable console checks**, all earlier console lessons, real WPF interaction checks, and a two-window host-restart/reconnect check. Checks are console executables, not an xUnit/`dotnet test` suite.
+Verification performs a locked dependency restore, full Release build with warnings treated as errors, **121 executable console checks**, all earlier console lessons, real WPF interaction checks, and a two-window host-restart/reconnect check. Checks are console executables, not an xUnit/`dotnet test` suite.
 
 [GitHub Actions](https://github.com/DevMursLab/aegis-sim-desktop/actions/workflows/build.yml) runs the same Release build and console/integration checks on Windows with `-SkipUi`. Interactive WPF checks run locally. [Evidence and limits](docs/verification.md).
 
@@ -123,6 +131,6 @@ Simulation and presentation do not depend on WPF. A candidate command is replaye
 
 ## Scope and limits
 
-This is a **portfolio MVP**, using fictional civilian scenarios. It does not reproduce an institution's internal military software. All demand begins at tick zero. Schema 1 retains instant delivery with a fresh load per visit. Schema 2 uses finite depot stock and configured travel/return ticks; it does not derive time from distance or speed. Route closure restricts a shelter's availability; links do not compute geographic routes.
+This is a **portfolio simulator**, using fictional civilian scenarios. It does not reproduce an institution's internal military software. All demand begins at tick zero. Schema 1 retains instant delivery with a fresh load per visit. Schema 2 uses one vehicle with finite depot stock and configured travel/return ticks; schema 3 adds a shared-stock fleet of 1-8 vehicles; it does not derive time from distance or speed. Route closure restricts a shelter's availability; links do not compute geographic routes.
 
 Simulation coordinates are synthetic local meters. The separate GeoJSON inspector accepts a regional WGS84 subset and does not georeference the simulation. Trained AI forecasts, general GIS/projection import, cloud deployment, high-scale load testing, a signed installer and comprehensive accessibility/high-DPI audits are outside this release. Full snapshots and command replay favor a small, explainable demo over throughput. PDF uses ASCII labels; HTML/CSV preserve Unicode names. The initial database uses an explicit schema bootstrap/additive development upgrade; future schema evolution needs a migration plan.

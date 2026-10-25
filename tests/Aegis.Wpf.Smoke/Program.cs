@@ -139,6 +139,25 @@ internal static class Program
                 Require(failedEditor.IsVisible && ((TextBlock)failedEditor.FindName("EditorStatus")).Text.Contains("storage failure"), "Failed creation preserves editor draft"); failedEditor.Close();
                 vm.NewScenario(Aegis.Simulation.ScenarioDefinition.FloodDemo()); await Flush();
                 await NetworkWindowSmoke.Run(SaveImage);
+                ((IInvokeProvider)new MenuItemAutomationPeer((MenuItem)window.FindName("FleetDemoMenu")).GetPattern(PatternInterface.Invoke)).Invoke(); await Flush();
+                Require(vm.UsesFleet && map.FleetVehicles!.Count == 3, "Fleet demo exposes all map vehicles");
+                Invoke(window, "FitMapButton"); await Flush();
+                Invoke(window, "StepButton"); await Flush(); Invoke(window, "StepButton"); await Flush();
+                Require(vm.EventRows.Count == 6 && vm.MapVehicles.All(v => v.Position.X > 170), "Concurrent vehicle motion and per-vehicle event rows bind");
+                SaveImage(window, "aegis-fleet-transit.png");
+                while (vm.Status != "Completed" && vm.Tick < 20) { Invoke(window, "StepButton"); await Flush(); }
+                Require(vm.Tick == 8 && vm.DeliveredTotal == 48 && ((DataGrid)window.FindName("EventGrid")).Items.Count == 24, "Fleet completion waits for all returns and retains 24 vehicle actions");
+                var fleetDone = vm.Document;
+                ((IInvokeProvider)new MenuItemAutomationPeer((MenuItem)window.FindName("EditorMenu")).GetPattern(PatternInterface.Invoke)).Invoke(); await Flush();
+                var fleetEditor = app.Windows.OfType<ScenarioEditorWindow>().Single();
+                Require(fleetEditor.Draft.UsesFleet, "Editor preserves loaded fleet mode");
+                ((TextBox)fleetEditor.FindName("FleetSizeInput")).Text = "0"; InvokeButton(fleetEditor, "StartScenarioButton"); await Flush();
+                Require(fleetEditor.IsVisible && vm.Document.Id == fleetDone.Id, "Invalid fleet count cannot create a new run");
+                ((TextBox)fleetEditor.FindName("FleetSizeInput")).Text = "4"; InvokeButton(fleetEditor, "StartScenarioButton"); await Flush();
+                Require(vm.MapVehicles.Count == 4 && vm.Document.Id != fleetDone.Id, "Editor creates a four-vehicle scenario");
+                vm.LoadReplay(fleetDone); vm.ReplayTick = 3; await Flush();
+                Require(vm.DeliveredTotal == 25 && vm.EventRows.Count == 9 && !Button(window, "RestockButton").IsEnabled, "Fleet replay reconstructs simultaneous delivery read-only");
+                vm.NewScenario(Aegis.Simulation.ScenarioDefinition.FloodDemo()); await Flush();
                 Invoke(window, "StartButton"); window.Close();
                 Require(app.Windows.Count == 0, "Window closes while running");
                 Require(errors.Messages.Count == 0, string.Join(Environment.NewLine, errors.Messages));

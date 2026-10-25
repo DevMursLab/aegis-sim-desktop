@@ -30,7 +30,7 @@ public static class ScenarioFiles
             using var reader = XmlReader.Create(input, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = 262144 });
             var root = XDocument.Load(reader).Root ?? throw new InvalidDataException("Missing Scenario element.");
             if (root.Name != "Scenario" || root.Elements().Any(e => e.Name != "Shelter")) throw new InvalidDataException("Unknown XML element.");
-            var rootAttributes = new[] { "version", "name", "capacity", "stock", "travelTicks", "returnTicks" };
+            var rootAttributes = new[] { "version", "name", "capacity", "stock", "travelTicks", "returnTicks", "fleetSize" };
             var shelterAttributes = new[] { "name", "demand", "x", "y", "travelTicks" };
             if (root.Attributes().Any(a => !rootAttributes.Contains(a.Name.ToString())) || root.Elements().Any(s =>
                 s.HasElements || !string.IsNullOrWhiteSpace(s.Value) || s.Attributes().Any(a => !shelterAttributes.Contains(a.Name.ToString()))))
@@ -39,7 +39,7 @@ public static class ScenarioFiles
                 int.Parse(Required(root, "capacity"), CultureInfo.InvariantCulture), root.Elements("Shelter").Select(s => new ShelterDefinition(
                     Required(s, "name"), int.Parse(Required(s, "demand"), CultureInfo.InvariantCulture),
                     double.Parse(Required(s, "x"), CultureInfo.InvariantCulture), double.Parse(Required(s, "y"), CultureInfo.InvariantCulture),
-                    OptionalInt(s, "travelTicks"))).ToArray(), OptionalInt(root, "stock"), OptionalInt(root, "travelTicks") ?? 1, OptionalInt(root, "returnTicks") ?? 0);
+                    OptionalInt(s, "travelTicks"))).ToArray(), OptionalInt(root, "stock"), OptionalInt(root, "travelTicks") ?? 1, OptionalInt(root, "returnTicks") ?? 0, OptionalInt(root, "fleetSize"));
         }
         scenario.Validate();
         return scenario;
@@ -50,7 +50,8 @@ public static class ScenarioFiles
         scenario.Validate();
         if (Path.GetExtension(path).Equals(".xml", StringComparison.OrdinalIgnoreCase))
             new XDocument(new XElement("Scenario", new XAttribute("version", scenario.SchemaVersion), new XAttribute("name", scenario.Name), new XAttribute("capacity", scenario.Capacity),
-                scenario.SchemaVersion == 2 ? new object[] { new XAttribute("stock", scenario.DepotStock!.Value), new XAttribute("travelTicks", scenario.TravelTicks), new XAttribute("returnTicks", scenario.ReturnTicks) } : null,
+                scenario.SchemaVersion >= 2 ? new object[] { new XAttribute("stock", scenario.DepotStock!.Value), new XAttribute("travelTicks", scenario.TravelTicks), new XAttribute("returnTicks", scenario.ReturnTicks) } : null,
+                scenario.FleetSize.HasValue ? new XAttribute("fleetSize", scenario.FleetSize.Value) : null,
                 scenario.Shelters.Select(s => new XElement("Shelter", new XAttribute("name", s.Name), new XAttribute("demand", s.Demand), new XAttribute("x", s.X), new XAttribute("y", s.Y),
                     s.TravelTicks.HasValue ? new XAttribute("travelTicks", s.TravelTicks.Value) : null)))).Save(path);
         else File.WriteAllText(path, JsonSerializer.Serialize(scenario, new JsonSerializerOptions(JsonOptions) { WriteIndented = true }));

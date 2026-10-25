@@ -1,0 +1,350 @@
+{
+  "run": {
+    "schemaVersion": 1,
+    "engineVersion": "2.1.0",
+    "id": "f6c2038f-5eee-46a5-a87b-6dcd96ae3028",
+    "createdAt": "2026-10-24T20:48:23.9978364+00:00",
+    "scenario": {
+      "schemaVersion": 2,
+      "name": "Finite Stock / Travel Training",
+      "capacity": 10,
+      "shelters": [
+        {
+          "name": "Shelter-A",
+          "demand": 25,
+          "x": 480,
+          "y": 180,
+          "travelTicks": null
+        },
+        {
+          "name": "Shelter-B",
+          "demand": 5,
+          "x": 910,
+          "y": 180,
+          "travelTicks": null
+        },
+        {
+          "name": "Shelter-C",
+          "demand": 18,
+          "x": 480,
+          "y": 490,
+          "travelTicks": null
+        }
+      ],
+      "depotStock": 30,
+      "travelTicks": 2,
+      "returnTicks": 1
+    },
+    "commands": [
+      {
+        "sequence": 1,
+        "command": {
+          "id": "ef9294b5-acd2-4cc5-8b2f-bb259ceb819d",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "BFD0A041F80F039A8C43E82685B5E053D389BB5F824A01BEE1F097C86F21CD47"
+      },
+      {
+        "sequence": 2,
+        "command": {
+          "id": "a5178c53-8e2e-4559-a3d9-e6509decefaf",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "AC77C6FE32AA87019F9FA20550EC238FF35375B8E99ED873A6169AEAC0906884"
+      },
+      {
+        "sequence": 3,
+        "command": {
+          "id": "17f286da-1ec2-45ad-89fc-96bbd02ef388",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "5F586C11C964C55500F040ABFD82376798BB61F01A77FB584128A185785103FF"
+      },
+      {
+        "sequence": 4,
+        "command": {
+          "id": "a4cd015d-1046-4076-a718-7a234777b317",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "849B00EEA2FBC3ADE2D99216663B9A39BE75B545815E43F4C6DB187B7E819633"
+      },
+      {
+        "sequence": 5,
+        "command": {
+          "id": "128bd866-024f-4c63-a08a-2da4dcc8e71f",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "7FB6AADC983EE1D85578B9A42A12F02D4E55F4577C7E71DEB6B10EBC845F3A41"
+      },
+      {
+        "sequence": 6,
+        "command": {
+          "id": "323ecb6b-0216-4a6d-9a18-f6d20d8e3a1b",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "A07400922CF99CC3C86679DA587D87F27553AD4429C0F6A6E22430F4EAC6D1F7"
+      },
+      {
+        "sequence": 7,
+        "command": {
+          "id": "7e18a79e-6b2a-4f14-9452-64b097584cce",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "97A6A4E94E26B6175E2C9589BD724126612D23E955B5AF36225CCFE0AEE695B1"
+      },
+      {
+        "sequence": 8,
+        "command": {
+          "id": "58a9fa87-a320-46eb-a415-3278c0aa0e70",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "E61E3170E7D9051BA1C9271BAF2A1818F51A6376A697AACF8A69678179F85841"
+      },
+      {
+        "sequence": 9,
+        "command": {
+          "id": "4d0f7447-87ee-4f5d-8dbd-7a202b72e533",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "8B0F2B31570F4D341CB20BDA606848087796CA6CC7F0FA38F9B3765819118CEB"
+      },
+      {
+        "sequence": 10,
+        "command": {
+          "id": "333beeab-2139-42d7-ac7a-886c7e68e5cb",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "BDF382F5C83174AA44F1BEC714D3FBF8FC66CF7EA7B277ECCD7E448F7F1D165E"
+      },
+      {
+        "sequence": 11,
+        "command": {
+          "id": "6cdab2a2-98a2-4d56-82a8-aa5c35635655",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "11BB1BD692D2FCAF29D014F770633B3E806814DE6C9904058A5495675F300D35"
+      },
+      {
+        "sequence": 12,
+        "command": {
+          "id": "3b64cb04-f3c8-45a6-8c09-189dfd57f969",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "ED6609C44AB4D21ABC6B4FDA684069602AFC0E9919760455BDA107DD4DE69731"
+      },
+      {
+        "sequence": 13,
+        "command": {
+          "id": "ad6fffa3-5213-40b7-86c7-af23f84edb2f",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "EE0A733F3C5E95DED377CED7D379C021EE21DED16BA105754985234E9F06B706"
+      },
+      {
+        "sequence": 14,
+        "command": {
+          "id": "d4ce53dd-1244-4d04-bbee-24ae45eccd94",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "754F39DF0BB4F91995EC519373CD8DD304F91B7FC617B3650B7AFE64A0F12B46"
+      },
+      {
+        "sequence": 15,
+        "command": {
+          "id": "a4f172f3-5fa5-4a17-a3a4-237b64ab9698",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "2ACA3B52CD4017386CB1301240AA109E36999DE5BBFB2672DC5DEEDB27FF9B32"
+      },
+      {
+        "sequence": 16,
+        "command": {
+          "id": "7e4605b7-927e-4a9e-972d-0b701c3ddcf7",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "FF62CD6A89615377F146F7B678C9C0075E191420CE71D6F25B63DB59BDF92851"
+      },
+      {
+        "sequence": 17,
+        "command": {
+          "id": "9af80d3c-aaa1-4362-859c-a9cfa4427759",
+          "type": "Restock",
+          "target": null,
+          "duration": 0,
+          "amount": 20
+        },
+        "stateHash": "84F9B99E5A773849DE57738ABE382C93537553FBB437935656E743AA941184B9"
+      },
+      {
+        "sequence": 18,
+        "command": {
+          "id": "10c92b21-00b0-41d8-ac54-78cd9c00afac",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "3A67183FD5C874FC622A20252FBF6AE7927BA104ABFE345A3FD08C4CB515A1CB"
+      },
+      {
+        "sequence": 19,
+        "command": {
+          "id": "c1aea564-8137-4399-bd39-aea0f843d4ce",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "EA32F39C47AB12F05F3A87552BA4A40E3104F468A88EEA22C5D40CDCA8A6E713"
+      },
+      {
+        "sequence": 20,
+        "command": {
+          "id": "bfab9468-f1f0-4886-a7f9-325ccd1a4e01",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "9A8912D029E16AA25E1E59DED2E0E05528C06DD508FFC0EAE59B05DC7EF261E6"
+      },
+      {
+        "sequence": 21,
+        "command": {
+          "id": "080a6ede-ddf7-498d-8298-3bb05a90a5bb",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "C7BB193A2642D090F725BF7E72BABC187DE3EE16C0893C9C4D04C32EF6A6B010"
+      },
+      {
+        "sequence": 22,
+        "command": {
+          "id": "d7751671-95f8-4371-b1ca-de5cecc82df5",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "882884D6560206CFF4EDB6789BC73E01EF9709C0869A34CC963F4B7AA3F905C5"
+      },
+      {
+        "sequence": 23,
+        "command": {
+          "id": "d2bd4790-ee08-46e8-bea9-a23d2f948e0a",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "199AB3D7C95673A5E0ECCD248795D73B2E8B313A5D8D2C106992C75758FF30B1"
+      },
+      {
+        "sequence": 24,
+        "command": {
+          "id": "4ffd3312-f7cc-425e-a75d-04b7846b6474",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "E4BB9DCA5613330649835FDE37F134BDA11CB069476AA7CD16CCB6CDC5942789"
+      },
+      {
+        "sequence": 25,
+        "command": {
+          "id": "5725a746-adbe-4968-b291-3dbc8629f234",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "59ABF46D538B1EFCE0567A71A6D6057597CEAD6C5F06F422677DF5D1864C9CA1"
+      }
+    ],
+    "creationCommandId": "00000000-0000-0000-0000-000000000000"
+  },
+  "expectedHash": "59ABF46D538B1EFCE0567A71A6D6057597CEAD6C5F06F422677DF5D1864C9CA1",
+  "tick": 24,
+  "status": "Completed",
+  "commandJson": [
+    "{\"sequence\":1,\"command\":{\"id\":\"ef9294b5-acd2-4cc5-8b2f-bb259ceb819d\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"BFD0A041F80F039A8C43E82685B5E053D389BB5F824A01BEE1F097C86F21CD47\"}",
+    "{\"sequence\":2,\"command\":{\"id\":\"a5178c53-8e2e-4559-a3d9-e6509decefaf\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"AC77C6FE32AA87019F9FA20550EC238FF35375B8E99ED873A6169AEAC0906884\"}",
+    "{\"sequence\":3,\"command\":{\"id\":\"17f286da-1ec2-45ad-89fc-96bbd02ef388\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"5F586C11C964C55500F040ABFD82376798BB61F01A77FB584128A185785103FF\"}",
+    "{\"sequence\":4,\"command\":{\"id\":\"a4cd015d-1046-4076-a718-7a234777b317\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"849B00EEA2FBC3ADE2D99216663B9A39BE75B545815E43F4C6DB187B7E819633\"}",
+    "{\"sequence\":5,\"command\":{\"id\":\"128bd866-024f-4c63-a08a-2da4dcc8e71f\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"7FB6AADC983EE1D85578B9A42A12F02D4E55F4577C7E71DEB6B10EBC845F3A41\"}",
+    "{\"sequence\":6,\"command\":{\"id\":\"323ecb6b-0216-4a6d-9a18-f6d20d8e3a1b\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"A07400922CF99CC3C86679DA587D87F27553AD4429C0F6A6E22430F4EAC6D1F7\"}",
+    "{\"sequence\":7,\"command\":{\"id\":\"7e18a79e-6b2a-4f14-9452-64b097584cce\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"97A6A4E94E26B6175E2C9589BD724126612D23E955B5AF36225CCFE0AEE695B1\"}",
+    "{\"sequence\":8,\"command\":{\"id\":\"58a9fa87-a320-46eb-a415-3278c0aa0e70\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"E61E3170E7D9051BA1C9271BAF2A1818F51A6376A697AACF8A69678179F85841\"}",
+    "{\"sequence\":9,\"command\":{\"id\":\"4d0f7447-87ee-4f5d-8dbd-7a202b72e533\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"8B0F2B31570F4D341CB20BDA606848087796CA6CC7F0FA38F9B3765819118CEB\"}",
+    "{\"sequence\":10,\"command\":{\"id\":\"333beeab-2139-42d7-ac7a-886c7e68e5cb\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"BDF382F5C83174AA44F1BEC714D3FBF8FC66CF7EA7B277ECCD7E448F7F1D165E\"}",
+    "{\"sequence\":11,\"command\":{\"id\":\"6cdab2a2-98a2-4d56-82a8-aa5c35635655\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"11BB1BD692D2FCAF29D014F770633B3E806814DE6C9904058A5495675F300D35\"}",
+    "{\"sequence\":12,\"command\":{\"id\":\"3b64cb04-f3c8-45a6-8c09-189dfd57f969\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"ED6609C44AB4D21ABC6B4FDA684069602AFC0E9919760455BDA107DD4DE69731\"}",
+    "{\"sequence\":13,\"command\":{\"id\":\"ad6fffa3-5213-40b7-86c7-af23f84edb2f\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"EE0A733F3C5E95DED377CED7D379C021EE21DED16BA105754985234E9F06B706\"}",
+    "{\"sequence\":14,\"command\":{\"id\":\"d4ce53dd-1244-4d04-bbee-24ae45eccd94\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"754F39DF0BB4F91995EC519373CD8DD304F91B7FC617B3650B7AFE64A0F12B46\"}",
+    "{\"sequence\":15,\"command\":{\"id\":\"a4f172f3-5fa5-4a17-a3a4-237b64ab9698\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"2ACA3B52CD4017386CB1301240AA109E36999DE5BBFB2672DC5DEEDB27FF9B32\"}",
+    "{\"sequence\":16,\"command\":{\"id\":\"7e4605b7-927e-4a9e-972d-0b701c3ddcf7\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"FF62CD6A89615377F146F7B678C9C0075E191420CE71D6F25B63DB59BDF92851\"}",
+    "{\"sequence\":17,\"command\":{\"id\":\"9af80d3c-aaa1-4362-859c-a9cfa4427759\",\"type\":\"Restock\",\"target\":null,\"duration\":0,\"amount\":20},\"stateHash\":\"84F9B99E5A773849DE57738ABE382C93537553FBB437935656E743AA941184B9\"}",
+    "{\"sequence\":18,\"command\":{\"id\":\"10c92b21-00b0-41d8-ac54-78cd9c00afac\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"3A67183FD5C874FC622A20252FBF6AE7927BA104ABFE345A3FD08C4CB515A1CB\"}",
+    "{\"sequence\":19,\"command\":{\"id\":\"c1aea564-8137-4399-bd39-aea0f843d4ce\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"EA32F39C47AB12F05F3A87552BA4A40E3104F468A88EEA22C5D40CDCA8A6E713\"}",
+    "{\"sequence\":20,\"command\":{\"id\":\"bfab9468-f1f0-4886-a7f9-325ccd1a4e01\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"9A8912D029E16AA25E1E59DED2E0E05528C06DD508FFC0EAE59B05DC7EF261E6\"}",
+    "{\"sequence\":21,\"command\":{\"id\":\"080a6ede-ddf7-498d-8298-3bb05a90a5bb\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"C7BB193A2642D090F725BF7E72BABC187DE3EE16C0893C9C4D04C32EF6A6B010\"}",
+    "{\"sequence\":22,\"command\":{\"id\":\"d7751671-95f8-4371-b1ca-de5cecc82df5\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"882884D6560206CFF4EDB6789BC73E01EF9709C0869A34CC963F4B7AA3F905C5\"}",
+    "{\"sequence\":23,\"command\":{\"id\":\"d2bd4790-ee08-46e8-bea9-a23d2f948e0a\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"199AB3D7C95673A5E0ECCD248795D73B2E8B313A5D8D2C106992C75758FF30B1\"}",
+    "{\"sequence\":24,\"command\":{\"id\":\"4ffd3312-f7cc-425e-a75d-04b7846b6474\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"E4BB9DCA5613330649835FDE37F134BDA11CB069476AA7CD16CCB6CDC5942789\"}",
+    "{\"sequence\":25,\"command\":{\"id\":\"5725a746-adbe-4968-b291-3dbc8629f234\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"59ABF46D538B1EFCE0567A71A6D6057597CEAD6C5F06F422677DF5D1864C9CA1\"}"
+  ],
+  "eventJson": [
+    "{\"tick\":1,\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Dispatched\"}",
+    "{\"tick\":2,\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Travelling\"}",
+    "{\"tick\":3,\"shelter\":\"Shelter-A\",\"amount\":10,\"kind\":\"Delivery\"}",
+    "{\"tick\":4,\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Returned\"}",
+    "{\"tick\":5,\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Dispatched\"}",
+    "{\"tick\":6,\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Travelling\"}",
+    "{\"tick\":7,\"shelter\":\"Shelter-A\",\"amount\":10,\"kind\":\"Delivery\"}",
+    "{\"tick\":8,\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Returned\"}",
+    "{\"tick\":9,\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Dispatched\"}",
+    "{\"tick\":10,\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Travelling\"}",
+    "{\"tick\":11,\"shelter\":\"Shelter-A\",\"amount\":5,\"kind\":\"Delivery\"}",
+    "{\"tick\":12,\"shelter\":\"Shelter-A\",\"amount\":0,\"kind\":\"Returned\"}",
+    "{\"tick\":13,\"shelter\":\"Shelter-B\",\"amount\":0,\"kind\":\"Dispatched\"}",
+    "{\"tick\":14,\"shelter\":\"Shelter-B\",\"amount\":0,\"kind\":\"Travelling\"}",
+    "{\"tick\":15,\"shelter\":\"Shelter-B\",\"amount\":5,\"kind\":\"Delivery\"}",
+    "{\"tick\":16,\"shelter\":\"Shelter-B\",\"amount\":0,\"kind\":\"Returned\"}",
+    "{\"tick\":17,\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Dispatched\"}",
+    "{\"tick\":18,\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Travelling\"}",
+    "{\"tick\":19,\"shelter\":\"Shelter-C\",\"amount\":10,\"kind\":\"Delivery\"}",
+    "{\"tick\":20,\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Returned\"}",
+    "{\"tick\":21,\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Dispatched\"}",
+    "{\"tick\":22,\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Travelling\"}",
+    "{\"tick\":23,\"shelter\":\"Shelter-C\",\"amount\":8,\"kind\":\"Delivery\"}",
+    "{\"tick\":24,\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Returned\"}"
+  ],
+  "checkpointJson": "{\"tick\":24,\"deliveredTotal\":48,\"shelters\":[{\"name\":\"Shelter-A\",\"initialDemand\":25,\"remaining\":0,\"blockedUntil\":0},{\"name\":\"Shelter-B\",\"initialDemand\":5,\"remaining\":0,\"blockedUntil\":0},{\"name\":\"Shelter-C\",\"initialDemand\":18,\"remaining\":0,\"blockedUntil\":0}],\"depotStockRemaining\":2,\"restockedTotal\":20,\"vehicle\":{\"phase\":0,\"destination\":null,\"load\":0,\"ticksRemaining\":0,\"duration\":0}}"
+}

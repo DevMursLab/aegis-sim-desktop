@@ -40,6 +40,7 @@
     <Menu Background="Transparent" VerticalAlignment="Center" Margin="0,0,8,0">
      <MenuItem Header="Tools">
       <MenuItem x:Name="EditorMenu" Header="Scenario editor" Tag="Editor" Click="Workspace_Click" IsEnabled="{Binding IsLocal}"/>
+      <MenuItem x:Name="FleetDemoMenu" Header="Three-vehicle demo" Tag="Fleet" Click="Workspace_Click" IsEnabled="{Binding IsLocal}"/>
       <MenuItem x:Name="LayersMenu" Header="Offline GeoJSON layers" Tag="Layers" Click="Workspace_Click"/>
       <MenuItem x:Name="PreviewMenu" Header="Completion preview" Tag="Preview" Click="Workspace_Click"/>
       <MenuItem x:Name="DiagnosticsMenu" Header="Export diagnostics" Tag="Diagnostics" Click="Workspace_Click"/>
@@ -90,9 +91,9 @@
    <Border Grid.Row="1" BorderBrush="#D9E1E8" BorderThickness="1" CornerRadius="6" ClipToBounds="True">
     <Grid>
      <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-     <local:SyntheticMap x:Name="AreaMap" Nodes="{Binding MapNodes}" SelectedName="{Binding SelectedShelterName, Mode=TwoWay}" LastDelivery="{Binding LastDeliveryShelter}" HasVehicle="{Binding UsesLogistics}" VehicleX="{Binding VehiclePosition.X}" VehicleY="{Binding VehiclePosition.Y}" VehicleDestination="{Binding VehicleDestination}" AutomationProperties.Name="Synthetic map. Select a shelter from the adjacent list for keyboard access."/>
+     <local:SyntheticMap x:Name="AreaMap" Nodes="{Binding MapNodes}" SelectedName="{Binding SelectedShelterName, Mode=TwoWay}" LastDelivery="{Binding LastDeliveryShelter}" HasVehicle="{Binding UsesLogistics}" FleetVehicles="{Binding MapVehicles}" VehicleX="{Binding VehiclePosition.X}" VehicleY="{Binding VehiclePosition.Y}" VehicleDestination="{Binding VehicleDestination}" AutomationProperties.Name="Synthetic map. Select a shelter from the adjacent list for keyboard access."/>
      <Border Grid.Row="1" Background="White" Padding="14,10">
-      <TextBlock Text="Green: supplied / red: closed / amber: vehicle (schema 2), last visit (schema 1)&#x0a;Scroll: zoom · Drag: pan · Home: fit · Synthetic local meters" Foreground="#526878" FontSize="11" TextWrapping="Wrap"/>
+      <TextBlock Text="Green: supplied / red: closed / amber: vehicles or last visit&#x0a;Scroll: zoom · Drag: pan · Home: fit · Synthetic local meters" Foreground="#526878" FontSize="11" TextWrapping="Wrap"/>
      </Border>
     </Grid>
    </Border>
@@ -109,9 +110,10 @@
     </DataGrid.Columns>
    </DataGrid>
    <TextBlock Grid.Row="4" Text="EXERCISE HISTORY" FontWeight="SemiBold" Margin="0,16,0,10"/>
-   <DataGrid x:Name="EventGrid" Grid.Row="5" ItemsSource="{Binding Events}" RowHeight="26">
+   <DataGrid x:Name="EventGrid" Grid.Row="5" ItemsSource="{Binding EventRows}" RowHeight="26">
     <DataGrid.Columns>
      <DataGridTextColumn Header="Tick" Binding="{Binding Tick}" Width="40"/>
+     <DataGridTextColumn Header="Vehicle" Binding="{Binding Vehicle}" Width="90"/>
      <DataGridTextColumn Header="Event" Binding="{Binding Kind}" Width="95"/>
      <DataGridTextColumn Header="Shelter" Binding="{Binding Shelter}" Width="*"/>
      <DataGridTextColumn Header="Packets" Binding="{Binding Amount}" Width="60"/>
@@ -120,6 +122,6 @@
    </Grid>
   </Grid>
   <TextBlock Grid.Row="4" Margin="0,18,0,0" Foreground="#526878" TextWrapping="Wrap"
-   Text="SYNTHETIC TRAINING DATA · Schema 1: instant visits. Schema 2: finite stock and configured travel ticks. SQLite autosave; Reset creates a new run."/>
+   Text="SYNTHETIC TRAINING DATA · Finite stock and configured travel ticks; legacy instant visits supported. SQLite autosave; Reset creates a new run."/>
  </Grid>
 </Window>

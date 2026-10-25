@@ -143,7 +143,8 @@ public sealed class RunRepository
         db.SaveChanges();
         transaction.Commit();
     }
-    private static string CheckpointJson(SimulationSession session) => session.UsesLogistics ?
+    private static string CheckpointJson(SimulationSession session) => session.UsesFleet ?
+        JsonSerializer.Serialize(new { session.Tick, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicles }, ScenarioFiles.JsonOptions) : session.UsesLogistics ?
         JsonSerializer.Serialize(new { session.Tick, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicle }, ScenarioFiles.JsonOptions) :
         JsonSerializer.Serialize(new { session.Tick, session.DeliveredTotal, session.Shelters }, ScenarioFiles.JsonOptions);
 }

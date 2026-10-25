@@ -18,10 +18,13 @@ public sealed class ShelterDraft
 public sealed class ScenarioDraft : INotifyPropertyChanged
 {
     private bool usesLogistics;
+    private bool usesFleet;
     public event PropertyChangedEventHandler? PropertyChanged;
     public string Name { get; set; }
     public string Capacity { get; set; }
-    public bool UsesLogistics { get => usesLogistics; set { if (usesLogistics == value) return; usesLogistics = value; PropertyChanged?.Invoke(this, new(nameof(UsesLogistics))); } }
+    public bool UsesLogistics { get => usesLogistics; set { if (usesLogistics == value) return; usesLogistics = value; if (!value) usesFleet = false; PropertyChanged?.Invoke(this, new(nameof(UsesLogistics))); PropertyChanged?.Invoke(this, new(nameof(UsesFleet))); } }
+    public bool UsesFleet { get => usesFleet; set { if (usesFleet == value) return; usesFleet = value; if (value) UsesLogistics = true; PropertyChanged?.Invoke(this, new(nameof(UsesFleet))); } }
+    public string FleetSize { get; set; }
     public string DepotStock { get; set; }
     public string TravelTicks { get; set; }
     public string ReturnTicks { get; set; }
@@ -30,7 +33,8 @@ public sealed class ScenarioDraft : INotifyPropertyChanged
     public ScenarioDraft(ScenarioDefinition source)
     {
         source.Validate();
-        Name = source.Name; Capacity = Number(source.Capacity); UsesLogistics = source.SchemaVersion == 2;
+        Name = source.Name; Capacity = Number(source.Capacity); UsesLogistics = source.SchemaVersion >= 2; UsesFleet = source.SchemaVersion == 3;
+        FleetSize = Number(source.FleetSize ?? 3);
         DepotStock = Number(source.DepotStock ?? source.Shelters.Sum(s => s.Demand));
         TravelTicks = Number(source.TravelTicks); ReturnTicks = Number(source.ReturnTicks);
         foreach (var s in source.Shelters) Shelters.Add(new() { Name = s.Name, Demand = Number(s.Demand), X = Number(s.X), Y = Number(s.Y), TravelTicks = s.TravelTicks.HasValue ? Number(s.TravelTicks.Value) : "" });
@@ -57,10 +61,10 @@ public sealed class ScenarioDraft : INotifyPropertyChanged
                 rows.Add(new(row.Name.Trim(), Integer(row.Demand, $"{row.Name}: demand"), Coordinate(row.X, $"{row.Name}: X"), Coordinate(row.Y, $"{row.Name}: Y"),
                     UsesLogistics && !string.IsNullOrWhiteSpace(row.TravelTicks) ? Integer(row.TravelTicks, $"{row.Name}: travel override") : null));
             }
-            var candidate = new ScenarioDefinition(UsesLogistics ? 2 : 1, Name.Trim(), Integer(Capacity, "Capacity"), rows.ToArray(),
+            var candidate = new ScenarioDefinition(UsesFleet ? 3 : UsesLogistics ? 2 : 1, Name.Trim(), Integer(Capacity, "Capacity"), rows.ToArray(),
                 UsesLogistics ? Integer(DepotStock, "Depot stock") : null,
                 UsesLogistics ? Integer(TravelTicks, "Travel ticks") : 1,
-                UsesLogistics ? Integer(ReturnTicks, "Return ticks") : 0);
+                UsesLogistics ? Integer(ReturnTicks, "Return ticks") : 0, UsesFleet ? Integer(FleetSize, "Vehicle count") : null);
             candidate.Validate();
             scenario = candidate;
             message = $"Valid schema {candidate.SchemaVersion} scenario / {rows.Count} shelters / {rows.Sum(s => s.Demand)} packets requested.";

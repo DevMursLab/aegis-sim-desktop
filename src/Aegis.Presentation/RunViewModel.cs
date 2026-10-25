@@ -24,22 +24,26 @@ public sealed class RunViewModel : INotifyPropertyChanged
     public int DeliveredTotal => session.DeliveredTotal;
     public int Remaining => session.InitialDemand - session.DeliveredTotal;
     public bool UsesLogistics => session.UsesLogistics;
+    public bool UsesFleet => session.UsesFleet;
+    public IReadOnlyList<ExerciseEventRow> EventRows => events.SelectMany(e => e.Actions == null ?
+        new[] { new ExerciseEventRow(e.Tick, "Vehicle-01", e.Shelter, e.Amount, e.Kind) } :
+        e.Actions.Select(a => new ExerciseEventRow(e.Tick, a.VehicleId, a.Shelter, a.Amount, a.Kind))).ToArray();
+    public IReadOnlyList<MapVehicle> MapVehicles => UsesFleet ? session.Vehicles.Select(v =>
+        new MapVehicle(v.Id, PositionOf(v.State), v.State.Destination, v.State.Phase.ToString(), v.State.Load)).ToArray() : Array.Empty<MapVehicle>();
     public string? VehicleDestination => session.Vehicle.Destination;
-    public string StockLabel => UsesLogistics ? $"Depot: {session.DepotStockRemaining} packets | In transit: {session.Vehicle.Load} | Added supply: {session.RestockedTotal}" : "Schema 1: legacy instant visits / unlimited reload supply";
-    public string VehicleLabel => !UsesLogistics ? "Vehicle: instantaneous lesson model" : session.Vehicle.Phase == VehiclePhase.AtDepot ?
+    public string StockLabel => UsesLogistics ? $"Depot: {session.DepotStockRemaining} packets | In transit: {session.InTransit} | Added supply: {session.RestockedTotal}" : "Schema 1: legacy instant visits / unlimited reload supply";
+    public string VehicleLabel => UsesFleet ? $"Fleet: {session.Vehicles.Count} | Outbound: {session.Vehicles.Count(v => v.State.Phase == VehiclePhase.Outbound)} | Returning: {session.Vehicles.Count(v => v.State.Phase == VehiclePhase.Returning)} | At depot: {session.Vehicles.Count(v => v.State.Phase == VehiclePhase.AtDepot)}" : !UsesLogistics ? "Vehicle: instantaneous lesson model" : session.Vehicle.Phase == VehiclePhase.AtDepot ?
         session.Status == RunStatus.SupplyExhausted ? "Vehicle at depot / supply exhausted. Restock to resume." : "Vehicle at depot / ready" :
         $"Vehicle {session.Vehicle.Phase}: {session.Vehicle.Destination} | Load {session.Vehicle.Load} | {session.Vehicle.TicksRemaining} travel ticks left";
-    public MapPoint VehiclePosition
+    public MapPoint VehiclePosition => PositionOf(session.Vehicle);
+    private MapPoint PositionOf(VehicleState vehicle)
     {
-        get
-        {
-            var origin = new MapPoint(170, 410);
-            if (!UsesLogistics || session.Vehicle.Phase == VehiclePhase.AtDepot) return origin;
-            var target = document.Scenario.Shelters.First(s => s.Name == session.Vehicle.Destination);
-            double progress = 1.0 - (double)session.Vehicle.TicksRemaining / session.Vehicle.Duration;
-            if (session.Vehicle.Phase == VehiclePhase.Returning) progress = 1 - progress;
-            return new(origin.X + (target.X - origin.X) * progress, origin.Y + (target.Y - origin.Y) * progress);
-        }
+        var origin = new MapPoint(170, 410);
+        if (!UsesLogistics || vehicle.Phase == VehiclePhase.AtDepot) return origin;
+        var target = document.Scenario.Shelters.First(s => s.Name == vehicle.Destination);
+        double progress = 1.0 - (double)vehicle.TicksRemaining / vehicle.Duration;
+        if (vehicle.Phase == VehiclePhase.Returning) progress = 1 - progress;
+        return new(origin.X + (target.X - origin.X) * progress, origin.Y + (target.Y - origin.Y) * progress);
     }
     public string Status => faulted ? "Storage error" : IsReplay ? "Replay" : session.Status.ToString();
     public bool IsRunning => !remote && !IsReplay && !faulted && session.Status == RunStatus.Running;

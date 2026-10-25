@@ -22,7 +22,9 @@ public static class Diagnostics
             ScenarioSchema = document.Scenario.SchemaVersion, Commands = document.Commands.Length,
             replay.Session.Tick, Status = replay.Session.Status.ToString(), replay.Session.DeliveredTotal,
             replay.Session.DepotStockRemaining, VehiclePhase = replay.Session.Vehicle.Phase.ToString(),
-            Cargo = replay.Session.Vehicle.Load, TravelTicksRemaining = replay.Session.Vehicle.TicksRemaining,
+            Cargo = replay.Session.InTransit, TravelTicksRemaining = replay.Session.Vehicle.TicksRemaining,
+            VehicleCount = replay.Session.Vehicles.Count,
+            Vehicles = replay.Session.Vehicles.Select(v => new { v.Id, Phase = v.State.Phase.ToString(), Cargo = v.State.Load, TravelTicksRemaining = v.State.TicksRemaining }).ToArray(),
             StateHash = RunHistory.Hash(replay.Session), ReplayMilliseconds = watch.Elapsed.TotalMilliseconds,
             WorkingSetBytes = process.WorkingSet64,
             Note = "One observed process sample; replay timing is not a benchmark. No credentials or file paths included."

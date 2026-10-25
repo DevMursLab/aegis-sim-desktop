@@ -13,9 +13,9 @@ public sealed record RunMetrics(int Ticks, int Delivered, int Remaining, double 
             replay.Session.InitialDemand == 0 ? 100 : 100.0 * delivered / replay.Session.InitialDemand,
             delivered == 0 ? 0 : replay.Events.Sum(e => (double)e.Tick * e.Amount) / delivered,
             ticks == 0 ? 0 : 100.0 * replay.Events.Count(e => e.Amount > 0) / ticks,
-            replay.Events.Count(e => e.Kind is "Waiting" or "RouteWait"), document.Commands.Count(c => c.Command.Type == "CloseRoute"),
-            replay.Session.DepotStockRemaining, replay.Session.Vehicle.Load, replay.Session.RestockedTotal,
-            replay.Session.UsesLogistics ? replay.Events.Count(e => e.Kind is "Travelling" or "Delivery" or "RouteWait") : 0,
-            replay.Events.Count(e => e.Kind is "Returning" or "Returned"));
+            replay.Events.Count(e => e.Kind is "Waiting" or "RouteWait" || e.Actions?.Any(a => a.Kind is "Waiting" or "RouteWait") == true), document.Commands.Count(c => c.Command.Type == "CloseRoute"),
+            replay.Session.DepotStockRemaining, replay.Session.InTransit, replay.Session.RestockedTotal,
+            replay.Session.UsesLogistics ? replay.Events.Sum(e => e.Actions != null ? e.Actions.Count(a => a.Kind is "Travelling" or "Delivery" or "RouteWait") : e.Kind is "Travelling" or "Delivery" or "RouteWait" ? 1 : 0) : 0,
+            replay.Events.Sum(e => e.Actions != null ? e.Actions.Count(a => a.Kind is "Returning" or "Returned") : e.Kind is "Returning" or "Returned" ? 1 : 0));
     }
 }

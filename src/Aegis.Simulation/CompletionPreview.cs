@@ -21,8 +21,8 @@ public static class CompletionPreview
             session.Step();
         }
         int remaining = session.InitialDemand - session.DeliveredTotal;
-        int shortage = session.UsesLogistics ? Math.Max(0, remaining - session.DepotStockRemaining!.Value - session.Vehicle.Load) : 0;
+        int shortage = session.UsesLogistics ? Math.Max(0, remaining - session.DepotStockRemaining!.Value - session.InTransit) : 0;
         return new(session.Tick == 20000 && session.Status is not (RunStatus.Completed or RunStatus.SupplyExhausted) ? "TickLimit" : session.Status.ToString(),
-            start, session.Tick, session.DeliveredTotal, remaining, session.DepotStockRemaining, session.Vehicle.Load, shortage, RunHistory.Hash(session));
+            start, session.Tick, session.DeliveredTotal, remaining, session.DepotStockRemaining, session.InTransit, shortage, RunHistory.Hash(session));
     }
 }

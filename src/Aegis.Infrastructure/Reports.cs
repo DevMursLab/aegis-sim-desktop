@@ -26,6 +26,13 @@ public static class Reports
         foreach (var e in replay.Events)
             csv.AppendLine($"{e.Tick.ToString(CultureInfo.InvariantCulture)},{Cell(e.Shelter)},{e.Amount.ToString(CultureInfo.InvariantCulture)},{Cell(e.Kind)}");
         File.WriteAllText(stem + ".csv", csv.ToString(), new UTF8Encoding(true));
+        if (replay.Session.UsesFleet)
+        {
+            var detail = new StringBuilder("tick,vehicle,shelter,packets,kind\r\n");
+            foreach (var e in replay.Events)
+                foreach (var action in e.Actions!) detail.AppendLine($"{e.Tick},{Cell(action.VehicleId)},{Cell(action.Shelter)},{action.Amount},{Cell(action.Kind)}");
+            File.WriteAllText(stem + "-vehicles.csv", detail.ToString(), new UTF8Encoding(true));
+        }
         string rows = string.Join("", replay.Session.Shelters.Select(s => $"<tr><td>{WebUtility.HtmlEncode(s.Name)}</td><td>{s.InitialDemand}</td><td>{s.Remaining}</td></tr>"));
         string html = $$"""
             <!doctype html>
@@ -43,7 +50,7 @@ public static class Reports
             <p>Completion: {{metrics.CompletionPercent:0.0}}% / Mean service tick: {{metrics.MeanServiceTick:0.00}} / Active ticks: {{metrics.ActiveTickPercent:0.0}}%</p>
             <p>Waiting ticks: {{metrics.WaitingTicks}} / Closure commands: {{metrics.Closures}}</p>
             <p>Model schema: {{document.Scenario.SchemaVersion}} / Depot stock: {{(metrics.DepotStockRemaining.HasValue ? metrics.DepotStockRemaining.Value.ToString(CultureInfo.InvariantCulture) : "unlimited (legacy)")}} / In transit: {{metrics.InTransit}} / Restocked: {{metrics.RestockedTotal}}</p>
-            <p>Outbound travel ticks (including arrival and blocked-route delays): {{metrics.OutboundTicks}} / Return ticks: {{metrics.ReturnTicks}}</p>
+            <p>Vehicles: {{replay.Session.Vehicles.Count}} / Outbound vehicle-ticks (including arrival and blocked-route delays): {{metrics.OutboundTicks}} / Return ticks: {{metrics.ReturnTicks}}</p>
             </div>
             <table><tr><th>Shelter</th><th>Initial</th><th>Remaining</th></tr>{{rows}}</table>
             <h2>Reproducibility</h2><p>Verified ordered commands: {{document.Commands.Length}}. Final state SHA-256:</p>
@@ -51,7 +58,8 @@ public static class Reports
             <h2>Methods and limitations</h2>
             <p>All demand is available at tick zero. Mean service tick is packet-weighted delivery tick; it is not measured real-world waiting time.
             Active tick percentage is delivery ticks divided by elapsed ticks; zero elapsed ticks give zero active percentage.
-            Schema 1 uses instant visits and unlimited reload supply. Schema 2 reserves finite stock at dispatch and delivers after configured outbound ticks;
+            Schema 1 uses instant visits and unlimited reload supply. Schemas 2 and 3 reserve finite stock at dispatch and deliver after configured outbound ticks;
+            schema 3 advances all vehicles on a shared tick, in stable vehicle-ID order. Outbound/return counts sum vehicle-ticks; waiting counts elapsed ticks with any route wait.
             it waits for the final return to complete. Travel ticks are scenario settings, not distance/speed physics. Route closure freezes outbound progress;
             return travel is unaffected. PDF, HTML and CSV derive from verified replay. No real-world effectiveness claim.</p></html>
             """;

@@ -1,4 +1,14 @@
-# 2.3 source - local scenario editor
+# 2.4 source - shared-stock multi-vehicle simulation
+
+Schema 3 supports 1-8 identical-capacity vehicles, stable vehicle IDs and shared stock. Movement precedes dispatch; only vehicles at depot at tick start may dispatch. Outstanding cargo is reserved against shelter demand, preventing double allocation. All vehicles return before completion or supply exhaustion. Closure freezes affected outbound vehicles only. Dispatch order remains shelter-list order; priority allocation is future work.
+
+A tick stores an aggregate event containing ordered per-vehicle actions, so SQLite keeps its existing (RunId, Tick) key. Fleet state enters hashes/checkpoints. Engine 2.4 reads original engine 2.0/2.1 archives with their existing hashes and normalized SQL payloads. New histories require 2.4.
+
+Map markers, vehicle event rows, editor count, JSON/XML, preview, metrics, reports and local host/observer all understand fleet state. Reports add a vehicle CSV; movement counts sum vehicle-ticks. 121 console checks plus interactive flows verify the increment. Demo: three vehicles deliver 48 in 8 ticks; the same one-vehicle settings take 24 ticks.
+
+No new binary release was published for this source increment; the downloadable 2.2.0 ZIP lacks the editor and fleet model. Remaining: priority dispatch, geographic simulation integration, migration/scale work and deployment/acceptance gates below.
+
+## Historical 2.3 source - local scenario editor
 
 Adds a separate draft editor for schema 1/2 scenarios: editable shelter table, bounded numeric fields, stock/travel settings, validation, JSON/XML save and creation of a new saved run. Original scenario/history remains available. Editor is local only. Failed validation or storage keeps the draft open.
 

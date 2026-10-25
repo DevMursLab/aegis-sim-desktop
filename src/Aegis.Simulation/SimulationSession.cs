@@ -1,13 +1,16 @@
+using System.Text.Json.Serialization;
 namespace Aegis.Simulation;
 
 public enum RunStatus { Ready, Running, Paused, Completed, SupplyExhausted }
 public enum VehiclePhase { AtDepot, Outbound, Returning }
 public sealed record VehicleState(VehiclePhase Phase, string? Destination, int Load, int TicksRemaining, int Duration);
 public sealed record ShelterState(string Name, int InitialDemand, int Remaining, int BlockedUntil = 0);
-public sealed record DeliveryEvent(int Tick, string Shelter, int Amount, string Kind = "Delivery");
+public sealed record VehicleAction(string VehicleId, string Shelter, int Amount, string Kind);
+public sealed record DeliveryEvent(int Tick, string Shelter, int Amount, string Kind = "Delivery",
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] VehicleAction[]? Actions = null);
 
 // One owner mutates a session. No UI, timer, database or wall clock in this model.
-public sealed class SimulationSession
+public sealed partial class SimulationSession
 {
     private readonly ShelterState[] initial;
     private ShelterState[] shelters;
@@ -17,10 +20,13 @@ public sealed class SimulationSession
     public int InitialDemand { get; }
     public ScenarioDefinition Scenario { get; }
     public RunStatus Status { get; private set; }
-    public bool UsesLogistics => Scenario.SchemaVersion == 2;
+    public bool UsesLogistics => Scenario.SchemaVersion >= 2;
+    public bool UsesFleet => Scenario.SchemaVersion == 3;
     public int? DepotStockRemaining { get; private set; }
     public int RestockedTotal { get; private set; }
-    public VehicleState Vehicle { get; private set; } = new(VehiclePhase.AtDepot, null, 0, 0, 0);
+    private VehicleState singleVehicle = new(VehiclePhase.AtDepot, null, 0, 0, 0);
+    public VehicleState Vehicle { get => UsesFleet ? fleet[0].State : singleVehicle; private set => singleVehicle = value; }
+    public int InTransit => UsesFleet ? fleet.Sum(v => v.State.Load) : Vehicle.Load;
     public IReadOnlyList<ShelterState> Shelters => Array.AsReadOnly(shelters);
 
     public SimulationSession(IEnumerable<(string Name, int Demand)> definitions, int capacity)
@@ -43,12 +49,13 @@ public sealed class SimulationSession
     {
         Scenario = scenario with { Shelters = scenario.Shelters.ToArray() };
         DepotStockRemaining = scenario.DepotStock;
+        InitializeFleet();
         UpdateLogisticsStatus();
     }
 
     public void Restock(int amount)
     {
-        if (!UsesLogistics) throw new InvalidOperationException("Restocking requires a schema 2 logistics scenario.");
+        if (!UsesLogistics) throw new InvalidOperationException("Restocking requires a schema 2 or 3 logistics scenario.");
         if (Status == RunStatus.Completed) throw new InvalidOperationException("Completed runs are immutable.");
         if (amount <= 0 || (long)Scenario.DepotStock!.Value + RestockedTotal + amount > 10000)
             throw new ArgumentOutOfRangeException(nameof(amount), "Total supplied stock must stay within 10000 packets.");
@@ -91,6 +98,7 @@ public sealed class SimulationSession
     {
         if (Status is RunStatus.Completed or RunStatus.SupplyExhausted) throw new InvalidOperationException("Reset a completed run, or restock a supply-exhausted run before advancing.");
         if (Tick >= 20000) throw new InvalidOperationException("Exercise tick limit reached; reset or use a smaller scenario.");
+        if (UsesFleet) return StepFleet();
         if (UsesLogistics) return StepLogistics();
         int nextTick = Tick + 1;
         int index = Array.FindIndex(shelters, s => s.Remaining > 0 && s.BlockedUntil < nextTick);
@@ -113,6 +121,7 @@ public sealed class SimulationSession
         DepotStockRemaining = Scenario.DepotStock;
         RestockedTotal = 0;
         Vehicle = new(VehiclePhase.AtDepot, null, 0, 0, 0);
+        InitializeFleet();
         UpdateLogisticsStatus();
     }
 
@@ -154,6 +163,7 @@ public sealed class SimulationSession
 
     private void UpdateLogisticsStatus()
     {
+        if (UsesFleet) { UpdateFleetStatus(); return; }
         if (!UsesLogistics || Vehicle.Phase != VehiclePhase.AtDepot) return;
         if (DeliveredTotal == InitialDemand) Status = RunStatus.Completed;
         else if (DepotStockRemaining == 0) Status = RunStatus.SupplyExhausted;

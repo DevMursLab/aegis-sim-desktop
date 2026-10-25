@@ -16,6 +16,7 @@ public sealed class DesktopWorkspace(MainWindow window, RunViewModel model, RunR
             if (model.IsRunning && action is "Logistics" or "Import" or "History") model.PauseCommand.Execute(null);
             switch (action)
             {
+                case "Fleet": model.NewScenario(ScenarioDefinition.FleetDemo()); break;
                 case "Editor":
                     if (!model.IsLocal) throw new InvalidOperationException("Scenario editing is local only.");
                     new ScenarioEditorWindow(model.Document.Scenario, scenario =>

@@ -156,6 +156,7 @@ try
     Pass("Authoritative host and observer reconstruct the same road-derived exercise");
 }
 finally { if (!host.HasExited) host.Kill(true); }
+passed += await AsyncReplayChecks.Run();
 Console.WriteLine($"All {passed} release checks passed. Evidence: {directory}");
 
 static void Conserved(SimulationSession s) => Require(s.DeliveredTotal + s.InTransit + s.DepotStockRemaining == s.Scenario.DepotStock + s.RestockedTotal && s.Shelters.All(n => n.Remaining >= 0));

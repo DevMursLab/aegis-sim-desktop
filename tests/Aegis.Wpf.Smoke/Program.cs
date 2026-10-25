@@ -25,8 +25,10 @@ internal static class Program
         {
             try
             {
+                await WaitUntil(() => app.Windows.OfType<MainWindow>().Any());
                 var window = app.Windows.OfType<MainWindow>().Single();
                 var vm = (RunViewModel)window.DataContext;
+                vm.BackgroundReplay = false; // Earlier flows exercise synchronous compatibility; asynchronous UI is checked below.
                 await Flush();
                 Require(Text(window, "StatusText") == "Ready", "Initial status binding");
                 var map = (SyntheticMap)window.FindName("AreaMap");
@@ -184,6 +186,16 @@ internal static class Program
                 Require(vm.Tick == 14 && vm.DeliveredTotal == 30, "Road exercise completes with every return at tick 14");
                 var roadDone = vm.Document; vm.LoadReplay(roadDone); vm.ReplayTick = 2; await Flush();
                 Require(vm.Geography!.SourceHash == roadDone.Scenario.Geography!.SourceHash && Math.Abs(vm.MapVehicles[0].Position.Y - vm.DepotY) < 0.001, "Road replay preserves geography and vehicle positions");
+                vm.BackgroundReplay = true;
+                var load = vm.LoadReplayAsync(roadDone);
+                bool heartbeat = false; _ = window.Dispatcher.BeginInvoke(new Action(() => heartbeat = true));
+                await Flush(); await load;
+                Require(heartbeat && vm.IsReplay && vm.Tick == 14, "Dispatcher continues while background replay loads");
+                var slider = (Slider)window.FindName("ReplaySlider"); slider.Value = 3;
+                await WaitUntil(() => !vm.IsReplayLoading && vm.Tick == 3);
+                slider.Value = 1; slider.Value = 5;
+                await WaitUntil(() => !vm.IsReplayLoading && vm.Tick == 5);
+                Require(vm.ReplayTick == 5 && !Button(window, "StepButton").IsEnabled, "Actual slider publishes the latest background seek and remains read-only");
                 vm.NewScenario(Aegis.Simulation.ScenarioDefinition.FloodDemo()); await Flush();
                 Invoke(window, "StartButton"); window.Close();
                 Require(app.Windows.Count == 0, "Window closes while running");

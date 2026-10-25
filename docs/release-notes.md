@@ -1,4 +1,10 @@
-# 3.0.0 - integrated roads and a complete Windows portfolio package
+# 3.0.1 - responsive saved history and replay
+
+Desktop startup database work, saved-run listing, SQL history validation and A/B calculation now run on worker tasks. Timeline reconstruction is asynchronous and cooperatively cancellable between commands. Superseded seeks cannot publish stale results; reset/new scenarios cancel pending replay; corrupt input leaves the prior display intact. Closing the history window discards pending SQL results. Shared simulation rules, engine 3.0.0 and persisted hash formats are unchanged.
+
+162 console checks plus real WPF flows cover this patch, including a 20,000-command cancellation/reset fixture and actual slider updates. The patch is a responsiveness improvement, not a large-scale throughput guarantee. Final map/event publication, live command persistence and report export are still synchronous. The self-contained 3.0.1 Windows package contains these desktop changes; 3.0.0 remains the previous release.
+
+## Historical 3.0.0 - integrated roads and a complete Windows portfolio package
 
 This release ships the previously source-only editor, fleet and priorities together with road-derived travel. A bounded WGS84 GeoJSON exercise compiles to schema 4: deterministic shortest paths, spherical road lengths rounded up per edge, projected road geometry, source hash and both-direction travel ticks. The map, replay, preview, host/observer and HTML report share the frozen compiled scenario. The supplied two-vehicle exercise delivers 30 packets and returns at tick 14.
 

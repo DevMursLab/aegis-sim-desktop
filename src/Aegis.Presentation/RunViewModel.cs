@@ -13,6 +13,9 @@ public sealed class RunViewModel : INotifyPropertyChanged
     private string? selectedShelterName;
     private bool faulted, busy, remote, connected = true, observer;
     private int replayTick;
+    private CancellationTokenSource? replayCancellation;
+    public bool BackgroundReplay { get; set; }
+    public bool IsReplayLoading { get; private set; }
     public event PropertyChangedEventHandler? PropertyChanged;
     public Action<RunDocument>? Persist { get; set; }
     public Func<ExerciseCommand, Task>? RemoteSubmit { get; set; }
@@ -109,6 +112,8 @@ public sealed class RunViewModel : INotifyPropertyChanged
         set
         {
             if (!IsReplay) return;
+            if (value == replayTick) return;
+            if (BackgroundReplay) { _ = SeekReplayAsync(value); return; }
             replayTick = Math.Clamp(value, 0, MaxReplayTick);
             var result = RunHistory.Replay(replaySource!, replayTick);
             session = result.Session; ReplaceEvents(result.Events); Refresh();
@@ -120,7 +125,7 @@ public sealed class RunViewModel : INotifyPropertyChanged
     public RelayCommand ResetCommand { get; }
     public RelayCommand CloseRouteCommand { get; }
     public RelayCommand RestockCommand { get; }
-    private bool CanControl => !busy && !faulted && !IsReplay && (!remote || connected && !observer);
+    private bool CanControl => !busy && !IsReplayLoading && !faulted && !IsReplay && (!remote || connected && !observer);
 
     public RunViewModel(SimulationSession initialSession)
     {
@@ -162,6 +167,7 @@ public sealed class RunViewModel : INotifyPropertyChanged
     public void NewScenario(ScenarioDefinition scenario)
     {
         if (remote) throw new InvalidOperationException("Disconnect before creating a local run.");
+        CancelReplayWork();
         try
         {
             var candidate = RunHistory.New(scenario); Persist?.Invoke(candidate);
@@ -172,13 +178,46 @@ public sealed class RunViewModel : INotifyPropertyChanged
     public void LoadReplay(RunDocument saved)
     {
         if (remote) throw new InvalidOperationException("Replay is local; open a separate local window.");
+        CancelReplayWork();
         var result = RunHistory.Replay(saved);
+        ShowReplay(saved, result);
+    }
+    private void ShowReplay(RunDocument saved, ReconstructedRun result)
+    {
         replaySource = saved; document = saved; MaxReplayTick = result.Session.Tick; replayTick = MaxReplayTick;
         session = result.Session; ShelterNames = session.Shelters.Select(s => s.Name).ToArray();
         ReplaceEvents(result.Events); faulted = false; Message = "READ-ONLY REPLAY / checksum verified. Use the timeline. Reset starts a new run."; Refresh();
     }
+    public Task LoadReplayAsync(RunDocument saved) => ReplayInBackground(saved, null);
+    public Task SeekReplayAsync(int tick) => replaySource == null ? Task.CompletedTask : ReplayInBackground(replaySource, Math.Clamp(tick, 0, MaxReplayTick));
+    public void CancelReplayWork()
+    {
+        replayCancellation?.Cancel(); replayCancellation = null; IsReplayLoading = false; replayTick = session.Tick;
+    }
+    private async Task ReplayInBackground(RunDocument saved, int? target)
+    {
+        if (remote) throw new InvalidOperationException("Replay is local; open a separate local window.");
+        CancelReplayWork();
+        using var cancellation = new CancellationTokenSource(); replayCancellation = cancellation;
+        if (target.HasValue) replayTick = target.Value; // Keep the slider on the latest request while the verified state is pending.
+        IsReplayLoading = true; Message = "Verifying replay in the background..."; Refresh();
+        try
+        {
+            var result = await Task.Run(() => RunHistory.Replay(saved, target, cancellation.Token), cancellation.Token);
+            if (cancellation.IsCancellationRequested || replayCancellation != cancellation) return;
+            if (target == null) ShowReplay(saved, result);
+            else { session = result.Session; replayTick = target.Value; ReplaceEvents(result.Events); Message = "READ-ONLY REPLAY / checksum verified."; }
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
+        catch (Exception error) { if (replayCancellation == cancellation) { replayTick = session.Tick; Message = "Replay failed safely: " + error.Message; } }
+        finally
+        {
+            if (replayCancellation == cancellation) { replayCancellation = null; IsReplayLoading = false; Refresh(); }
+        }
+    }
     public void SetRemote(bool isObserver)
     {
+        CancelReplayWork();
         remote = true; observer = isObserver; connected = false; ConnectionLabel = "CONNECTING"; Refresh();
     }
     public void SetConnection(bool available, string label) { connected = available; ConnectionLabel = label; Refresh(); }

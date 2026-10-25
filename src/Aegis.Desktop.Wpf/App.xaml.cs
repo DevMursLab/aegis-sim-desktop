@@ -18,15 +18,15 @@ public partial class App : Application
         {
             string directory = Option(e.Args, "--data-dir") ?? Environment.GetEnvironmentVariable("AEGIS_DATA_DIR") ??
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AEGIS-SIM", "local");
-            var repository = new RunRepository(Path.Combine(directory, "runs.db"));
-            var model = new RunViewModel(SimulationSession.CreateDemo());
+            var repository = await Task.Run(() => new RunRepository(Path.Combine(directory, "runs.db")));
+            var model = new RunViewModel(SimulationSession.CreateDemo()) { BackgroundReplay = true };
             string? server = Option(e.Args, "--server");
             if (server == null)
             {
                 model.Persist = repository.Save;
-                var latest = repository.List().FirstOrDefault();
-                if (latest == null) repository.Save(model.Document);
-                else model.LoadReplay(repository.Load(latest.Id));
+                var latest = await Task.Run(() => repository.List().FirstOrDefault());
+                if (latest == null) await Task.Run(() => repository.Save(model.Document));
+                else await model.LoadReplayAsync(await Task.Run(() => repository.Load(latest.Id)));
                 if (repository.UpgradeBackupPath != null) model.Notify("Database upgraded. A safety backup was created beside runs.db; saved history is preserved.");
             }
             var window = new MainWindow { DataContext = model };
@@ -35,7 +35,7 @@ public partial class App : Application
             timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             timer.Tick += (_, _) => model.Advance();
             model.PropertyChanged += (_, _) => { if (model.IsRunning) timer.Start(); else timer.Stop(); };
-            window.Closed += (_, _) => timer.Stop();
+            window.Closed += (_, _) => { timer.Stop(); model.CancelReplayWork(); };
             if (server != null)
                 network = new NetworkClient(server, Option(e.Args, "--secrets") ?? throw new ArgumentException("Specify --secrets <host session-secrets.json>."),
                     Option(e.Args, "--role") != "controller", model, Dispatcher);

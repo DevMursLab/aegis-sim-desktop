@@ -1,4 +1,4 @@
-# AEGIS-SIM Desktop / 3.0.0
+# AEGIS-SIM Desktop / 3.0.1
 
 A **synthetic civilian response-training simulator** built with C#, .NET 10, WPF/MVVM, EF Core/SQLite and SignalR. Run an exercise, inject a route closure, persist commands/events, reconstruct history and compare measured outcomes.
 
@@ -66,6 +66,10 @@ Desktop/engine 3.0 reads original 2.0, 2.1, 2.4 and 2.5 histories without changi
 
 [Shortage screen at tick 16](docs/images/logistics-shortage.png).
 
+## Responsive saved history
+
+Saved-run listing, SQL verification, comparison and replay reconstruction run in the background. Timeline requests cancel superseded replay work; a reset or new scenario discards pending results. Corrupt history preserves the previously displayed run. The 3.0.1 desktop keeps engine 3.0.0 and its hash contract. Live command persistence and report export remain synchronous.
+
 ## Roads that drive the simulation
 
 Select **Tools / Road network demo**, or import `assets/maps/road-exercise.geojson`. Positive road lengths feed deterministic Dijkstra shortest paths; travel ticks are `ceil(route meters / metersPerTick)` in each direction. Vehicles follow the saved road polyline. Two vehicles deliver 30 packets and finish all returns at **tick 14**; routes A/B are 890 m and C is 1335 m. Priority dispatch, replay, host/observer, preview and HTML provenance use the same compiled exercise.
@@ -92,7 +96,7 @@ Fleet actions persist inside one aggregate event per tick, preserving the SQL ev
 
 Open **Tools / Scenario editor** to edit a separate local draft: capacity, shelter names/demand/positions, finite stock and travel settings. Validate, save JSON/XML or start a separate run with a new ID. Invalid input cannot create a run; existing saved history remains available. Shared multiplayer scenarios cannot be edited here. [Bangla lesson 13](docs/learning/13-scenario-editor.bn.md).
 
-The **3.0.0 Windows ZIP includes the editor, fleet, priorities and integrated road exercise**. [Download the release](https://github.com/DevMursLab/aegis-sim-desktop/releases/tag/v3.0.0).
+The **3.0.1 Windows ZIP includes the editor, fleet, priorities and integrated road exercise**. [Download the release](https://github.com/DevMursLab/aegis-sim-desktop/releases/tag/v3.0.1).
 
 ![Actual local scenario editor after validation](docs/images/scenario-editor.png)
 
@@ -125,7 +129,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\package.ps1
 ```
 
-Verification performs a locked dependency restore, full Release build with warnings treated as errors, **157 executable console checks**, all earlier console lessons, real WPF interaction checks, and a two-window host-restart/reconnect check. Checks are console executables, not an xUnit/`dotnet test` suite.
+Verification performs a locked dependency restore, full Release build with warnings treated as errors, **162 executable console checks**, all earlier console lessons, real WPF interaction checks, and a two-window host-restart/reconnect check. Checks are console executables, not an xUnit/`dotnet test` suite.
 
 [GitHub Actions](https://github.com/DevMursLab/aegis-sim-desktop/actions/workflows/build.yml) runs the same Release build and console/integration checks on Windows with `-SkipUi`. Interactive WPF checks run locally. [Evidence and limits](docs/verification.md).
 

@@ -47,6 +47,8 @@ Testing ধাপ 03 থেকে নিয়মিত থাকবে; একদ�
 
 এরপর [Lesson 16 — রাস্তা থেকে সময়](16-road-network.bn.md) এবং [Lesson 17 — database upgrade ও release](17-database-release.bn.md)।
 
+তারপর [Lesson 18 — background replay](18-background-replay.bn.md): app আটকে না রেখে history যাচাই করা।
+
 ## আজকের কাজ
 
 VS Code-এ এই project folder খুলে Terminal → New Terminal নাও। repository root থেকে চালাও:

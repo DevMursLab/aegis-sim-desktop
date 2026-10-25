@@ -1,4 +1,4 @@
-# Verification / 3.0.0
+# Verification / 3.0.1
 
 Local environment: Windows x64, .NET SDK **10.0.402**, 25 October 2026.
 
@@ -16,11 +16,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 | Quality | 32 checks: GeoJSON validation/projection, geometry bounds, deterministic completion/shortage/replay preview, cancellation, tick limit, diagnostics privacy and 12 editor checks (validation, isolation, culture, row bounds, JSON/XML interchange) |
 | Fleet | 20 checks: concurrent reservation/arrival, exhaustion/restock, closures, travel boundaries, 1-8 vehicle matrix, SQL/checksum/replay, original engine 2.1 fixture, editor, reports and actual host/observer |
 | Priority | 16 checks: scarcity, stable ties, closures, cargo reservation, no redirection, validation, ranked state hashes, JSON/XML, editor, SQL traces/tampering, original 2.4 SQL fixture, culture matrix, reports and live controller/observer |
-| Release | 20 checks: spherical road lengths, stable shortest paths, geometry validation, road motion, source hashes, snapshot isolation, XML/JSON, legacy 2.5 SQL, database backup/idempotency/rollback/future-version refusal, service closures and actual geographic host/observer |
+| Release | 25 checks: spherical road lengths, stable shortest paths, geometry validation, road motion, source hashes, snapshot isolation, XML/JSON, legacy 2.5 SQL, database backup/idempotency/rollback/future-version refusal, service closures actual geographic host/observer and five asynchronous replay checks (endpoint, latest seek, corrupt history, reset race and cancellation) |
 | Local WPF | Actual buttons/bindings/timer, map/inspector sync, replay seek, reset, close; default/minimum window rendering; stock/travel demo, moving cargo, shortage controls, restock completion and read-only logistics replay; actual GIS viewer import/selection/error preservation and asynchronous completion preview |
 | Two WPF clients | Incident sync, observer write disabled, stale state, automatic reconnect after actual host restart |
 
-**157 console checks**, plus the interactive WPF flows. These are executable checks; run the script rather than `dotnet test`. GitHub Actions runs build/console/integration validation with `-SkipUi`; inspect the actual workflow result for each commit.
+**162 console checks**, plus the interactive WPF flows. These are executable checks; run the script rather than `dotnet test`. GitHub Actions runs build/console/integration validation with `-SkipUi`; inspect the actual workflow result for each commit.
 
 ## Observed reproducible result
 
@@ -69,3 +69,6 @@ Priority WPF: launch the limited-stock demo, inspect urgent-shelter results and 
 Road WPF: open the shipped demo, bind six roads, disable incompatible generic editing, verify movement follows road geometry, complete 30 packets at tick 14 and reconstruct the same map at replay tick 2. Screenshot: `docs/images/road-exercise.png`.
 
 The 3.0 release package is checked separately for ZIP integrity, packaged startup, per-user installation and installed startup. These checks use this Windows environment, not a clean physical machine.
+
+
+3.0.1 WPF additionally exercises dispatcher activity during background replay and the actual timeline slider with rapid requests; the latest requested tick wins and controls remain read-only. Initial database work and history listing/verification/comparison run off the dispatcher. SQL operations finish in their worker if the history window closes; their results are discarded. Live command persistence, report export and final event/map publication still use the UI thread. No large-history throughput claim is made.

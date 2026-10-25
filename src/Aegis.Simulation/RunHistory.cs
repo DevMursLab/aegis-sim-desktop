@@ -33,8 +33,9 @@ public static class RunHistory
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(json)));
     }
 
-    public static ReconstructedRun Replay(RunDocument document, int? targetTick = null)
+    public static ReconstructedRun Replay(RunDocument document, int? targetTick = null, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         if (document == null || document.SchemaVersion != 1 || document.EngineVersion is not ("2.0.0" or "2.1.0" or "2.4.0" or "2.5.0" or EngineVersion) || document.Id == Guid.Empty ||
             document.Commands == null || document.Commands.Length > 25000)
             throw new InvalidDataException("Unsupported or invalid run document.");
@@ -51,6 +52,7 @@ public static class RunHistory
         var ids = new HashSet<Guid>();
         foreach (var record in document.Commands)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (record == null || record.Sequence != ids.Count + 1 || record.Command == null || record.Command.Id == Guid.Empty || !ids.Add(record.Command.Id))
                 throw new InvalidDataException("Command sequence is invalid or duplicated.");
             if (targetTick.HasValue && record.Command.Type == "Step" && session.Tick >= targetTick.Value) break;

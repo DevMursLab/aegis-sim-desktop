@@ -23,7 +23,7 @@ public sealed partial class SimulationSession
     public ScenarioDefinition Scenario { get; }
     public RunStatus Status { get; private set; }
     public bool UsesLogistics => Scenario.SchemaVersion >= 2;
-    public bool UsesFleet => Scenario.SchemaVersion == 3;
+    public bool UsesFleet => Scenario.SchemaVersion >= 3;
     public int? DepotStockRemaining { get; private set; }
     public int RestockedTotal { get; private set; }
     private VehicleState singleVehicle = new(VehiclePhase.AtDepot, null, 0, 0, 0);
@@ -49,7 +49,7 @@ public sealed partial class SimulationSession
 
     public SimulationSession(ScenarioDefinition scenario) : this(Validated(scenario).Shelters.Select(s => (s.Name, s.Demand)), scenario.Capacity)
     {
-        Scenario = scenario with { Shelters = scenario.Shelters.ToArray() };
+        Scenario = scenario.Snapshot();
         initial = scenario.Shelters.Select(s => new ShelterState(s.Name, s.Demand, s.Demand, Priority: s.Priority)).ToArray();
         shelters = initial.ToArray();
         DepotStockRemaining = scenario.DepotStock;

@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Aegis.Presentation;
 using Aegis.Infrastructure;
+using Aegis.Simulation;
 
 namespace Aegis.Desktop.Wpf;
 
@@ -19,6 +20,12 @@ public sealed class SyntheticMap : FrameworkElement
     public static readonly DependencyProperty HasVehicleProperty = DependencyProperty.Register(nameof(HasVehicle), typeof(bool), typeof(SyntheticMap), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
     public static readonly DependencyProperty FleetVehiclesProperty = DependencyProperty.Register(nameof(FleetVehicles), typeof(IReadOnlyList<MapVehicle>), typeof(SyntheticMap), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
     public IReadOnlyList<MapVehicle>? FleetVehicles { get => (IReadOnlyList<MapVehicle>?)GetValue(FleetVehiclesProperty); set => SetValue(FleetVehiclesProperty, value); }
+    public static readonly DependencyProperty GeographyProperty = DependencyProperty.Register(nameof(Geography), typeof(GeographyDefinition), typeof(SyntheticMap), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+    public GeographyDefinition? Geography { get => (GeographyDefinition?)GetValue(GeographyProperty); set => SetValue(GeographyProperty, value); }
+    public static readonly DependencyProperty DepotXProperty = DependencyProperty.Register(nameof(DepotX), typeof(double), typeof(SyntheticMap), new FrameworkPropertyMetadata(170.0, FrameworkPropertyMetadataOptions.AffectsRender));
+    public static readonly DependencyProperty DepotYProperty = DependencyProperty.Register(nameof(DepotY), typeof(double), typeof(SyntheticMap), new FrameworkPropertyMetadata(410.0, FrameworkPropertyMetadataOptions.AffectsRender));
+    public double DepotX { get => (double)GetValue(DepotXProperty); set => SetValue(DepotXProperty, value); }
+    public double DepotY { get => (double)GetValue(DepotYProperty); set => SetValue(DepotYProperty, value); }
     public static readonly DependencyProperty VehicleXProperty = DependencyProperty.Register(nameof(VehicleX), typeof(double), typeof(SyntheticMap), new FrameworkPropertyMetadata(170.0, FrameworkPropertyMetadataOptions.AffectsRender));
     public static readonly DependencyProperty VehicleYProperty = DependencyProperty.Register(nameof(VehicleY), typeof(double), typeof(SyntheticMap), new FrameworkPropertyMetadata(410.0, FrameworkPropertyMetadataOptions.AffectsRender));
     public static readonly DependencyProperty VehicleDestinationProperty = DependencyProperty.Register(nameof(VehicleDestination), typeof(string), typeof(SyntheticMap), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
@@ -59,16 +66,21 @@ public sealed class SyntheticMap : FrameworkElement
         for (int x = 0; x <= 1200; x += 100) Line(dc, new(x, 0), new(x, 800), "#D8E5E2", 1);
         for (int y = 0; y <= 800; y += 100) Line(dc, new(0, y), new(1200, y), "#D8E5E2", 1);
         // Fictional river and conceptual links, not a routing network.
-        Line(dc, new(780, 0), new(690, 250), "#C2E3E9", 42);
-        Line(dc, new(690, 250), new(780, 540), "#C2E3E9", 42);
-        Line(dc, new(780, 540), new(680, 800), "#C2E3E9", 42);
-        var depot = new MapPoint(170, 410);
+        if (Geography == null)
+        {
+            Line(dc, new(780, 0), new(690, 250), "#C2E3E9", 42);
+            Line(dc, new(690, 250), new(780, 540), "#C2E3E9", 42);
+            Line(dc, new(780, 540), new(680, 800), "#C2E3E9", 42);
+        }
+        else foreach (var road in Geography.Roads) RoadLine(dc, road.Points, "#9BB8AE", 3);
+        var depot = new MapPoint(DepotX, DepotY);
         foreach (var node in Nodes ?? Array.Empty<MapNode>())
         {
             var world = new MapPoint(node.X, node.Y);
-            Line(dc, depot, world, "#FCFEFD", 10);
             bool activeLink = FleetVehicles?.Count > 0 ? FleetVehicles.Any(v => v.Destination == node.Name) : node.Name == (HasVehicle ? VehicleDestination : LastDelivery);
-            Line(dc, depot, world, node.IsBlocked ? "#BC544B" : activeLink ? "#D59935" : "#9BB8AE", 3);
+            string color = node.IsBlocked ? "#BC544B" : activeLink ? "#D59935" : "#9BB8AE";
+            if (Geography == null) { Line(dc, depot, world, "#FCFEFD", 10); Line(dc, depot, world, color, 3); }
+            else if (activeLink || node.IsBlocked || node.Name == SelectedName) RoadLine(dc, Geography.Routes.Single(r => r.Shelter == node.Name).Points, color, 4);
             Point center = Screen(world);
             if (node.Name == SelectedName) dc.DrawEllipse(null, new Pen(Brush("#1B5E73"), 3), center, 22, 22);
             dc.DrawEllipse(Brush(node.IsBlocked ? "#BC544B" : node.Remaining == 0 ? "#277B65" : "#173C4F"), new Pen(Brush("#FFFFFF"), 3), center, 14, 14);
@@ -100,8 +112,13 @@ public sealed class SyntheticMap : FrameworkElement
             dc.DrawRoundedRectangle(Brush("#E8AE48"), new Pen(Brush("#FFFFFF"), 2), new Rect(vehicle.X - 10, vehicle.Y - 8, 20, 16), 3, 3);
             Label(dc, "VEHICLE", vehicle.X - 25, vehicle.Y - 30, "#735016", 10, true);
         }
-        Label(dc, "Synthetic local grid · meters", 16, 14, "#526878", 12);
+        Label(dc, Geography == null ? "Synthetic local grid · meters" : "GeoJSON roads · spherical meter distances · projected display", 16, 14, "#526878", 12);
         Label(dc, $"Zoom {Viewport.Zoom:0.0}×", 16, ActualHeight - 28, "#526878", 12);
+    }
+
+    private void RoadLine(DrawingContext dc, RoadPoint[] points, string color, double width)
+    {
+        for (int i = 1; i < points.Length; i++) Line(dc, new(points[i - 1].X, points[i - 1].Y), new(points[i].X, points[i].Y), color, width);
     }
 
     private void RenderLayer(DrawingContext dc)

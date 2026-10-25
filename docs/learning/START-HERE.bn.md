@@ -45,6 +45,8 @@ Testing ধাপ 03 থেকে নিয়মিত থাকবে; একদ�
 
 এরপর [Lesson 15 — Priority dispatch](15-priority-dispatch.bn.md)। একই কম stock কে আগে পাবে তা নির্ধারণ করো।
 
+এরপর [Lesson 16 — রাস্তা থেকে সময়](16-road-network.bn.md) এবং [Lesson 17 — database upgrade ও release](17-database-release.bn.md)।
+
 ## আজকের কাজ
 
 VS Code-এ এই project folder খুলে Terminal → New Terminal নাও। repository root থেকে চালাও:

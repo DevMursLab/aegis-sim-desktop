@@ -18,8 +18,9 @@ public sealed class DesktopWorkspace(MainWindow window, RunViewModel model, RunR
             {
                 case "Fleet": model.NewScenario(ScenarioDefinition.FleetDemo()); break;
                 case "Priority": model.NewScenario(ScenarioDefinition.PriorityDemo()); break;
+                case "GeoDemo": model.NewScenario(GeoExercise.Load(System.IO.Path.Combine(AppContext.BaseDirectory, "road-exercise.geojson"))); break;
                 case "Editor":
-                    if (!model.IsLocal) throw new InvalidOperationException("Scenario editing is local only.");
+                    if (!model.CanEditScenario) throw new InvalidOperationException("Edit geographical exercises in their road GeoJSON; shared scenario editing is unavailable.");
                     new ScenarioEditorWindow(model.Document.Scenario, scenario =>
                     {
                         Guid previous = model.Document.Id; model.NewScenario(scenario);
@@ -34,7 +35,7 @@ public sealed class DesktopWorkspace(MainWindow window, RunViewModel model, RunR
                     break;
                 case "Logistics": model.NewScenario(ScenarioDefinition.LogisticsDemo()); break;
                 case "Import":
-                    var open = new OpenFileDialog { Filter = "Scenario JSON/XML|*.json;*.xml" };
+                    var open = new OpenFileDialog { Filter = "Scenario JSON/XML or road GeoJSON exercise|*.json;*.xml;*.geojson" };
                     if (open.ShowDialog(window) == true) model.NewScenario(ScenarioFiles.Load(open.FileName));
                     break;
                 case "Export":

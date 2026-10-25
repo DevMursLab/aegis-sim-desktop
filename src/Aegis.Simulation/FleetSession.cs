@@ -36,8 +36,9 @@ public sealed partial class SimulationSession
                 {
                     amount = state.Load; DeliveredTotal += amount;
                     shelters[target] = shelters[target] with { Remaining = shelters[target].Remaining - amount };
-                    state = Scenario.ReturnTicks == 0 ? new(VehiclePhase.AtDepot, null, 0, 0, 0) :
-                        new(VehiclePhase.Returning, destination, 0, Scenario.ReturnTicks, Scenario.ReturnTicks);
+                    int back = Scenario.Geography == null ? Scenario.ReturnTicks : Scenario.Shelters[target].TravelTicks!.Value;
+                    state = back == 0 ? new(VehiclePhase.AtDepot, null, 0, 0, 0) :
+                        new(VehiclePhase.Returning, destination, 0, back, back);
                     kind = "Delivery";
                 }
             }

@@ -27,6 +27,7 @@ public partial class App : Application
                 var latest = repository.List().FirstOrDefault();
                 if (latest == null) repository.Save(model.Document);
                 else model.LoadReplay(repository.Load(latest.Id));
+                if (repository.UpgradeBackupPath != null) model.Notify("Database upgraded. A safety backup was created beside runs.db; saved history is preserved.");
             }
             var window = new MainWindow { DataContext = model };
             var workspace = new DesktopWorkspace(window, model, repository);

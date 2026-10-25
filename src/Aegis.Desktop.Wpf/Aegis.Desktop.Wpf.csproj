@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup><ProjectReference Include="../Aegis.Presentation/Aegis.Presentation.csproj" /></ItemGroup>
+  <ItemGroup><Content Include="../../assets/maps/road-exercise.geojson" Link="road-exercise.geojson" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" /></ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Aegis.Infrastructure/Aegis.Infrastructure.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.13" />

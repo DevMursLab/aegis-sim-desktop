@@ -59,13 +59,16 @@ public sealed class RunDatabase(string path) : DbContext
 public sealed class RunRepository
 {
     public string DatabasePath { get; }
+    public string? UpgradeBackupPath { get; }
     public RunRepository(string path)
     {
         DatabasePath = Path.GetFullPath(path);
         Directory.CreateDirectory(Path.GetDirectoryName(DatabasePath)!);
+        UpgradeBackupPath = DatabaseSchema.Prepare(DatabasePath);
         using var db = new RunDatabase(DatabasePath);
         db.Database.EnsureCreated();
         db.Database.OpenConnection();
+        using var migration = db.Database.BeginTransaction();
         using var check = db.Database.GetDbConnection().CreateCommand();
         check.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='Events'";
         bool hasEventTable = Convert.ToInt32(check.ExecuteScalar()) > 0;
@@ -81,6 +84,8 @@ public sealed class RunRepository
             }
             db.SaveChanges();
         }
+        DatabaseSchema.Complete(db);
+        migration.Commit();
     }
     public StoredRun[] List()
     {
@@ -143,7 +148,8 @@ public sealed class RunRepository
         db.SaveChanges();
         transaction.Commit();
     }
-    private static string CheckpointJson(SimulationSession session) => session.UsesFleet ?
+    private static string CheckpointJson(SimulationSession session) => session.Scenario.Geography != null ?
+        JsonSerializer.Serialize(new { session.Tick, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicles, session.Scenario.Geography }, ScenarioFiles.JsonOptions) : session.UsesFleet ?
         JsonSerializer.Serialize(new { session.Tick, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicles }, ScenarioFiles.JsonOptions) : session.UsesLogistics ?
         JsonSerializer.Serialize(new { session.Tick, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicle }, ScenarioFiles.JsonOptions) :
         JsonSerializer.Serialize(new { session.Tick, session.DeliveredTotal, session.Shelters }, ScenarioFiles.JsonOptions);

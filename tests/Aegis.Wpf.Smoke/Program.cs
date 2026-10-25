@@ -174,6 +174,16 @@ internal static class Program
                 Invoke(window, "StepButton"); await Flush(); Require(vm.EventRows[2].Shelter == "Shelter-A", "Edited priority changes dispatch order");
                 vm.LoadReplay(priorityDone); vm.ReplayTick = 1; await Flush();
                 Require(vm.EventRows[0].Reason!.Contains("Priority 9") && !Button(window, "RestockButton").IsEnabled, "Priority replay preserves provenance and stays read-only");
+                ((IInvokeProvider)new MenuItemAutomationPeer((MenuItem)window.FindName("GeoDemoMenu")).GetPattern(PatternInterface.Invoke)).Invoke(); await Flush();
+                Require(vm.Geography is not null && map.Geography!.Roads.Length == 6 && !((MenuItem)window.FindName("EditorMenu")).IsEnabled, "Road exercise binds its actual network and protects imported geometry");
+                Invoke(window, "FitMapButton"); Invoke(window, "StepButton"); await Flush(); Invoke(window, "StepButton"); await Flush();
+                vm.SelectedShelterName = "Road Shelter-B"; await Flush();
+                Require(Math.Abs(vm.MapVehicles[0].Position.Y - vm.DepotY) < 0.001, "Road vehicle follows the first horizontal road instead of a direct chord");
+                SaveImage(window, "aegis-road-exercise.png");
+                while (vm.Status != "Completed" && vm.Tick < 25) { Invoke(window, "StepButton"); await Flush(); }
+                Require(vm.Tick == 14 && vm.DeliveredTotal == 30, "Road exercise completes with every return at tick 14");
+                var roadDone = vm.Document; vm.LoadReplay(roadDone); vm.ReplayTick = 2; await Flush();
+                Require(vm.Geography!.SourceHash == roadDone.Scenario.Geography!.SourceHash && Math.Abs(vm.MapVehicles[0].Position.Y - vm.DepotY) < 0.001, "Road replay preserves geography and vehicle positions");
                 vm.NewScenario(Aegis.Simulation.ScenarioDefinition.FloodDemo()); await Flush();
                 Invoke(window, "StartButton"); window.Close();
                 Require(app.Windows.Count == 0, "Window closes while running");

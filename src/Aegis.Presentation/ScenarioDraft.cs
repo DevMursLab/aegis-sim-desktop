@@ -34,6 +34,7 @@ public sealed class ScenarioDraft : INotifyPropertyChanged
     public ScenarioDraft(ScenarioDefinition source)
     {
         source.Validate();
+        if (source.Geography != null) throw new ArgumentException("Edit the road GeoJSON and import it again to change a geographical exercise.");
         Name = source.Name; Capacity = Number(source.Capacity); UsesLogistics = source.SchemaVersion >= 2; UsesFleet = source.SchemaVersion == 3;
         FleetSize = Number(source.FleetSize ?? 3);
         DepotStock = Number(source.DepotStock ?? source.Shelters.Sum(s => s.Demand));

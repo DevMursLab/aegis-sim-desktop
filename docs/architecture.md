@@ -75,3 +75,10 @@ WPF flattens tick actions into per-vehicle rows while persistence retains one ev
 Schema 3 shelter priorities are bounded 0-9. Eligible targets must have open routes and unreserved demand; sort by descending priority then original list index. Existing outbound cargo never changes destination when another route becomes eligible. Priority does not age dynamically and may defer lower ranks while scarce stock is consumed.
 
 ShelterState includes priority in hashes/checkpoints only when nonzero. Default-zero priority and default-null action reasons are omitted during JSON serialization, preserving original engine 2.4 fleet SQL events/checkpoints as well as 2.0/2.1 archives. Old engine documents with nonzero priority are rejected; new histories use engine 2.5. Dispatch reasons report the chosen rank, unreserved demand, loaded amount, resulting stock and tie rule; the engine creates these strings with invariant formatting. WPF and CSV display persisted/replayed provenance.
+
+
+## Version 3.0: frozen geographic scenarios and database upgrades
+
+GeoExercise validates the regional GeoJSON adapter and compiles positive-weight undirected roads into schema 4. Spherical segment lengths are rounded up per road, deterministic Dijkstra derives each shelter route, and route meters determine outbound and return ticks. GeographyDefinition validates connectivity, oriented paths, endpoint agreement and derived timing. Session/history snapshots deep-copy geographic arrays; map positions interpolate along frozen polylines. Geography participates in new hashes/checkpoints without changing older branches. Histories from engines 2.0/2.1/2.4/2.5 remain supported.
+
+DatabaseSchema uses SQLite user_version=1 plus SchemaMigrations. Before changing legacy tables, SQLite BackupDatabase creates a consistent backup. Event creation/backfill and schema bookkeeping commit in one transaction; a failed replay rolls back the upgrade. Newer and unrelated schemas are refused before DDL. This release establishes a specific forward upgrade; it neither implements downgrade nor promises arbitrary future migrations. Startup and replay remain synchronous for small portfolio histories.

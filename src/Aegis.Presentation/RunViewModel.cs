@@ -25,6 +25,10 @@ public sealed class RunViewModel : INotifyPropertyChanged
     public int Remaining => session.InitialDemand - session.DeliveredTotal;
     public bool UsesLogistics => session.UsesLogistics;
     public bool UsesFleet => session.UsesFleet;
+    public bool CanEditScenario => IsLocal && document.Scenario.Geography == null;
+    public GeographyDefinition? Geography => document.Scenario.Geography;
+    public double DepotX => Geography?.Depot.X ?? 170;
+    public double DepotY => Geography?.Depot.Y ?? 410;
     public IReadOnlyList<ExerciseEventRow> EventRows => events.SelectMany(e => e.Actions == null ?
         new[] { new ExerciseEventRow(e.Tick, "Vehicle-01", e.Shelter, e.Amount, e.Kind) } :
         e.Actions.Select(a => new ExerciseEventRow(e.Tick, a.VehicleId, a.Shelter, a.Amount, a.Kind, a.Reason))).ToArray();
@@ -38,8 +42,23 @@ public sealed class RunViewModel : INotifyPropertyChanged
     public MapPoint VehiclePosition => PositionOf(session.Vehicle);
     private MapPoint PositionOf(VehicleState vehicle)
     {
-        var origin = new MapPoint(170, 410);
+        var origin = new MapPoint(DepotX, DepotY);
         if (!UsesLogistics || vehicle.Phase == VehiclePhase.AtDepot) return origin;
+        if (Geography != null)
+        {
+            var route = Geography.Routes.Single(r => r.Shelter == vehicle.Destination);
+            double fraction = 1.0 - (double)vehicle.TicksRemaining / vehicle.Duration;
+            if (vehicle.Phase == VehiclePhase.Returning) fraction = 1 - fraction;
+            var lengths = route.Points.Zip(route.Points.Skip(1), (a, b) => Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2))).ToArray();
+            double distance = fraction * lengths.Sum();
+            for (int i = 0; i < lengths.Length; i++)
+            {
+                if (distance <= lengths[i] && lengths[i] > 0)
+                { double t = distance / lengths[i]; return new(route.Points[i].X + (route.Points[i + 1].X - route.Points[i].X) * t, route.Points[i].Y + (route.Points[i + 1].Y - route.Points[i].Y) * t); }
+                distance -= lengths[i];
+            }
+            return new(route.Points[^1].X, route.Points[^1].Y);
+        }
         var target = document.Scenario.Shelters.First(s => s.Name == vehicle.Destination);
         double progress = 1.0 - (double)vehicle.TicksRemaining / vehicle.Duration;
         if (vehicle.Phase == VehiclePhase.Returning) progress = 1 - progress;
@@ -79,6 +98,7 @@ public sealed class RunViewModel : INotifyPropertyChanged
             return shelter == null ? "Choose a shelter on the map or in the list." :
                 $"{shelter.InitialDemand - shelter.Remaining} delivered / {shelter.InitialDemand} requested · {shelter.Remaining} remaining" +
                 (UsesFleet ? $" · priority {shelter.Priority}" : "") +
+                (Geography?.Routes.SingleOrDefault(r => r.Shelter == shelter.Name) is { } route ? $" · road route {route.Meters} m / {document.Scenario.Shelters.Single(s => s.Name == shelter.Name).TravelTicks} ticks each way" : "") +
                 (shelter.BlockedUntil > Tick ? $" · route closed through tick {shelter.BlockedUntil}" : "");
         }
     }

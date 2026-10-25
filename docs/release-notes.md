@@ -1,4 +1,14 @@
-# 2.5 source - static shelter priorities
+# 3.0.0 - integrated roads and a complete Windows portfolio package
+
+This release ships the previously source-only editor, fleet and priorities together with road-derived travel. A bounded WGS84 GeoJSON exercise compiles to schema 4: deterministic shortest paths, spherical road lengths rounded up per edge, projected road geometry, source hash and both-direction travel ticks. The map, replay, preview, host/observer and HTML report share the frozen compiled scenario. The supplied two-vehicle exercise delivers 30 packets and returns at tick 14.
+
+SQLite now records schema version 1 and a migration ledger. Legacy upgrades first create a consistent SQLite backup, then perform additive changes and event backfill transactionally. Failed backfill rolls back; future or unrelated schemas are refused. The app reports the upgrade backup path. Original engine 2.0, 2.1, 2.4 and 2.5 fixtures retain their hashes and SQL payloads. New engine histories use 3.0.0.
+
+Verification covers 157 executable console checks, warning-free Release build, interactive WPF flows and two-window reconnect. The self-contained Windows x64 ZIP includes its runtime, local/seeded/multiplayer launchers, optional per-user installer, sample GeoJSON and Bangla lessons 1-17. Extract it and run `Start-Local.cmd`; select Tools / Road network demo.
+
+Road paths are static, positive-weight and undirected. Service closures freeze assigned outbound trips, not shared road edges. Schema 4 derives return time from the outbound path; its serialized returnTicks=0 is an unused placeholder. Geometry is edited in source GeoJSON, not the generic editor. The separate layer inspector remains view-only. Deployment and broad acceptance limits below still apply.
+
+## Historical 2.5 source - static shelter priorities
 
 Fleet scenarios accept ranks 0-9. Dispatch selects the highest-priority open shelter with unreserved demand; equal ranks retain list order. Closed routes are skipped. Existing cargo is not reassigned, and ranks are static per scenario. Scarcity can defer lower-priority shelters; no fairness or real-world urgency guarantee is claimed.
 
@@ -40,7 +50,7 @@ Verification: 89 executable console checks, real WPF interactions for the new to
 
 ## Remaining work and evidence limits
 
-The supplied blueprint is broader than this tested portfolio release. Multiple concurrent vehicles, visual scenario editing, priority allocation, persisted layer-to-scenario associations, general GIS formats/projections, an evaluated ML model, database migrations and large-history UI performance remain future work. The implementation currently uses one vehicle and a fixed dispatch order. GeoJSON inspection is view-only, not a geographical simulation adapter.
+The supplied blueprint is broader than this tested portfolio release. The 3.0 package includes local editing, multiple vehicles, priority dispatch, persisted road-to-scenario associations and a tested versioned database upgrade. General GIS formats/projections, dynamic road-edge routing, an evaluated ML model and large-history UI performance remain future work.
 
 Cloud deployment and signed installation are separate deployment work requiring a hosting target and signing certificate. Clean physical-machine installation, a comprehensive accessibility/DPI audit and a recorded demonstration have not been established. There is no claim that all blueprint acceptance gates are complete.
 

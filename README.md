@@ -1,4 +1,4 @@
-# AEGIS-SIM Desktop / 2.5 source
+# AEGIS-SIM Desktop / 3.0.0
 
 A **synthetic civilian response-training simulator** built with C#, .NET 10, WPF/MVVM, EF Core/SQLite and SignalR. Run an exercise, inject a route closure, persist commands/events, reconstruct history and compare measured outcomes.
 
@@ -60,13 +60,21 @@ The lesson launcher also supports a user-local SDK at `%LOCALAPPDATA%\Microsoft\
 
 Select **Stock + travel demo** in the source-built desktop, or import `assets/scenarios/finite-stock-travel.json`. Dispatch reserves cargo; arrival delivers it; the vehicle returns before loading again. The sample starts with 30 packets, stops at tick 16 with 18 still needed, then **Restock +20** permits completion at tick 24 with 2 in stock. Closure pauses an outbound vehicle; return travel is unaffected. [Bangla lesson 10](docs/learning/10-stock-travel.bn.md).
 
-Desktop/engine 2.5 reads original 2.0, 2.1 and 2.4 histories without changing their old hashes. Older binaries cannot open new engine 2.5 histories. [Release notes and remaining work](docs/release-notes.md).
+Desktop/engine 3.0 reads original 2.0, 2.1, 2.4 and 2.5 histories without changing their old hashes. Older binaries cannot open new engine 3.0 histories. [Release notes and remaining work](docs/release-notes.md).
 
 ![Actual desktop: reserved cargo travelling before delivery](docs/images/logistics-transit.png)
 
 [Shortage screen at tick 16](docs/images/logistics-shortage.png).
 
-## Priority dispatch (2.5 source)
+## Roads that drive the simulation
+
+Select **Tools / Road network demo**, or import `assets/maps/road-exercise.geojson`. Positive road lengths feed deterministic Dijkstra shortest paths; travel ticks are `ceil(route meters / metersPerTick)` in each direction. Vehicles follow the saved road polyline. Two vehicles deliver 30 packets and finish all returns at **tick 14**; routes A/B are 890 m and C is 1335 m. Priority dispatch, replay, host/observer, preview and HTML provenance use the same compiled exercise.
+
+![Actual road exercise with two vehicles following imported roads](docs/images/road-exercise.png)
+
+The sample is fictional. Distances use a spherical model rounded up per road; this is no routing-service or real travel-time claim. Paths are static and undirected. Edit the source GeoJSON and import a new run; the generic scenario editor is disabled for road exercises. [Road format and Bangla lesson](docs/learning/16-road-network.bn.md).
+
+## Priority dispatch
 
 Select **Tools / Priority + limited stock demo** or import `assets/scenarios/priority-limited-stock.json`. Priority 0-9 applies to fleet scenarios only. Higher ranks go first among open routes with unreserved demand; ties keep source-list order. With 20 packets, C (rank 9) receives 18 and B (rank 5) receives 2; A (rank 0) waits. All vehicles return at tick 4 before supply exhaustion. Select a dispatch row for its decision trace. The editor exposes ranks; replay and per-vehicle CSV preserve reasons. [Bangla lesson 15](docs/learning/15-priority-dispatch.bn.md). Priority is static, not a live command or starvation-prevention guarantee.
 
@@ -84,7 +92,7 @@ Fleet actions persist inside one aggregate event per tick, preserving the SQL ev
 
 Open **Tools / Scenario editor** to edit a separate local draft: capacity, shelter names/demand/positions, finite stock and travel settings. Validate, save JSON/XML or start a separate run with a new ID. Invalid input cannot create a run; existing saved history remains available. Shared multiplayer scenarios cannot be edited here. [Bangla lesson 13](docs/learning/13-scenario-editor.bn.md).
 
-The downloadable **2.2.0 ZIP does not contain the editor or fleet model**; run from source for these increments.
+The **3.0.0 Windows ZIP includes the editor, fleet, priorities and integrated road exercise**. [Download the release](https://github.com/DevMursLab/aegis-sim-desktop/releases/tag/v3.0.0).
 
 ![Actual local scenario editor after validation](docs/images/scenario-editor.png)
 
@@ -117,7 +125,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\package.ps1
 ```
 
-Verification performs a locked dependency restore, full Release build with warnings treated as errors, **137 executable console checks**, all earlier console lessons, real WPF interaction checks, and a two-window host-restart/reconnect check. Checks are console executables, not an xUnit/`dotnet test` suite.
+Verification performs a locked dependency restore, full Release build with warnings treated as errors, **157 executable console checks**, all earlier console lessons, real WPF interaction checks, and a two-window host-restart/reconnect check. Checks are console executables, not an xUnit/`dotnet test` suite.
 
 [GitHub Actions](https://github.com/DevMursLab/aegis-sim-desktop/actions/workflows/build.yml) runs the same Release build and console/integration checks on Windows with `-SkipUi`. Interactive WPF checks run locally. [Evidence and limits](docs/verification.md).
 
@@ -137,6 +145,6 @@ Simulation and presentation do not depend on WPF. A candidate command is replaye
 
 ## Scope and limits
 
-This is a **portfolio simulator**, using fictional civilian scenarios. It does not reproduce an institution's internal military software. All demand begins at tick zero. Schema 1 retains instant delivery with a fresh load per visit. Schema 2 uses one vehicle with finite depot stock and configured travel/return ticks; schema 3 adds a shared-stock fleet of 1-8 vehicles; it does not derive time from distance or speed. Route closure restricts a shelter's availability; links do not compute geographic routes.
+This is a **portfolio simulator**, using fictional civilian scenarios. It does not reproduce an institution's internal military software. All demand begins at tick zero. Schema 1 retains instant delivery with a fresh load per visit. Schema 2 uses one vehicle with finite depot stock and configured travel/return ticks; schema 3 adds a shared-stock fleet of 1-8 vehicles. Schema 4 derives both travel directions from a bounded, static, undirected road network. Route closure pauses a shelter's assigned outbound trips; it does not close shared road edges or reroute vehicles.
 
-Simulation coordinates are synthetic local meters. The separate GeoJSON inspector accepts a regional WGS84 subset and does not georeference the simulation. Trained AI forecasts, general GIS/projection import, cloud deployment, high-scale load testing, a signed installer and comprehensive accessibility/high-DPI audits are outside this release. Full snapshots and command replay favor a small, explainable demo over throughput. PDF uses ASCII labels; HTML/CSV preserve Unicode names. The initial database uses an explicit schema bootstrap/additive development upgrade; future schema evolution needs a migration plan.
+Legacy scenarios use synthetic local coordinates. Road exercises import a regional WGS84 subset, compute spherical road lengths, and retain projected display paths in saved history. The separate GeoJSON inspector remains view-only. Trained AI forecasts, general GIS/projection import, cloud deployment, high-scale load testing, a signed installer and comprehensive accessibility/high-DPI audits are outside this release. Full snapshots and command replay favor a small, explainable demo over throughput. PDF uses ASCII labels; HTML/CSV preserve Unicode names. SQLite schema version 1 upgrades legacy databases transactionally after making a consistent backup; unsupported future versions are refused. This is a specific tested upgrade, not a general migration framework.

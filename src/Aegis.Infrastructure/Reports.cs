@@ -35,6 +35,9 @@ public static class Reports
             File.WriteAllText(stem + "-vehicles.csv", detail.ToString(), new UTF8Encoding(true));
         }
         string rows = string.Join("", replay.Session.Shelters.Select(s => $"<tr><td>{WebUtility.HtmlEncode(s.Name)}</td><td>{s.InitialDemand}</td><td>{s.Remaining}</td><td>{s.Priority}</td></tr>"));
+        string geographic = document.Scenario.Geography is { } map ? "<h2>Road-derived timing</h2><p>Undirected shortest paths; spherical road lengths rounded upward per road. " +
+            map.MetersPerTick + " meters per tick; return follows the same route and duration. Closures freeze assigned shelter service, not individual road edges. Source SHA-256: <code>" + map.SourceHash + "</code></p><ul>" +
+            string.Join("", map.Routes.Select(r => "<li>" + WebUtility.HtmlEncode(r.Shelter) + ": " + r.Meters + " m</li>")) + "</ul>" : "";
         string html = $$"""
             <!doctype html>
             <html lang="en"><meta charset="utf-8"><title>AEGIS-SIM Run Report</title>
@@ -54,6 +57,7 @@ public static class Reports
             <p>Vehicles: {{replay.Session.Vehicles.Count}} / Outbound vehicle-ticks (including arrival and blocked-route delays): {{metrics.OutboundTicks}} / Return ticks: {{metrics.ReturnTicks}}</p>
             </div>
             <table><tr><th>Shelter</th><th>Initial</th><th>Remaining</th><th>Priority</th></tr>{{rows}}</table>
+            {{geographic}}
             <h2>Reproducibility</h2><p>Verified ordered commands: {{document.Commands.Length}}. Final state SHA-256:</p>
             <code>{{RunHistory.Hash(replay.Session)}}</code>
             <h2>Methods and limitations</h2>

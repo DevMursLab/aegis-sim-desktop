@@ -1,0 +1,101 @@
+{
+  "run": {
+    "schemaVersion": 1,
+    "engineVersion": "2.5.0",
+    "id": "707ef926-b703-49b7-b803-6b886310fd38",
+    "createdAt": "2026-10-25T05:07:30.0976532+00:00",
+    "scenario": {
+      "schemaVersion": 3,
+      "name": "Priority / Limited Stock Training",
+      "capacity": 10,
+      "shelters": [
+        {
+          "name": "Shelter-A",
+          "demand": 25,
+          "x": 480,
+          "y": 180,
+          "travelTicks": null
+        },
+        {
+          "name": "Shelter-B",
+          "demand": 5,
+          "x": 910,
+          "y": 180,
+          "travelTicks": null,
+          "priority": 5
+        },
+        {
+          "name": "Shelter-C",
+          "demand": 18,
+          "x": 480,
+          "y": 490,
+          "travelTicks": null,
+          "priority": 9
+        }
+      ],
+      "depotStock": 20,
+      "travelTicks": 2,
+      "returnTicks": 1,
+      "fleetSize": 3
+    },
+    "commands": [
+      {
+        "sequence": 1,
+        "command": {
+          "id": "54e2e376-e82c-4e97-b8d5-55c85d599284",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "D380BDE995BF002C27171A6AD0001BC2BDA274785206EBFFDCBE14CF1E58DA30"
+      },
+      {
+        "sequence": 2,
+        "command": {
+          "id": "c6bc59eb-2a1a-4715-b48a-ddbcd8a512e2",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "3C001C01BCE69963E1B16ACF08F771FCD0F8A39E7CC40DF9D8E59FC496C8E280"
+      },
+      {
+        "sequence": 3,
+        "command": {
+          "id": "4c1ea0b0-37c5-4aa3-83fe-403383bc5720",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "D82AF2F4C5836C005AF7217932D72B6EEE8EBF2887D1812950A6D28DFF514CB4"
+      },
+      {
+        "sequence": 4,
+        "command": {
+          "id": "a2b81aa8-002f-49f8-b775-eca0b97685e9",
+          "type": "Step",
+          "target": null,
+          "duration": 0
+        },
+        "stateHash": "E7FA8C74AB2963EE6A886881BC41DA2E3A13558F09A8163B83F4D5FEAC966FC6"
+      }
+    ],
+    "creationCommandId": "00000000-0000-0000-0000-000000000000"
+  },
+  "expectedHash": "E7FA8C74AB2963EE6A886881BC41DA2E3A13558F09A8163B83F4D5FEAC966FC6",
+  "tick": 4,
+  "status": "SupplyExhausted",
+  "commandJson": [
+    "{\"sequence\":1,\"command\":{\"id\":\"54e2e376-e82c-4e97-b8d5-55c85d599284\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"D380BDE995BF002C27171A6AD0001BC2BDA274785206EBFFDCBE14CF1E58DA30\"}",
+    "{\"sequence\":2,\"command\":{\"id\":\"c6bc59eb-2a1a-4715-b48a-ddbcd8a512e2\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"3C001C01BCE69963E1B16ACF08F771FCD0F8A39E7CC40DF9D8E59FC496C8E280\"}",
+    "{\"sequence\":3,\"command\":{\"id\":\"4c1ea0b0-37c5-4aa3-83fe-403383bc5720\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"D82AF2F4C5836C005AF7217932D72B6EEE8EBF2887D1812950A6D28DFF514CB4\"}",
+    "{\"sequence\":4,\"command\":{\"id\":\"a2b81aa8-002f-49f8-b775-eca0b97685e9\",\"type\":\"Step\",\"target\":null,\"duration\":0},\"stateHash\":\"E7FA8C74AB2963EE6A886881BC41DA2E3A13558F09A8163B83F4D5FEAC966FC6\"}"
+  ],
+  "eventJson": [
+    "{\"tick\":1,\"shelter\":\"Fleet\",\"amount\":0,\"kind\":\"FleetTick\",\"actions\":[{\"vehicleId\":\"Vehicle-01\",\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Dispatched\",\"reason\":\"Priority 9; unreserved demand 18; loaded 10; stock after 10. Eligible highest priority first; ties keep shelter-list order.\"},{\"vehicleId\":\"Vehicle-02\",\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Dispatched\",\"reason\":\"Priority 9; unreserved demand 8; loaded 8; stock after 2. Eligible highest priority first; ties keep shelter-list order.\"},{\"vehicleId\":\"Vehicle-03\",\"shelter\":\"Shelter-B\",\"amount\":0,\"kind\":\"Dispatched\",\"reason\":\"Priority 5; unreserved demand 5; loaded 2; stock after 0. Eligible highest priority first; ties keep shelter-list order.\"}]}",
+    "{\"tick\":2,\"shelter\":\"Fleet\",\"amount\":0,\"kind\":\"FleetTick\",\"actions\":[{\"vehicleId\":\"Vehicle-01\",\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Travelling\"},{\"vehicleId\":\"Vehicle-02\",\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Travelling\"},{\"vehicleId\":\"Vehicle-03\",\"shelter\":\"Shelter-B\",\"amount\":0,\"kind\":\"Travelling\"}]}",
+    "{\"tick\":3,\"shelter\":\"Fleet\",\"amount\":20,\"kind\":\"FleetTick\",\"actions\":[{\"vehicleId\":\"Vehicle-01\",\"shelter\":\"Shelter-C\",\"amount\":10,\"kind\":\"Delivery\"},{\"vehicleId\":\"Vehicle-02\",\"shelter\":\"Shelter-C\",\"amount\":8,\"kind\":\"Delivery\"},{\"vehicleId\":\"Vehicle-03\",\"shelter\":\"Shelter-B\",\"amount\":2,\"kind\":\"Delivery\"}]}",
+    "{\"tick\":4,\"shelter\":\"Fleet\",\"amount\":0,\"kind\":\"FleetTick\",\"actions\":[{\"vehicleId\":\"Vehicle-01\",\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Returned\"},{\"vehicleId\":\"Vehicle-02\",\"shelter\":\"Shelter-C\",\"amount\":0,\"kind\":\"Returned\"},{\"vehicleId\":\"Vehicle-03\",\"shelter\":\"Shelter-B\",\"amount\":0,\"kind\":\"Returned\"}]}"
+  ],
+  "checkpointJson": "{\"tick\":4,\"deliveredTotal\":20,\"shelters\":[{\"name\":\"Shelter-A\",\"initialDemand\":25,\"remaining\":25,\"blockedUntil\":0},{\"name\":\"Shelter-B\",\"initialDemand\":5,\"remaining\":3,\"blockedUntil\":0,\"priority\":5},{\"name\":\"Shelter-C\",\"initialDemand\":18,\"remaining\":0,\"blockedUntil\":0,\"priority\":9}],\"depotStockRemaining\":0,\"restockedTotal\":0,\"vehicles\":[{\"id\":\"Vehicle-01\",\"state\":{\"phase\":0,\"destination\":null,\"load\":0,\"ticksRemaining\":0,\"duration\":0}},{\"id\":\"Vehicle-02\",\"state\":{\"phase\":0,\"destination\":null,\"load\":0,\"ticksRemaining\":0,\"duration\":0}},{\"id\":\"Vehicle-03\",\"state\":{\"phase\":0,\"destination\":null,\"load\":0,\"ticksRemaining\":0,\"duration\":0}}]}"
+}

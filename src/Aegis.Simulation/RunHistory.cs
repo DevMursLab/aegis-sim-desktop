@@ -14,18 +14,19 @@ public sealed record ReconstructedRun(SimulationSession Session, DeliveryEvent[]
 
 public static class RunHistory
 {
-    public const string EngineVersion = "2.5.0";
+    public const string EngineVersion = "3.0.0";
     public static RunDocument New(ScenarioDefinition scenario)
     {
         scenario.Validate();
         return new(1, EngineVersion, Guid.NewGuid(), DateTimeOffset.UtcNow,
-            scenario with { Shelters = scenario.Shelters.ToArray() }, Array.Empty<RecordedCommand>());
+            scenario.Snapshot(), Array.Empty<RecordedCommand>());
     }
 
     // Schema 1 deliberately keeps the exact 2.0 hash payload for archived runs.
     public static string Hash(SimulationSession session)
     {
-        string json = session.UsesFleet ? JsonSerializer.Serialize(new
+        string json = session.Scenario.Geography != null ? JsonSerializer.Serialize(new
+        { session.Tick, session.Status, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicles, session.Scenario.Geography }) : session.UsesFleet ? JsonSerializer.Serialize(new
         { session.Tick, session.Status, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicles }) : session.UsesLogistics ? JsonSerializer.Serialize(new
         { session.Tick, session.Status, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicle }) :
             JsonSerializer.Serialize(new { session.Tick, session.Status, session.DeliveredTotal, session.Shelters });
@@ -34,15 +35,17 @@ public static class RunHistory
 
     public static ReconstructedRun Replay(RunDocument document, int? targetTick = null)
     {
-        if (document == null || document.SchemaVersion != 1 || document.EngineVersion is not ("2.0.0" or "2.1.0" or "2.4.0" or EngineVersion) || document.Id == Guid.Empty ||
+        if (document == null || document.SchemaVersion != 1 || document.EngineVersion is not ("2.0.0" or "2.1.0" or "2.4.0" or "2.5.0" or EngineVersion) || document.Id == Guid.Empty ||
             document.Commands == null || document.Commands.Length > 25000)
             throw new InvalidDataException("Unsupported or invalid run document.");
         if (document.EngineVersion == "2.0.0" && document.Scenario.SchemaVersion != 1)
             throw new InvalidDataException("Engine 2.0 archives cannot contain schema 2 logistics.");
         if ((document.EngineVersion is "2.0.0" or "2.1.0") && document.Scenario.SchemaVersion == 3)
             throw new InvalidDataException("Fleet scenarios require engine 2.4.");
-        if (document.EngineVersion != EngineVersion && document.Scenario.Shelters.Any(s => s.Priority != 0))
+        if (document.EngineVersion is not ("2.5.0" or EngineVersion) && document.Scenario.Shelters.Any(s => s.Priority != 0))
             throw new InvalidDataException("Nonzero priority requires engine 2.5.");
+        if (document.Scenario.SchemaVersion == 4 && document.EngineVersion != EngineVersion)
+            throw new InvalidDataException("Geographical exercises require engine 3.0.");
         var session = new SimulationSession(document.Scenario);
         var events = new List<DeliveryEvent>();
         var ids = new HashSet<Guid>();

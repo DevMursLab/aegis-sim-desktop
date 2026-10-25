@@ -1,0 +1,17 @@
+{
+  "type": "FeatureCollection",
+  "exercise": { "name": "Fictional Road Network Training", "capacity": 10, "stock": 30, "fleetSize": 2, "metersPerTick": 300 },
+  "features": [
+    { "type": "Feature", "id": "depot", "properties": { "name": "Training depot", "kind": "depot" }, "geometry": { "type": "Point", "coordinates": [0,0] } },
+    { "type": "Feature", "id": "junction", "properties": { "name": "Training junction", "kind": "junction" }, "geometry": { "type": "Point", "coordinates": [0.004,0] } },
+    { "type": "Feature", "id": "shelter-a", "properties": { "name": "Road Shelter-A", "kind": "shelter", "demand": 10 }, "geometry": { "type": "Point", "coordinates": [0.008,0] } },
+    { "type": "Feature", "id": "shelter-b", "properties": { "name": "Road Shelter-B", "kind": "shelter", "demand": 10, "priority": 9 }, "geometry": { "type": "Point", "coordinates": [0.004,0.004] } },
+    { "type": "Feature", "id": "shelter-c", "properties": { "name": "Road Shelter-C", "kind": "shelter", "demand": 10, "priority": 5 }, "geometry": { "type": "Point", "coordinates": [0.008,0.004] } },
+    { "type": "Feature", "id": "road-01", "properties": { "name": "Depot junction road", "from": "depot", "to": "junction" }, "geometry": { "type": "LineString", "coordinates": [[0,0],[0.004,0]] } },
+    { "type": "Feature", "id": "road-02", "properties": { "name": "Junction A road", "from": "junction", "to": "shelter-a" }, "geometry": { "type": "LineString", "coordinates": [[0.004,0],[0.008,0]] } },
+    { "type": "Feature", "id": "road-03", "properties": { "name": "Junction B road", "from": "junction", "to": "shelter-b" }, "geometry": { "type": "LineString", "coordinates": [[0.004,0],[0.004,0.004]] } },
+    { "type": "Feature", "id": "road-04", "properties": { "name": "B C road", "from": "shelter-b", "to": "shelter-c" }, "geometry": { "type": "LineString", "coordinates": [[0.004,0.004],[0.008,0.004]] } },
+    { "type": "Feature", "id": "road-05", "properties": { "name": "A C road", "from": "shelter-a", "to": "shelter-c" }, "geometry": { "type": "LineString", "coordinates": [[0.008,0],[0.008,0.004]] } },
+    { "type": "Feature", "id": "road-99", "properties": { "name": "Long detour", "from": "depot", "to": "shelter-a" }, "geometry": { "type": "LineString", "coordinates": [[0,0],[-0.002,0.004],[0.008,0]] } }
+  ]
+}

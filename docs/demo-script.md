@@ -25,7 +25,7 @@ For a longer technical review, stop/restart the host while clients stay open. Wa
 - Why is mean service tick not real-world waiting time?
 - Which parts would need changing before internet deployment or large scenarios?
 
-State the limits plainly: synthetic local-meter map, fresh load per visit, no travel-time physics, local demo tokens, synchronous small-run persistence and no predictive AI claim.
+State the limits plainly: legacy instant-visit scenarios, configurable stock/travel and bounded static-road exercises coexist. Distances are a spherical approximation; local demo tokens and synchronous small-run persistence target a portfolio demo. No trained AI claim is made.
 
 ## Optional stock/travel extension (2.1 source)
 
@@ -34,3 +34,9 @@ Select **Stock + travel demo**. Step twice: stock is reserved and cargo is movin
 ## Offline review tools (2.2 desktop)
 
 Open Tools / Completion preview before stepping: observe the same deterministic endpoint without changing commands. Open Tools / Offline GeoJSON layers and load assets/maps/synthetic-region.geojson; select the fictional depot and toggle areas/lines/points. These geographical layers are a separate inspection view. Finally export diagnostics; show engine version, verified hash and the explicit timing caveat.
+
+## Road exercise (3.0 release)
+
+Open Tools / Road network demo. Select Road Shelter-B and Step twice: cargo is reserved, two markers follow the imported road, and the inspector shows 890 m / 3 ticks each way. Completion preview predicts tick 14. Continue until all 30 packets arrive and both vehicles return at tick 14. Replay tick 2 to reproduce the same road positions; export HTML to inspect source SHA-256 and route distances. Explain static paths, priority order, and the difference between a shelter service closure and a shared road-edge closure.
+
+The generic editor is disabled for this exercise. Change metersPerTick in a copy of assets/maps/road-exercise.geojson and import it as a new run. Original saved history retains its frozen paths. Existing legacy SQLite databases are backed up before the first versioned upgrade; subsequent starts do not repeat that backup.

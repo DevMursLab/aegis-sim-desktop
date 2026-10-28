@@ -1,3 +1,9 @@
+# Desktop 3.3.1 - documentation and distribution cleanup
+
+Replaces the long landing page with a focused feature overview, five application captures, setup instructions and links to technical documentation. Personal learning/interview material and planning PDFs are excluded from the current source tree; a user guide documents the application workflows. Reference console samples remain because they are exercised by verification. Simulation engine 3.2.0, routing rules, persistence formats and application behavior are unchanged.
+
+The Windows package carries the technical user guide instead of personal preparation notes. Older releases are historical artifacts and are not rewritten. Package verification targets the new documentation layout.
+
 # Desktop 3.3.0 / engine 3.2.0
 
 Adds a separate synthetic forecast lab: deterministic 7-nearest-neighbour regression over 800 generated schema-2 initial states, group-separated holdout evaluation, training-only scaling and an exported model/evaluation artifact. Holdout MAE is 6.62 logical ticks versus 25.78 for the training-mean baseline; worst error is 62.55 ticks. This does not support fleet, roads, incidents or real-world forecasting. Exact completion preview remains available for known histories.

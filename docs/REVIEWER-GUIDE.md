@@ -6,7 +6,7 @@ AEGIS-SIM is an independent portfolio project for fictional civilian response ex
 
 Open the [screenshot gallery](../README.md#application-gallery), then follow the [three-minute demo](demo-script.md). The screenshots show the actual Windows application; the repository banner is decorative artwork.
 
-The published [3.3.0 Windows download](https://github.com/DevMursLab/aegis-sim-desktop/releases/tag/v3.3.0) includes its runtime, editor, fleet, priorities, road incidents, junction diversion, synthetic forecast lab and report-export improvements. Desktop version is 3.3.0 / simulation engine 3.2.0. The package is verified from an isolated ZIP extraction, including fresh/seeded startup, custom-directory installation, installed startup, host health and packaged tools. This is a local Windows check, not a clean physical machine audit.
+The published [3.3.1 Windows download](https://github.com/DevMursLab/aegis-sim-desktop/releases/tag/v3.3.1) includes its runtime, editor, fleet, priorities, road incidents, junction diversion, synthetic forecast lab and report-export improvements. Desktop version is 3.3.1 / simulation engine 3.2.0. The package is verified from an isolated ZIP extraction, including fresh/seeded startup, custom-directory installation, installed startup, host health and packaged tools. This is a local Windows check, not a clean physical machine audit.
 
 ## 2. Reproduce a result
 
@@ -17,7 +17,7 @@ dotnet run --project src/Aegis.Tools -- --seed .\artifacts\review-demo
 dotnet run --project src/Aegis.Desktop.Wpf -- --data-dir .\artifacts\review-demo
 ```
 
-Compare the seeded baseline and closure histories: 6 versus 8 logical ticks, with 48 packets delivered in both. For the road exercise, open Tools / Road network demo. Enable junction routing while all vehicles are at the depot, step three times, close road-03 and inspect the diversion. See [the full exercise](learning/20-junction-routing.bn.md).
+Compare the seeded baseline and closure histories: 6 versus 8 logical ticks, with 48 packets delivered in both. For the road exercise, open Tools / Road network demo. Enable junction routing while all vehicles are at the depot, step three times, close road-03 and inspect the diversion. See [the full exercise](user-guide.md#junction-routing).
 
 ## 3. Inspect engineering decisions
 

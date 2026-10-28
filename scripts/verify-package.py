@@ -1,6 +1,6 @@
 """Verify an extracted self-contained Windows release, without using a .NET SDK.
 
-Usage: python scripts/verify-package.py artifacts/AEGIS-SIM-3.3.0-win-x64.zip
+Usage: python scripts/verify-package.py artifacts/AEGIS-SIM-3.3.1-win-x64.zip
 Writes <archive>.verification.json after all checks pass. Uses isolated temp data.
 """
 from pathlib import Path
@@ -36,11 +36,13 @@ def verify(archive):
                 assert target.is_relative_to(package.resolve()), "Unsafe ZIP path"
                 lower = name.lower()
                 assert "session-secrets" not in lower and not lower.endswith((".pfx", ".p12", ".env")), "Unexpected credential file"
+                assert not lower.startswith(("docs/learning/", "main/", "partial/")), "Planning/learning material in application package"
+                assert lower != "docs/interview-prep.bn.md", "Personal preparation notes in application package"
             required = ["package-manifest.json", "README.md", "Install.ps1", "Start-Local.cmd",
                         "Start-Seeded-Demo.cmd", "Start-Multiplayer.cmd", "app/Aegis.Desktop.Wpf.exe",
                         "host/Aegis.SyncHost.exe", "tools/Aegis.Tools.exe", "app/coreclr.dll",
                         "assets/maps/road-exercise.geojson", "docs/REVIEWER-GUIDE.md",
-                        "docs/INTERVIEW-PREP.bn.md", "docs/images/forecast-lab.png"]
+                        "docs/user-guide.md", "docs/images/forecast-lab.png"]
             for name in required:
                 assert name in names, "Missing package file: " + name
             bundle.extractall(package)
@@ -90,7 +92,7 @@ def verify(archive):
                 host.wait(timeout=20)
         evidence = {"desktopVersion": manifest["desktopVersion"], "engineVersion": health["engine"],
                     "sourceCommit": manifest["sourceCommit"], "sha256": digest, "bytes": archive.stat().st_size,
-                    "zipIntegrity": True, "credentialExclusion": True, "freshStartup": True,
+                    "zipIntegrity": True, "credentialExclusion": True, "technicalDocumentationOnly": True, "freshStartup": True,
                     "seededReplayStartup": True, "profileTool": True, "forecastTool": True,
                     "isolatedInstallAndStartup": True, "packagedRoadHost": True,
                     "limits": "Same Windows environment, isolated extraction/data. Not a clean physical machine or broad DPI/accessibility audit."}

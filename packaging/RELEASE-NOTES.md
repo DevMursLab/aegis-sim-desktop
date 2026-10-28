@@ -1,28 +1,17 @@
-# AEGIS-SIM Desktop 3.3.0
+# AEGIS-SIM Desktop 3.3.1
 
-Windows x64 desktop simulator with its runtime included. Simulation engine: **3.2.0**.
+Windows x64 desktop application with its runtime included. Simulation engine: **3.2.0**.
 
-## New since 3.0.1
+## Changes
 
-- Shared road closures with deterministic open-route selection for new dispatches.
-- Explicit junction routing: finish an entered road, then select a new open path at a reached node, outbound or returning.
-- Separate synthetic forecast lab: 800 generated schema-2 starts, 627 training and 173 holdout groups, training-only scaling and exportable model/evaluation. Holdout MAE 6.62 ticks versus 25.78 for the constant baseline; worst error 62.55 ticks. No real-world accuracy claim.
-- Background verified report export with cancellation, frozen-run inputs and rollback after handled publication failures.
-- Local playback pacing at 1x, 2x and 4x without modifying recorded history.
-- Reviewer guide, screenshot gallery, source/package manifest, checksums, reusable package verifier and Bangla interview preparation.
+This documentation/distribution patch removes personal learning and interview notes from the package, adds a technical user guide and simplifies the repository landing page. Simulation rules, history formats and functionality are unchanged from 3.3.0: shared road incidents, junction routing, fleet priorities, synthetic forecast lab, cancellable report export and local playback controls remain available.
 
 ## Run
 
-1. Download the Windows x64 ZIP and its `.sha256` file.
-2. Verify the hash with `Get-FileHash <archive.zip> -Algorithm SHA256`.
-3. Extract the complete ZIP to a writable folder.
-4. Run `Start-Seeded-Demo.cmd` or `Start-Local.cmd`.
-5. Optional: run `Install.ps1` for a per-user installation, without administrator rights.
+Download the ZIP and checksum, verify with `Get-FileHash <archive.zip> -Algorithm SHA256`, extract the complete archive, then run `Start-Seeded-Demo.cmd` or `Start-Local.cmd`. No SDK is required. Optional `Install.ps1` provides a per-user installation without administrator rights. See `docs/user-guide.md`.
 
-No SDK, cloud account or external map tiles are required. For junction routing, open Tools / Road network demo, enable the mode while all vehicles are at the depot, step three times, select road-03 and close it. Inspect the detour and then the saved replay.
+## Verification and boundaries
 
-## Verification and scope
+The application is covered by 212 console checks, three reference samples, warning-free Release builds and WPF/controller-observer reconnect checks. The accompanying `.verification.json` records the exact package hash and source commit and checks ZIP integrity, isolated startup, seeded replay, tools, installation and host health.
 
-The source verification covers a locked restore, a Release build with zero warnings/errors, **212 console checks**, three lessons, actual WPF flows and controller/observer host restart/reconnect with no binding errors. Release package verification additionally checks ZIP integrity and checksum, isolated extraction, fresh and seeded startup, packaged profiling/forecast tools, custom-directory installation, installed startup and road-host health. See the accompanying `.verification.json` asset for the exact package hash and source commit.
-
-This is an independent portfolio simulator with fictional civilian data. It does not reproduce an institution's internal system. Networking is local/loopback-only. No real-traffic, high-load, clean-physical-machine, signed-installer or comprehensive accessibility/DPI claim is made. Original supported engine histories remain readable; older binaries cannot open new engine 3.2 histories.
+Independent portfolio software using fictional civilian data. Local/loopback networking only. No field-validated forecasting, real traffic, high-load, clean-physical-machine, signed-installer or comprehensive accessibility/DPI claim. Supported older histories remain readable; old binaries cannot open new engine 3.2 histories.

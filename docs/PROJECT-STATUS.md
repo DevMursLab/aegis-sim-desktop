@@ -1,4 +1,4 @@
-# Project status - desktop 3.3.0
+# Project status - desktop 3.3.1
 
 The deliverable is a Windows desktop portfolio simulator using fictional civilian scenarios. This checklist describes that deliverable; it does not claim every research/deployment idea in the original blueprints is complete.
 
@@ -16,7 +16,7 @@ The deliverable is a Windows desktop portfolio simulator using fictional civilia
 - [x] Bounded synthetic forecast experiment with separated training/holdout groups and baseline comparison.
 - [x] Release build, 212 console checks, lessons and actual WPF interaction/reconnect checks.
 - [x] Self-contained Windows package, manifest/checksum generation and reusable extracted-package verification.
-- [x] Screenshot gallery, architecture, reviewer path, demo instructions and Bangla interview preparation.
+- [x] Screenshot gallery, architecture, reviewer path and application documentation.
 
 ## Future work and external acceptance
 
@@ -34,4 +34,4 @@ These future items are not required to run the local portfolio demo and are not 
 
 ## Verify and review
 
-Use [verification](verification.md), [the reviewer guide](REVIEWER-GUIDE.md), [the demo script](demo-script.md) and [interview preparation](INTERVIEW-PREP.bn.md). Each release includes a checksum; package checks emit a separate machine-readable verification artifact beside the ZIP.
+Use [verification](verification.md), [the reviewer guide](REVIEWER-GUIDE.md), [the demo script](demo-script.md) and [user guide](user-guide.md). Each release includes a checksum; package checks emit a separate machine-readable verification artifact beside the ZIP.

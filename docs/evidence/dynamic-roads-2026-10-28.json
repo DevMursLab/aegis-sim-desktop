@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-28",
+  "engine": "3.1.0",
+  "app": "3.1.0",
+  "command": "powershell -ExecutionPolicy Bypass -File .\\scripts\\verify.ps1",
+  "result": "passed",
+  "lockedRestore": true,
+  "nugetAuditEnabled": true,
+  "buildWarnings": 0,
+  "buildErrors": 0,
+  "consoleChecks": 181,
+  "releaseChecks": 44,
+  "dynamicRoadChecks": 15,
+  "lessons": 3,
+  "wpfPassed": true,
+  "bindingErrors": 0,
+  "observedRoadDemo": {
+    "baselineTicks": 14,
+    "incidentRoad": "road-01",
+    "closedAtTick": 0,
+    "duration": 5,
+    "incidentCompletionTick": 24,
+    "delivered": 30
+  },
+  "limits": [
+    "Dispatch-time rerouting only; assigned paths wait on any closed road, in either direction.",
+    "No real-world traffic, travel-time, physical-machine or deployment acceptance claim."
+  ]
+}

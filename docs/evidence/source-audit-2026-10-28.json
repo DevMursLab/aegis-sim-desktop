@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-28",
+  "desktopVersion": "3.3.0",
+  "engineVersion": "3.2.0",
+  "consoleCommand": "powershell -ExecutionPolicy Bypass -File .\\scripts\\verify.ps1 -SkipUi",
+  "consoleExitCode": 0,
+  "lockedRestore": true,
+  "releaseBuildWarnings": 0,
+  "releaseBuildErrors": 0,
+  "consoleChecks": 212,
+  "groups": { "lessonEngine": 7, "desktop": 20, "integration": 22, "logistics": 20, "quality": 32, "fleet": 20, "priority": 16, "release": 75 },
+  "lessonsPassed": 3,
+  "uiCommand": "dotnet run --project tests/Aegis.Wpf.Smoke -c Release --no-build",
+  "uiExitCode": 0,
+  "uiBindingErrors": 0,
+  "uiIncludes": ["controller/observer synchronization", "host restart and automatic reconnect", "junction diversion", "synthetic forecast lab", "playback pacing"],
+  "refreshedScreenshots": ["docs/images/dynamic-roads.png", "docs/images/junction-routing.png", "docs/images/forecast-lab.png"],
+  "limits": "Local Windows verification; no clean-machine, broad DPI/accessibility, cloud deployment or large-scale load claim. No new downloadable binary release."
+}

@@ -11,7 +11,12 @@ public static class PdfReport
     public static void Save(string path, RunDocument document)
     {
         var result = RunHistory.Replay(document);
-        var metrics = RunMetrics.Calculate(document);
+        var metrics = RunMetrics.Calculate(result, document.Commands.Count(c => c.Command.Type is "CloseRoute" or "CloseRoad"));
+        SaveVerified(path, document, result, metrics);
+    }
+
+    internal static void SaveVerified(string path, RunDocument document, ReconstructedRun result, RunMetrics metrics, CancellationToken cancellationToken = default)
+    {
         using var pdf = new PdfDocument();
         pdf.Info.Title = "AEGIS-SIM / Verified exercise report";
         pdf.Info.Author = "AEGIS-SIM";
@@ -23,6 +28,7 @@ public static class PdfReport
         int pageNumber = 0;
         for (int start = 0; start < Math.Max(1, result.Session.Shelters.Count); start += 18)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var page = pdf.AddPage(); page.Size = PdfSharp.PageSize.A4;
             using var graphics = XGraphics.FromPdfPage(page);
             graphics.DrawString("AEGIS-SIM", title, ink, 44, 55);
@@ -52,10 +58,11 @@ public static class PdfReport
             graphics.DrawString($"Verified ordered commands: {document.Commands.Length}. Final state SHA-256:", small, ink, 44, 680);
             graphics.DrawString(hash[..32], small, ink, 44, 696);
             graphics.DrawString(hash[32..], small, ink, 44, 710);
-            graphics.DrawString(result.Session.UsesLogistics ? "Model: finite stock and configured travel ticks; no distance/speed physics or efficacy claim." : "Model: unlimited reload and instant visits; no real-world efficacy claim.", small, ink, 44, 742);
-            graphics.DrawString("Route closure restricts a shelter for logical ticks. Full Unicode labels: UTF-8 HTML/CSV.", small, ink, 44, 757);
+            graphics.DrawString(result.Session.UsesLogistics ? "Model: finite stock and logical travel ticks; synthetic training, no efficacy claim." : "Model: unlimited reload and instant visits; no real-world efficacy claim.", small, ink, 44, 742);
+            graphics.DrawString(result.Session.JunctionRoutingEnabled ? "Junction routing: paths change at nodes; entered roads finish. Details: HTML/CSV." : "Closures restrict shelter/road service. Road incident details and Unicode labels: HTML/CSV.", small, ink, 44, 757);
             graphics.DrawString($"Page {++pageNumber} / {Math.Max(1, (result.Session.Shelters.Count + 17) / 18)}", small, ink, 44, 790);
         }
+        cancellationToken.ThrowIfCancellationRequested();
         pdf.Save(path);
     }
     private static string Ascii(string text) => new(text.Take(80).Select(c => c is >= ' ' and <= '~' ? c : '?').ToArray());

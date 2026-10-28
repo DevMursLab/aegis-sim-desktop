@@ -40,3 +40,11 @@ Open Tools / Completion preview before stepping: observe the same deterministic 
 Open Tools / Road network demo. Select Road Shelter-B and Step twice: cargo is reserved, two markers follow the imported road, and the inspector shows 890 m / 3 ticks each way. Completion preview predicts tick 14. Continue until all 30 packets arrive and both vehicles return at tick 14. Replay tick 2 to reproduce the same road positions; export HTML to inspect source SHA-256 and route distances. Explain static paths, priority order, and the difference between a shelter service closure and a shared road-edge closure.
 
 The generic editor is disabled for this exercise. Change metersPerTick in a copy of assets/maps/road-exercise.geojson and import it as a new run. Original saved history retains its frozen paths. Existing legacy SQLite databases are backed up before the first versioned upgrade; subsequent starts do not repeat that backup.
+
+## Shared road incidents (3.1 source)
+
+Start a new Road network demo. In the inspector select road-01 and choose Close road / 5 ticks, then Step twice. Show the red closed shared edge and vehicles following the long road-99 detour. Select a dispatch event to inspect the chosen road IDs, distance and travel duration. Finish the run, open its saved read-only replay and export HTML/vehicle CSV to inspect incidents and routing provenance. A road closed after dispatch pauses the assigned trip in place; the model reroutes new dispatches only.
+
+## Junction diversion (3.2 source)
+
+Start a fresh Road network demo and press Use junction routing. Step three times; both vehicles reach the first junction. Select road-03, close it for five ticks and Step again. B's vehicle goes right on road-02 instead of entering road-03; its shelter destination and reserved load are preserved. Inspect the movement event's junction-path reason. Seek the saved replay to tick 3 and verify the exact junction position, then tick 4 for the diversion. HTML explains per-edge timing; vehicle CSV retains path decisions. Closing a currently occupied edge lets the vehicle finish it, then it reconsiders the route at the next node.

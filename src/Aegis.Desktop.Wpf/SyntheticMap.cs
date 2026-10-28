@@ -22,6 +22,10 @@ public sealed class SyntheticMap : FrameworkElement
     public IReadOnlyList<MapVehicle>? FleetVehicles { get => (IReadOnlyList<MapVehicle>?)GetValue(FleetVehiclesProperty); set => SetValue(FleetVehiclesProperty, value); }
     public static readonly DependencyProperty GeographyProperty = DependencyProperty.Register(nameof(Geography), typeof(GeographyDefinition), typeof(SyntheticMap), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
     public GeographyDefinition? Geography { get => (GeographyDefinition?)GetValue(GeographyProperty); set => SetValue(GeographyProperty, value); }
+    public static readonly DependencyProperty ClosedRoadIdsProperty = DependencyProperty.Register(nameof(ClosedRoadIds), typeof(IReadOnlyList<string>), typeof(SyntheticMap), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+    public IReadOnlyList<string>? ClosedRoadIds { get => (IReadOnlyList<string>?)GetValue(ClosedRoadIdsProperty); set => SetValue(ClosedRoadIdsProperty, value); }
+    public static readonly DependencyProperty ActiveRoadRoutesProperty = DependencyProperty.Register(nameof(ActiveRoadRoutes), typeof(IReadOnlyList<RoadRoute>), typeof(SyntheticMap), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+    public IReadOnlyList<RoadRoute>? ActiveRoadRoutes { get => (IReadOnlyList<RoadRoute>?)GetValue(ActiveRoadRoutesProperty); set => SetValue(ActiveRoadRoutesProperty, value); }
     public static readonly DependencyProperty DepotXProperty = DependencyProperty.Register(nameof(DepotX), typeof(double), typeof(SyntheticMap), new FrameworkPropertyMetadata(170.0, FrameworkPropertyMetadataOptions.AffectsRender));
     public static readonly DependencyProperty DepotYProperty = DependencyProperty.Register(nameof(DepotY), typeof(double), typeof(SyntheticMap), new FrameworkPropertyMetadata(410.0, FrameworkPropertyMetadataOptions.AffectsRender));
     public double DepotX { get => (double)GetValue(DepotXProperty); set => SetValue(DepotXProperty, value); }
@@ -94,6 +98,9 @@ public sealed class SyntheticMap : FrameworkElement
         var origin = Screen(depot);
         dc.DrawRoundedRectangle(Brush("#173C4F"), new Pen(Brush("#FFFFFF"), 3), new Rect(origin.X - 17, origin.Y - 17, 34, 34), 5, 5);
         Label(dc, "DEPOT", origin.X - 25, origin.Y + 26, "#173C4F", 13, true);
+        foreach (var route in ActiveRoadRoutes ?? Array.Empty<RoadRoute>()) RoadLine(dc, route.Points, "#D59935", 4);
+        if (Geography != null)
+            foreach (var road in Geography.Roads.Where(r => ClosedRoadIds?.Contains(r.Id) == true)) RoadLine(dc, road.Points, "#BC544B", 5);
         if (FleetVehicles?.Count > 0)
         {
             int index = 0;

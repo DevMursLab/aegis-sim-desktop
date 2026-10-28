@@ -3,7 +3,16 @@ namespace Aegis.Simulation;
 
 public enum RunStatus { Ready, Running, Paused, Completed, SupplyExhausted }
 public enum VehiclePhase { AtDepot, Outbound, Returning }
-public sealed record VehicleState(VehiclePhase Phase, string? Destination, int Load, int TicksRemaining, int Duration);
+public sealed record VehicleState(VehiclePhase Phase, string? Destination, int Load, int TicksRemaining, int Duration,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RoadRoute? Route = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RoadJourney? Journey = null)
+{
+    public VehicleState Snapshot() => this with
+    {
+        Route = Route == null ? null : Route with { RoadIds = Route.RoadIds.ToArray(), Points = Route.Points.ToArray() },
+        Journey = Journey == null ? null : Journey with { Points = Journey.Points.ToArray() }
+    };
+}
 public sealed record ShelterState(string Name, int InitialDemand, int Remaining, int BlockedUntil = 0,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] int Priority = 0);
 public sealed record VehicleAction(string VehicleId, string Shelter, int Amount, string Kind,
@@ -27,7 +36,7 @@ public sealed partial class SimulationSession
     public int? DepotStockRemaining { get; private set; }
     public int RestockedTotal { get; private set; }
     private VehicleState singleVehicle = new(VehiclePhase.AtDepot, null, 0, 0, 0);
-    public VehicleState Vehicle { get => UsesFleet ? fleet[0].State : singleVehicle; private set => singleVehicle = value; }
+    public VehicleState Vehicle { get => UsesFleet ? Vehicles[0].State : singleVehicle; private set => singleVehicle = value; }
     public int InTransit => UsesFleet ? fleet.Sum(v => v.State.Load) : Vehicle.Load;
     public IReadOnlyList<ShelterState> Shelters => Array.AsReadOnly(shelters);
 
@@ -119,6 +128,8 @@ public sealed partial class SimulationSession
     public void Reset()
     {
         shelters = initial.ToArray();
+        roadClosures.Clear();
+        JunctionRoutingEnabled = false;
         Tick = 0;
         DeliveredTotal = 0;
         Status = InitialDemand == 0 ? RunStatus.Completed : RunStatus.Ready;

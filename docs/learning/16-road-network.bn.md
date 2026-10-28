@@ -14,7 +14,7 @@ int travelTicks = (int)Math.Ceiling(routeMeters / (double)metersPerTick);
 
 দুটি গাড়ি, মোট ৩০ প্যাকেট। B-এর priority ৯, C-এর ৫, A-এর ০। প্রথমে B ও C-এর জন্য cargo reserve হয়। A/B-এর পথ ৮৯০ মিটার, C-এর ১৩৩৫ মিটার। সবাই পেয়ে গাড়িগুলো ফিরে এলে **tick 14**-এ শেষ হয়। Step দিয়ে দেখে তারপর replay-তে tick 2-এ ফিরে marker মিলিয়ে দেখো।
 
-এই ছোট মডেলে রাস্তা দুই দিকেই ব্যবহার করা যায়, পথ import-এর সময় স্থির হয়। Close route একটি shelter-এর outbound trip থামায়; shared road বন্ধ বা নতুন পথ খোঁজা হয় না। Distance পৃথিবীকে গোলক ধরে হিসাব করা approximation; বাস্তব গাড়ির সময় দাবি করছি না।
+এই ছোট মডেলে রাস্তা দুই দিকেই ব্যবহার করা যায়, পথ import-এর সময় স্থির হয়। Close route একটি shelter-এর outbound trip থামায়; নতুন source build-এ shared road বন্ধ ও নতুন dispatch-এর বিকল্প পথ খোঁজা [Lesson 19](19-dynamic-roads.bn.md)-এ আছে। Distance পৃথিবীকে গোলক ধরে হিসাব করা approximation; বাস্তব গাড়ির সময় দাবি করছি না।
 
 Generic scenario editor এখানে বন্ধ। GeoJSON-এর `exercise.metersPerTick` ৩০০ থেকে ৪৫০ করে আলাদা ফাইলে save ও import করো। পুরোনো saved run বদলাবে না। নতুন completion tick দেখে কারণ নিজের ভাষায় লিখো। Geography-এর snapshot ও hash থাকায় replay মূল ফাইল ছাড়াই একই পথ দেখাতে পারে।
 

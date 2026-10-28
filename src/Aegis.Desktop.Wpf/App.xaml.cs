@@ -34,7 +34,12 @@ public partial class App : Application
             window.WorkspaceAction += workspace.Execute;
             timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             timer.Tick += (_, _) => model.Advance();
-            model.PropertyChanged += (_, _) => { if (model.IsRunning) timer.Start(); else timer.Stop(); };
+            model.PropertyChanged += (_, _) =>
+            {
+                var interval = TimeSpan.FromSeconds(1.0 / model.PlaybackSpeed);
+                if (timer.Interval != interval) timer.Interval = interval;
+                if (model.IsRunning) timer.Start(); else timer.Stop();
+            };
             window.Closed += (_, _) => { timer.Stop(); model.CancelReplayWork(); };
             if (server != null)
                 network = new NetworkClient(server, Option(e.Args, "--secrets") ?? throw new ArgumentException("Specify --secrets <host session-secrets.json>."),

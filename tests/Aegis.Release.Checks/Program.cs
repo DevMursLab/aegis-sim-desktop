@@ -13,6 +13,55 @@ int passed = 0;
 string directory = Path.Combine(Path.GetTempPath(), "aegis-release-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(directory);
 string sample = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "road-exercise.geojson"));
 ScenarioDefinition Demo() => GeoExercise.Parse(sample);
+Check("Reused verified replay preserves known outcomes across all scenario generations", () =>
+{
+    foreach (var (scenario, ticks, delivered) in new[] {
+        (ScenarioDefinition.FloodDemo(), 6, 48), (ScenarioDefinition.LogisticsDemo(), 16, 30),
+        (ScenarioDefinition.FleetDemo(), 8, 48), (ScenarioDefinition.PriorityDemo(), 4, 20), (Demo(), 14, 30) })
+    {
+        var document = RunHistory.New(scenario);
+        for (int tick = 0; tick < ticks; tick++)
+            document = RunHistory.Append(document, new(Guid.NewGuid(), "Step"));
+        var metrics = RunMetrics.Calculate(RunHistory.Replay(document), 0);
+        Require(metrics.Ticks == ticks && metrics.Delivered == delivered && metrics.InTransit == 0 && metrics.Closures == 0);
+    }
+    var incident = RunHistory.Append(RunHistory.New(ScenarioDefinition.FloodDemo()), new(Guid.NewGuid(), "CloseRoute", "Shelter-A", 5));
+    for (int tick = 0; tick < 8; tick++) incident = RunHistory.Append(incident, new(Guid.NewGuid(), "Step"));
+    var closure = RunMetrics.Calculate(RunHistory.Replay(incident), 1);
+    Require(closure.Closures == 1 && closure.WaitingTicks == 2 && closure.ActiveTickPercent == 75 && Math.Abs(closure.MeanServiceTick - 219.0 / 48) < 0.000001);
+});
+Check("Report entry points reject corrupt history before creating report files", () =>
+{
+    var document = RunHistory.Append(RunHistory.New(Demo()), new(Guid.NewGuid(), "Step"));
+    document = document with { Commands = new[] { document.Commands[0] with { StateHash = "corrupt" } } };
+    string reports = Path.Combine(directory, "corrupt-reports");
+    Reject(() => Reports.Export(reports, document));
+    Reject(() => PdfReport.Save(Path.Combine(reports, "standalone.pdf"), document));
+    Require(!Directory.EnumerateFiles(reports).Any());
+});
+Check("Failed report publication restores previous files and removes partial output", () =>
+{
+    var document = RunHistory.New(Demo());
+    string reports = Path.Combine(directory, "publication-rollback");
+    Directory.CreateDirectory(reports);
+    string stem = Path.Combine(reports, "run-" + document.Id.ToString("N"));
+    File.WriteAllText(stem + ".csv", "previous csv");
+    File.WriteAllText(stem + "-vehicles.csv", "previous vehicles");
+    // A directory at the PDF destination fails after the CSV/HTML moves.
+    Directory.CreateDirectory(stem + ".pdf");
+    bool failed = false;
+    try { Reports.Export(reports, document); }
+    catch (IOException) { failed = true; }
+    Require(failed);
+    Require(File.ReadAllText(stem + ".csv") == "previous csv");
+    Require(File.ReadAllText(stem + "-vehicles.csv") == "previous vehicles");
+    Require(!File.Exists(stem + ".html") && Directory.GetDirectories(reports).Length == 1);
+    Directory.Delete(stem + ".pdf");
+    Reports.Export(reports, document);
+    Require(File.ReadAllText(stem + ".html").Contains(document.Id.ToString()));
+    Require(File.ReadAllText(stem + ".csv").StartsWith("tick,shelter"));
+    Require(File.Exists(stem + ".pdf") && Directory.GetDirectories(reports).Length == 0);
+});
 Check("Road GeoJSON compiles self-contained routes and distance-derived ticks", () =>
 {
     var s = Demo(); Require(s.SchemaVersion == 4 && s.Geography!.Roads.Length == 6 && s.Geography.Routes.Select(r => r.Meters).SequenceEqual(new[] { 890, 890, 1335 }));
@@ -137,6 +186,10 @@ Check("Service closure freezes the assigned trip without rewriting shortest path
     Require(s.Vehicle.TicksRemaining == before.TicksRemaining && s.Vehicles[1].State.TicksRemaining == 4); Conserved(s);
 });
 
+passed += DynamicRoadChecks.Run(Demo(), directory);
+passed += JunctionRoutingChecks.Run(Demo(), directory);
+passed += ForecastChecks.Run(directory);
+
 string rootPath = AppContext.BaseDirectory; while (!File.Exists(Path.Combine(rootPath, "Aegis.Sim.slnx"))) rootPath = Directory.GetParent(rootPath)?.FullName ?? throw new Exception("Repository not found");
 var socket = new TcpListener(IPAddress.Loopback, 0); socket.Start(); int port = ((IPEndPoint)socket.LocalEndpoint).Port; socket.Stop();
 string hostData = Path.Combine(directory, "host"); string scenarioPath = Path.Combine(directory, "network.geojson"); File.WriteAllText(scenarioPath, sample);
@@ -154,6 +207,44 @@ try
     var seen = await observer.InvokeAsync<RoomSnapshot>("Snapshot"); var result = RunHistory.Replay(seen.Run);
     Require(result.Session.Status == RunStatus.Completed && result.Session.Tick == 14 && seen.Run.Scenario.Geography!.Roads.Length == 6 && RunHistory.Hash(result.Session) == RunHistory.Hash(RunHistory.Replay(state.Run).Session));
     Pass("Authoritative host and observer reconstruct the same road-derived exercise");
+    state = await controller.InvokeAsync<RoomSnapshot>("Submit", new HostCommandRequest(state.Run.Id, state.Run.Commands.Length, new(Guid.NewGuid(), "Reset")));
+    state = await controller.InvokeAsync<RoomSnapshot>("Submit", new HostCommandRequest(state.Run.Id, state.Run.Commands.Length, new(Guid.NewGuid(), "CloseRoad", "road-01", 5)));
+    state = await controller.InvokeAsync<RoomSnapshot>("Submit", new HostCommandRequest(state.Run.Id, state.Run.Commands.Length, new(Guid.NewGuid(), "Step")));
+    seen = await observer.InvokeAsync<RoomSnapshot>("Snapshot");
+    Require(RunHistory.Replay(seen.Run).Session.Vehicle.Route!.RoadIds.Contains("road-99") && seen.Run.Commands.Length == state.Run.Commands.Length);
+    bool denied = false;
+    try { await observer.InvokeAsync<RoomSnapshot>("Submit", new HostCommandRequest(seen.Run.Id, seen.Run.Commands.Length, new(Guid.NewGuid(), "CloseRoad", "road-99", 5))); }
+    catch (Microsoft.AspNetCore.SignalR.HubException) { denied = true; }
+    Require(denied);
+    Pass("Host and observer share dynamic detours and reject observer road incidents");
+    state = await controller.InvokeAsync<RoomSnapshot>("Submit", new HostCommandRequest(state.Run.Id, state.Run.Commands.Length, new(Guid.NewGuid(), "Reset")));
+    state = await controller.InvokeAsync<RoomSnapshot>("Submit", new HostCommandRequest(state.Run.Id, state.Run.Commands.Length, new(Guid.NewGuid(), "EnableJunctionRouting")));
+    for (int i = 0; i < 3; i++) state = await controller.InvokeAsync<RoomSnapshot>("Submit", new HostCommandRequest(state.Run.Id, state.Run.Commands.Length, new(Guid.NewGuid(), "Step")));
+    state = await controller.InvokeAsync<RoomSnapshot>("Submit", new HostCommandRequest(state.Run.Id, state.Run.Commands.Length, new(Guid.NewGuid(), "CloseRoad", "road-03", 5)));
+    state = await controller.InvokeAsync<RoomSnapshot>("Submit", new HostCommandRequest(state.Run.Id, state.Run.Commands.Length, new(Guid.NewGuid(), "Step")));
+    seen = await observer.InvokeAsync<RoomSnapshot>("Snapshot");
+    var junction = RunHistory.Replay(seen.Run).Session;
+    Require(junction.JunctionRoutingEnabled && junction.Vehicle.Journey!.RoadId == "road-02" && RunHistory.Hash(junction) == state.Run.Commands[^1].StateHash);
+    denied = false;
+    try { await observer.InvokeAsync<RoomSnapshot>("Submit", new HostCommandRequest(seen.Run.Id, seen.Run.Commands.Length, new(Guid.NewGuid(), "EnableJunctionRouting"))); }
+    catch (Microsoft.AspNetCore.SignalR.HubException) { denied = true; }
+    Require(denied);
+    Pass("Host and observer share junction diversion and enforce mode-command roles");
+    await controller.StopAsync(); await observer.StopAsync(); host.Kill(true); await host.WaitForExitAsync();
+    using var restarted = Process.Start(start)!;
+    restarted.OutputDataReceived += (_, _) => { }; restarted.ErrorDataReceived += (_, _) => { }; restarted.BeginOutputReadLine(); restarted.BeginErrorReadLine();
+    try
+    {
+        watch.Restart();
+        while (true) { try { if ((await http.GetAsync($"http://127.0.0.1:{port}/health")).IsSuccessStatusCode) break; } catch { } if (watch.Elapsed > TimeSpan.FromSeconds(25)) throw new TimeoutException(); await Task.Delay(100); }
+        await using var recovered = Connect("Observer"); await recovered.StartAsync();
+        var restored = await recovered.InvokeAsync<RoomSnapshot>("Snapshot");
+        Require(restored.Run.Id == state.Run.Id && restored.Run.Commands.Length == state.Run.Commands.Length &&
+            RunHistory.Hash(RunHistory.Replay(restored.Run).Session) == state.Run.Commands[^1].StateHash && RunHistory.Replay(restored.Run).Session.JunctionRoutingEnabled);
+        Pass("Actual host restart restores junction mode in-flight road progress and checksum");
+    }
+    finally { if (!restarted.HasExited) { restarted.Kill(true); await restarted.WaitForExitAsync(); } }
+
 }
 finally { if (!host.HasExited) host.Kill(true); }
 passed += await AsyncReplayChecks.Run();

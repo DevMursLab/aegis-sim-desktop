@@ -6,6 +6,8 @@
   <ProjectReference Include="../../src/Aegis.SyncHost/Aegis.SyncHost.csproj" ReferenceOutputAssembly="false"/>
   <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.13"/>
   <Content Include="../../assets/maps/road-exercise.geojson" Link="road-exercise.geojson" CopyToOutputDirectory="PreserveNewest"/>
+  <Content Include="../fixtures/legacy-v31-road-incidents.json" Link="legacy-v31-road-incidents.json" CopyToOutputDirectory="PreserveNewest"/>
+  <Content Include="../fixtures/legacy-v30-road-run.json" Link="legacy-v30-road-run.json" CopyToOutputDirectory="PreserveNewest"/>
   <Content Include="../fixtures/legacy-v25-priority-run.json" Link="legacy-v25-priority-run.json" CopyToOutputDirectory="PreserveNewest"/>
  </ItemGroup>
 </Project>

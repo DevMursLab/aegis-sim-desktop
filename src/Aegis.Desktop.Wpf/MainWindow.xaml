@@ -44,6 +44,13 @@
       <MenuItem x:Name="PriorityDemoMenu" Header="Priority + limited stock demo" Tag="Priority" Click="Workspace_Click" IsEnabled="{Binding IsLocal}"/>
       <MenuItem x:Name="GeoDemoMenu" Header="Road network demo" Tag="GeoDemo" Click="Workspace_Click" IsEnabled="{Binding IsLocal}"/>
       <MenuItem x:Name="LayersMenu" Header="Offline GeoJSON layers" Tag="Layers" Click="Workspace_Click"/>
+      <MenuItem Header="{Binding PlaybackSpeedLabel}" IsEnabled="{Binding CanChangePlaybackSpeed}">
+       <MenuItem Header="1x" Tag="Speed1" Click="Workspace_Click"/>
+       <MenuItem Header="2x" Tag="Speed2" Click="Workspace_Click"/>
+       <MenuItem x:Name="SpeedFastMenu" Header="4x" Tag="Speed4" Click="Workspace_Click"/>
+      </MenuItem>
+      <MenuItem x:Name="ForecastMenu" Header="Synthetic forecast lab" Tag="Forecast" Click="Workspace_Click"/>
+      <MenuItem Header="Cancel report export" Tag="CancelReport" Click="Workspace_Click"/>
       <MenuItem x:Name="PreviewMenu" Header="Completion preview" Tag="Preview" Click="Workspace_Click"/>
       <MenuItem x:Name="DiagnosticsMenu" Header="Export diagnostics" Tag="Diagnostics" Click="Workspace_Click"/>
      </MenuItem>
@@ -93,7 +100,7 @@
    <Border Grid.Row="1" BorderBrush="#D9E1E8" BorderThickness="1" CornerRadius="6" ClipToBounds="True">
     <Grid>
      <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-     <local:SyntheticMap x:Name="AreaMap" Nodes="{Binding MapNodes}" SelectedName="{Binding SelectedShelterName, Mode=TwoWay}" LastDelivery="{Binding LastDeliveryShelter}" HasVehicle="{Binding UsesLogistics}" FleetVehicles="{Binding MapVehicles}" Geography="{Binding Geography}" DepotX="{Binding DepotX}" DepotY="{Binding DepotY}" VehicleX="{Binding VehiclePosition.X}" VehicleY="{Binding VehiclePosition.Y}" VehicleDestination="{Binding VehicleDestination}" AutomationProperties.Name="Synthetic map. Select a shelter from the adjacent list for keyboard access."/>
+     <local:SyntheticMap x:Name="AreaMap" Nodes="{Binding MapNodes}" SelectedName="{Binding SelectedShelterName, Mode=TwoWay}" LastDelivery="{Binding LastDeliveryShelter}" HasVehicle="{Binding UsesLogistics}" FleetVehicles="{Binding MapVehicles}" Geography="{Binding Geography}" ClosedRoadIds="{Binding ClosedRoadIds}" ActiveRoadRoutes="{Binding ActiveRoadRoutes}" DepotX="{Binding DepotX}" DepotY="{Binding DepotY}" VehicleX="{Binding VehiclePosition.X}" VehicleY="{Binding VehiclePosition.Y}" VehicleDestination="{Binding VehicleDestination}" AutomationProperties.Name="Synthetic map. Select a shelter from the adjacent list for keyboard access."/>
      <Border Grid.Row="1" Background="White" Padding="14,10">
       <TextBlock Text="Green: supplied / red: closed / amber: vehicles or last visit&#x0a;Scroll: zoom · Drag: pan · Home: fit · Synthetic local meters" Foreground="#526878" FontSize="11" TextWrapping="Wrap"/>
      </Border>
@@ -102,7 +109,18 @@
    <Grid Grid.RowSpan="2" Grid.Column="2">
     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="140"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
     <TextBlock Text="INSPECT SHELTER" FontWeight="SemiBold" Margin="0,0,0,10"/>
-    <ComboBox x:Name="ShelterPicker" Grid.Row="1" ItemsSource="{Binding ShelterNames}" SelectedItem="{Binding SelectedShelterName, Mode=TwoWay}" Padding="8" AutomationProperties.Name="Select shelter"/>
+    <StackPanel Grid.Row="1">
+     <ComboBox x:Name="ShelterPicker" ItemsSource="{Binding ShelterNames}" SelectedItem="{Binding SelectedShelterName, Mode=TwoWay}" Padding="8" AutomationProperties.Name="Select shelter"/>
+     <StackPanel Margin="0,8,0,0">
+      <StackPanel.Style><Style TargetType="StackPanel"><Style.Triggers><DataTrigger Binding="{Binding Geography}" Value="{x:Null}"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></StackPanel.Style>
+      <DockPanel>
+       <Button x:Name="JunctionRoutingButton" DockPanel.Dock="Right" Content="Use junction routing" Command="{Binding EnableJunctionRoutingCommand}" Padding="8,6" Margin="8,0,0,0" ToolTip="Enable while all vehicles are at the depot. Entered roads finish; new paths are chosen at nodes."/>
+       <Button x:Name="RoadClosureButton" DockPanel.Dock="Right" Content="Close road / 5 ticks" Command="{Binding CloseRoadCommand}" Padding="8,6" Margin="8,0,0,0"/>
+       <ComboBox x:Name="RoadPicker" ItemsSource="{Binding RoadIds}" SelectedItem="{Binding SelectedRoadId, Mode=TwoWay}" Padding="8" AutomationProperties.Name="Select shared road"/>
+      </DockPanel>
+      <TextBlock Text="{Binding RoadIncidentLabel}" ToolTip="{Binding RoadIncidentLabel}" FontSize="11" TextTrimming="CharacterEllipsis" Margin="0,4,0,0"/>
+     </StackPanel>
+    </StackPanel>
     <TextBlock x:Name="SelectedDetailText" Grid.Row="2" Text="{Binding SelectedDetail}" TextWrapping="Wrap" Margin="0,8,0,14" Foreground="#526878"/>
    <DataGrid x:Name="ShelterGrid" Grid.Row="3" ItemsSource="{Binding Shelters}">
     <DataGrid.Columns>

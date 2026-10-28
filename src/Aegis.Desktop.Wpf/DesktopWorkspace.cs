@@ -9,6 +9,34 @@ namespace Aegis.Desktop.Wpf;
 
 public sealed class DesktopWorkspace(MainWindow window, RunViewModel model, RunRepository repository)
 {
+    private CancellationTokenSource? reportCancellation;
+    public void CancelReportExport() => reportCancellation?.Cancel();
+    public bool IsReportExporting { get; private set; }
+
+    public async Task ExportReportAsync(string directory)
+    {
+        if (IsReportExporting) { model.Notify("A report export is already in progress."); return; }
+        // Freeze the full run before yielding: reset, seeking and incoming commands
+        // must not change the identity or contents of an export already requested.
+        var document = model.Document with
+        {
+            Scenario = model.Document.Scenario.Snapshot(),
+            Commands = model.Document.Commands.ToArray()
+        };
+        using var cancellation = new CancellationTokenSource();
+        reportCancellation = cancellation;
+        IsReportExporting = true;
+        model.Notify("Exporting verified full-run reports...");
+        try
+        {
+            await Task.Run(() => Reports.Export(directory, document, cancellation.Token));
+            model.Notify($"Verified full-run PDF/HTML/CSV reports for run {document.Id.ToString()[..8]} exported to {directory}");
+        }
+        catch (OperationCanceledException) { model.Notify("Report export cancelled; previously published reports retained."); }
+        catch (Exception error) { model.Notify("Report export failed: " + error.Message); }
+        finally { reportCancellation = null; IsReportExporting = false; }
+    }
+
     public async void Execute(string action)
     {
         try
@@ -16,6 +44,11 @@ public sealed class DesktopWorkspace(MainWindow window, RunViewModel model, RunR
             if (model.IsRunning && action is "Logistics" or "Import" or "History") model.PauseCommand.Execute(null);
             switch (action)
             {
+                case "Speed1": model.PlaybackSpeed = 1; break;
+                case "Speed2": model.PlaybackSpeed = 2; break;
+                case "Speed4": model.PlaybackSpeed = 4; break;
+                case "Forecast": new ForecastLabWindow { Owner = window }.Show(); break;
+                case "CancelReport": CancelReportExport(); break;
                 case "Fleet": model.NewScenario(ScenarioDefinition.FleetDemo()); break;
                 case "Priority": model.NewScenario(ScenarioDefinition.PriorityDemo()); break;
                 case "GeoDemo": model.NewScenario(GeoExercise.Load(System.IO.Path.Combine(AppContext.BaseDirectory, "road-exercise.geojson"))); break;
@@ -52,8 +85,9 @@ public sealed class DesktopWorkspace(MainWindow window, RunViewModel model, RunR
                     }
                     break;
                 case "Report":
+                    if (IsReportExporting) { model.Notify("A report export is already in progress."); break; }
                     var folder = new OpenFolderDialog { Title = "Choose a folder for verified PDF, HTML and CSV reports" };
-                    if (folder.ShowDialog(window) == true) { Reports.Export(folder.FolderName, model.Document); model.Notify("Verified full-run PDF/HTML/CSV reports exported to " + folder.FolderName); }
+                    if (folder.ShowDialog(window) == true) await ExportReportAsync(folder.FolderName);
                     break;
             }
         }

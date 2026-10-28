@@ -28,7 +28,33 @@ public sealed class RunViewModel : INotifyPropertyChanged
     public int Remaining => session.InitialDemand - session.DeliveredTotal;
     public bool UsesLogistics => session.UsesLogistics;
     public bool UsesFleet => session.UsesFleet;
+    private int playbackSpeed = 1;
+    public bool CanChangePlaybackSpeed => IsLocal && !IsReplay;
+    public string PlaybackSpeedLabel => $"Local playback speed / {playbackSpeed}x";
+    public int PlaybackSpeed
+    {
+        get => playbackSpeed;
+        set
+        {
+            if (value is not (1 or 2 or 4)) throw new ArgumentOutOfRangeException(nameof(value));
+            if (!CanChangePlaybackSpeed || playbackSpeed == value) return;
+            playbackSpeed = value; Refresh();
+        }
+    }
     public bool CanEditScenario => IsLocal && document.Scenario.Geography == null;
+    private string? selectedRoadId;
+    public IReadOnlyList<string> RoadIds => Geography?.Roads.Select(r => r.Id).Order(StringComparer.Ordinal).ToArray() ?? Array.Empty<string>();
+    public IReadOnlyList<string> ClosedRoadIds => session.RoadClosures.Where(r => r.BlockedUntil > Tick).Select(r => r.RoadId).ToArray();
+    public IReadOnlyList<RoadRoute> ActiveRoadRoutes => session.Vehicles.Where(v => v.State.Phase != VehiclePhase.AtDepot && v.State.Route != null)
+        .Select(v => v.State.Route!).ToArray();
+    public string? SelectedRoadId
+    {
+        get => selectedRoadId;
+        set { selectedRoadId = value; Refresh(); }
+    }
+    public bool JunctionRoutingEnabled => session.JunctionRoutingEnabled;
+    public string RoadIncidentLabel => Geography == null ? "Road controls apply to road exercises." :
+        (JunctionRoutingEnabled ? "Junction routing / " : "Assigned-trip routing / ") + "Closed roads: " + (ClosedRoadIds.Count == 0 ? "none" : string.Join(", ", session.RoadClosures.Where(r => r.BlockedUntil > Tick).Select(r => $"{r.RoadId} through tick {r.BlockedUntil}")));
     public GeographyDefinition? Geography => document.Scenario.Geography;
     public double DepotX => Geography?.Depot.X ?? 170;
     public double DepotY => Geography?.Depot.Y ?? 410;
@@ -47,9 +73,10 @@ public sealed class RunViewModel : INotifyPropertyChanged
     {
         var origin = new MapPoint(DepotX, DepotY);
         if (!UsesLogistics || vehicle.Phase == VehiclePhase.AtDepot) return origin;
+        if (vehicle.Journey is { } journey) return new(journey.Position.X, journey.Position.Y);
         if (Geography != null)
         {
-            var route = Geography.Routes.Single(r => r.Shelter == vehicle.Destination);
+            var route = vehicle.Route ?? Geography.Routes.Single(r => r.Shelter == vehicle.Destination);
             double fraction = 1.0 - (double)vehicle.TicksRemaining / vehicle.Duration;
             if (vehicle.Phase == VehiclePhase.Returning) fraction = 1 - fraction;
             var lengths = route.Points.Zip(route.Points.Skip(1), (a, b) => Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2))).ToArray();
@@ -125,6 +152,8 @@ public sealed class RunViewModel : INotifyPropertyChanged
     public RelayCommand ResetCommand { get; }
     public RelayCommand CloseRouteCommand { get; }
     public RelayCommand RestockCommand { get; }
+    public RelayCommand CloseRoadCommand { get; }
+    public RelayCommand EnableJunctionRoutingCommand { get; }
     private bool CanControl => !busy && !IsReplayLoading && !faulted && !IsReplay && (!remote || connected && !observer);
 
     public RunViewModel(SimulationSession initialSession)
@@ -139,6 +168,12 @@ public sealed class RunViewModel : INotifyPropertyChanged
         ResetCommand = new(() => { if (remote) Submit("Reset"); else NewScenario(document.Scenario); }, () => !busy && (!remote || connected && !observer));
         CloseRouteCommand = new(() => Submit("CloseRoute", SelectedShelterName, 5),
             () => CanControl && session.Status != RunStatus.Completed && SelectedShelterName != null);
+        CloseRoadCommand = new(() => Submit("CloseRoad", SelectedRoadId, 5),
+            () => CanControl && (document.EngineVersion is "3.1.0" or RunHistory.EngineVersion) && session.Status != RunStatus.Completed &&
+                SelectedRoadId != null && RoadIds.Contains(SelectedRoadId));
+        EnableJunctionRoutingCommand = new(() => Submit("EnableJunctionRouting"),
+            () => CanControl && document.EngineVersion == RunHistory.EngineVersion && Geography != null &&
+                !JunctionRoutingEnabled && session.Status != RunStatus.Completed && session.Vehicles.All(v => v.State.Phase == VehiclePhase.AtDepot));
         RestockCommand = new(() => Submit("Restock", amount: 20),
             () => CanControl && UsesLogistics && session.Status != RunStatus.Completed && session.Scenario.DepotStock!.Value + session.RestockedTotal + 20 <= 10000);
     }
@@ -152,7 +187,7 @@ public sealed class RunViewModel : INotifyPropertyChanged
             var candidate = RunHistory.Append(document, command);
             Persist?.Invoke(candidate); // Commit first: a failed save must never publish a successful state.
             Replace(candidate);
-            Message = type == "CloseRoute" ? $"Route to {target} closed for {duration} ticks. Incident saved." : "Command committed; replay checksum verified.";
+            Message = type == "EnableJunctionRouting" ? "Junction routing enabled. Vehicles finish an entered road, then choose an open path at each node." : type == "CloseRoad" ? $"Road {target} closed for {duration} ticks. " + (JunctionRoutingEnabled ? "Vehicles avoid it at their next node; entered roads finish." : "New dispatches avoid it; assigned trips wait.") : type == "CloseRoute" ? $"Route to {target} closed for {duration} ticks. Incident saved." : "Command committed; replay checksum verified.";
             Refresh();
         }
         catch (Exception error) { faulted = true; Message = error.Message; Refresh(); }
@@ -232,12 +267,13 @@ public sealed class RunViewModel : INotifyPropertyChanged
         var replay = RunHistory.Replay(incoming);
         document = incoming; session = replay.Session; ReplaceEvents(replay.Events);
         if (!ShelterNames.SequenceEqual(session.Shelters.Select(s => s.Name))) ShelterNames = session.Shelters.Select(s => s.Name).ToArray();
+        if (selectedRoadId != null && !RoadIds.Contains(selectedRoadId)) selectedRoadId = null;
         if (selectedShelterName != null && !ShelterNames.Contains(selectedShelterName)) selectedShelterName = null;
     }
     private void ReplaceEvents(IEnumerable<DeliveryEvent> replacement) { events.Clear(); foreach (var item in replacement) events.Add(item); }
     private void Refresh()
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
-        StartCommand.Refresh(); PauseCommand.Refresh(); StepCommand.Refresh(); ResetCommand.Refresh(); CloseRouteCommand.Refresh(); RestockCommand.Refresh();
+        StartCommand.Refresh(); PauseCommand.Refresh(); StepCommand.Refresh(); ResetCommand.Refresh(); CloseRouteCommand.Refresh(); RestockCommand.Refresh(); CloseRoadCommand.Refresh(); EnableJunctionRoutingCommand.Refresh();
     }
 }

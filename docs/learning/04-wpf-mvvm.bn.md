@@ -20,11 +20,11 @@ Start করার আগেও Step চাপতে পারো। Reset চ�
 
 ## আজ শুধু তিনটি দায়িত্ব বোঝো
 
-| অংশ | file | কাজ |
-|---|---|---|
-| Model | `src/Aegis.Simulation/SimulationSession.cs` | হিসাব ও valid অবস্থার নিয়ম |
-| ViewModel | `src/Aegis.Presentation/RunViewModel.cs` | screen-এর তথ্য ও button-এর command |
-| View | `src/Aegis.Desktop.Wpf/MainWindow.xaml` | screen-এর layout ও লেখা |
+| অংশ    | file                                          | কাজ                                      |
+| --------- | --------------------------------------------- | ------------------------------------------- |
+| Model     | `src/Aegis.Simulation/SimulationSession.cs` | হিসাব ও valid অবস্থার নিয়ম |
+| ViewModel | `src/Aegis.Presentation/RunViewModel.cs`    | screen-এর তথ্য ও button-এর command |
+| View      | `src/Aegis.Desktop.Wpf/MainWindow.xaml`     | screen-এর layout ও লেখা              |
 
 এই দায়িত্ব ভাগ করার পদ্ধতিকে **MVVM** বলে। MainWindow-এর code-behind window তৈরি করে এবং Lesson 05 থেকে visual Zoom/Fit action যুক্ত করে; delivery হিসাব সেখানে নেই। App.xaml.cs model ও ViewModel তৈরি করে window-র সঙ্গে যুক্ত করে। ছোট lesson-এ composition সরাসরি আছে; DI container বা MVVM package এখনো লাগানো হয়নি।
 

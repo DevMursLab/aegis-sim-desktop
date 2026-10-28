@@ -148,7 +148,9 @@ public sealed class RunRepository
         db.SaveChanges();
         transaction.Commit();
     }
-    private static string CheckpointJson(SimulationSession session) => session.Scenario.Geography != null ?
+    private static string CheckpointJson(SimulationSession session) => session.JunctionRoutingEnabled ?
+        JsonSerializer.Serialize(new { session.Tick, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicles, session.Scenario.Geography, session.RoadClosures, session.JunctionRoutingEnabled }, ScenarioFiles.JsonOptions) : session.RoadClosures.Count > 0 ?
+        JsonSerializer.Serialize(new { session.Tick, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicles, session.Scenario.Geography, session.RoadClosures }, ScenarioFiles.JsonOptions) : session.Scenario.Geography != null ?
         JsonSerializer.Serialize(new { session.Tick, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicles, session.Scenario.Geography }, ScenarioFiles.JsonOptions) : session.UsesFleet ?
         JsonSerializer.Serialize(new { session.Tick, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicles }, ScenarioFiles.JsonOptions) : session.UsesLogistics ?
         JsonSerializer.Serialize(new { session.Tick, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicle }, ScenarioFiles.JsonOptions) :

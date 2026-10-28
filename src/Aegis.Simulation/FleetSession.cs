@@ -6,7 +6,8 @@ public sealed record FleetVehicleState(string Id, VehicleState State);
 public sealed partial class SimulationSession
 {
     private FleetVehicleState[] fleet = Array.Empty<FleetVehicleState>();
-    public IReadOnlyList<FleetVehicleState> Vehicles => UsesFleet ? Array.AsReadOnly(fleet) :
+    public IReadOnlyList<FleetVehicleState> Vehicles => UsesFleet ? Array.AsReadOnly(fleet.Select(v =>
+        v with { State = v.State.Snapshot() }).ToArray()) :
         Array.AsReadOnly(new[] { new FleetVehicleState("Vehicle-01", Vehicle) });
 
     private void InitializeFleet()
@@ -26,7 +27,18 @@ public sealed partial class SimulationSession
             var state = fleet[i].State;
             if (state.Phase == VehiclePhase.AtDepot) continue;
             string destination = state.Destination!;
+            if (JunctionRoutingEnabled)
+            {
+                actions[i] = AdvanceJunctionVehicle(i);
+                continue;
+            }
             string kind; int amount = 0;
+            var assignedRoute = state.Route ?? Scenario.Geography?.Routes.Single(r => r.Shelter == destination);
+            if (assignedRoute != null && RoadBlocked(assignedRoute))
+            {
+                actions[i] = new(fleet[i].Id, destination, 0, state.Phase == VehiclePhase.Returning ? "ReturnRoadWait" : "RoadWait", "Assigned road closed; trip position and cargo retained.");
+                continue;
+            }
             if (state.Phase == VehiclePhase.Outbound)
             {
                 int target = Array.FindIndex(shelters, s => s.Name == destination);
@@ -36,9 +48,9 @@ public sealed partial class SimulationSession
                 {
                     amount = state.Load; DeliveredTotal += amount;
                     shelters[target] = shelters[target] with { Remaining = shelters[target].Remaining - amount };
-                    int back = Scenario.Geography == null ? Scenario.ReturnTicks : Scenario.Shelters[target].TravelTicks!.Value;
+                    int back = Scenario.Geography == null ? Scenario.ReturnTicks : state.Duration;
                     state = back == 0 ? new(VehiclePhase.AtDepot, null, 0, 0, 0) :
-                        new(VehiclePhase.Returning, destination, 0, back, back);
+                        new(VehiclePhase.Returning, destination, 0, back, back, state.Route);
                     kind = "Delivery";
                 }
             }
@@ -50,10 +62,12 @@ public sealed partial class SimulationSession
             fleet[i] = fleet[i] with { State = state };
             actions[i] = new(fleet[i].Id, destination, amount, kind);
         }
+        var routes = Scenario.Geography != null && (roadClosures.Count > 0 || JunctionRoutingEnabled) ?
+            shelters.ToDictionary(s => s.Name, s => AvailableRoute(s.Name), StringComparer.Ordinal) : null;
         for (int i = 0; i < fleet.Length; i++)
         {
             if (!idleAtStart[i]) continue;
-            int target = Enumerable.Range(0, shelters.Length).Where(index => shelters[index].BlockedUntil < Tick && shelters[index].Remaining >
+            int target = Enumerable.Range(0, shelters.Length).Where(index => (routes == null || routes[shelters[index].Name] != null) && shelters[index].BlockedUntil < Tick && shelters[index].Remaining >
                 fleet.Where(v => v.State.Phase == VehiclePhase.Outbound && v.State.Destination == shelters[index].Name).Sum(v => v.State.Load))
                 .OrderByDescending(index => shelters[index].Priority).ThenBy(index => index).DefaultIfEmpty(-1).First();
             if (target < 0 || DepotStockRemaining == 0)
@@ -64,10 +78,18 @@ public sealed partial class SimulationSession
             }
             int reserved = fleet.Where(v => v.State.Phase == VehiclePhase.Outbound && v.State.Destination == shelters[target].Name).Sum(v => v.State.Load);
             int load = Math.Min(Math.Min(Capacity, DepotStockRemaining!.Value), shelters[target].Remaining - reserved);
-            int duration = Scenario.Shelters[target].TravelTicks ?? Scenario.TravelTicks;
+            var route = routes?[shelters[target].Name];
+            int duration = route == null ? Scenario.Shelters[target].TravelTicks ?? Scenario.TravelTicks :
+                (route.Meters + Scenario.Geography!.MetersPerTick - 1) / Scenario.Geography.MetersPerTick;
             DepotStockRemaining -= load;
-            fleet[i] = fleet[i] with { State = new(VehiclePhase.Outbound, shelters[target].Name, load, duration, duration) };
+            fleet[i] = fleet[i] with { State = JunctionRoutingEnabled ?
+                new(VehiclePhase.Outbound, shelters[target].Name, load, 0, 0, route,
+                    AtNode(Scenario.Geography!.DepotId, route!.TargetNode)) :
+                new(VehiclePhase.Outbound, shelters[target].Name, load, duration, duration, route) };
             string? reason = shelters.Any(s => s.Priority != 0) ? FormattableString.Invariant($"Priority {shelters[target].Priority}; unreserved demand {shelters[target].Remaining - reserved}; loaded {load}; stock after {DepotStockRemaining}. Eligible highest priority first; ties keep shelter-list order.") : null;
+            if (route != null) reason = (reason == null ? "" : reason + " ") + (JunctionRoutingEnabled ?
+                $"Junction dispatch path: {string.Join(",", route.RoadIds)}; {route.Meters} m. One road per tick; paths reconsidered at nodes." :
+                $"Open road path: {string.Join(",", route.RoadIds)}; {route.Meters} m; {duration} ticks each way.");
             actions[i] = new(fleet[i].Id, shelters[target].Name, 0, "Dispatched", reason);
         }
         UpdateFleetStatus();

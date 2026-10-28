@@ -14,7 +14,7 @@ public sealed record ReconstructedRun(SimulationSession Session, DeliveryEvent[]
 
 public static class RunHistory
 {
-    public const string EngineVersion = "3.0.0";
+    public const string EngineVersion = "3.2.0";
     public static RunDocument New(ScenarioDefinition scenario)
     {
         scenario.Validate();
@@ -25,7 +25,9 @@ public static class RunHistory
     // Schema 1 deliberately keeps the exact 2.0 hash payload for archived runs.
     public static string Hash(SimulationSession session)
     {
-        string json = session.Scenario.Geography != null ? JsonSerializer.Serialize(new
+        string json = session.JunctionRoutingEnabled ? JsonSerializer.Serialize(new
+        { session.Tick, session.Status, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicles, session.Scenario.Geography, session.RoadClosures, session.JunctionRoutingEnabled }) : session.RoadClosures.Count > 0 ? JsonSerializer.Serialize(new
+        { session.Tick, session.Status, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicles, session.Scenario.Geography, session.RoadClosures }) : session.Scenario.Geography != null ? JsonSerializer.Serialize(new
         { session.Tick, session.Status, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicles, session.Scenario.Geography }) : session.UsesFleet ? JsonSerializer.Serialize(new
         { session.Tick, session.Status, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicles }) : session.UsesLogistics ? JsonSerializer.Serialize(new
         { session.Tick, session.Status, session.DeliveredTotal, session.Shelters, session.DepotStockRemaining, session.RestockedTotal, session.Vehicle }) :
@@ -36,16 +38,16 @@ public static class RunHistory
     public static ReconstructedRun Replay(RunDocument document, int? targetTick = null, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (document == null || document.SchemaVersion != 1 || document.EngineVersion is not ("2.0.0" or "2.1.0" or "2.4.0" or "2.5.0" or EngineVersion) || document.Id == Guid.Empty ||
+        if (document == null || document.SchemaVersion != 1 || document.EngineVersion is not ("2.0.0" or "2.1.0" or "2.4.0" or "2.5.0" or "3.0.0" or "3.1.0" or EngineVersion) || document.Id == Guid.Empty ||
             document.Commands == null || document.Commands.Length > 25000)
             throw new InvalidDataException("Unsupported or invalid run document.");
         if (document.EngineVersion == "2.0.0" && document.Scenario.SchemaVersion != 1)
             throw new InvalidDataException("Engine 2.0 archives cannot contain schema 2 logistics.");
         if ((document.EngineVersion is "2.0.0" or "2.1.0") && document.Scenario.SchemaVersion == 3)
             throw new InvalidDataException("Fleet scenarios require engine 2.4.");
-        if (document.EngineVersion is not ("2.5.0" or EngineVersion) && document.Scenario.Shelters.Any(s => s.Priority != 0))
+        if (document.EngineVersion is not ("2.5.0" or "3.0.0" or "3.1.0" or EngineVersion) && document.Scenario.Shelters.Any(s => s.Priority != 0))
             throw new InvalidDataException("Nonzero priority requires engine 2.5.");
-        if (document.Scenario.SchemaVersion == 4 && document.EngineVersion != EngineVersion)
+        if (document.Scenario.SchemaVersion == 4 && document.EngineVersion is not ("3.0.0" or "3.1.0" or EngineVersion))
             throw new InvalidDataException("Geographical exercises require engine 3.0.");
         var session = new SimulationSession(document.Scenario);
         var events = new List<DeliveryEvent>();
@@ -56,6 +58,10 @@ public static class RunHistory
             if (record == null || record.Sequence != ids.Count + 1 || record.Command == null || record.Command.Id == Guid.Empty || !ids.Add(record.Command.Id))
                 throw new InvalidDataException("Command sequence is invalid or duplicated.");
             if (targetTick.HasValue && record.Command.Type == "Step" && session.Tick >= targetTick.Value) break;
+            if (record.Command.Type == "CloseRoad" && document.EngineVersion is not ("3.1.0" or EngineVersion))
+                throw new InvalidDataException("Road closures require engine 3.1.");
+            if (record.Command.Type == "EnableJunctionRouting" && document.EngineVersion != EngineVersion)
+                throw new InvalidDataException("Junction routing requires engine 3.2.");
             Apply(session, record.Command, events);
             if (Hash(session) != record.StateHash) throw new InvalidDataException($"Replay checksum mismatch at sequence {record.Sequence}.");
         }
@@ -71,6 +77,10 @@ public static class RunHistory
             return document;
         }
         if (document.Commands.Length >= 25000 || command.Id == Guid.Empty) throw new InvalidOperationException("Command limit reached or invalid ID.");
+        if (command.Type == "CloseRoad" && document.EngineVersion is not ("3.1.0" or EngineVersion))
+            throw new InvalidDataException("Start a new engine 3.1 run to use road closures.");
+        if (command.Type == "EnableJunctionRouting" && document.EngineVersion != EngineVersion)
+            throw new InvalidDataException("Start a new engine 3.2 run to use junction routing.");
         var replay = Replay(document);
         Apply(replay.Session, command, new List<DeliveryEvent>());
         return document with { Commands = document.Commands.Append(new RecordedCommand(document.Commands.Length + 1, command, Hash(replay.Session))).ToArray() };
@@ -78,13 +88,15 @@ public static class RunHistory
 
     private static void Apply(SimulationSession session, ExerciseCommand command, List<DeliveryEvent> events)
     {
-        if (command.Type != "CloseRoute" && (command.Target != null || command.Duration != 0) || command.Type != "Restock" && command.Amount != 0)
+        if (command.Type is not ("CloseRoute" or "CloseRoad") && (command.Target != null || command.Duration != 0) || command.Type != "Restock" && command.Amount != 0)
             throw new ArgumentException("Unexpected command fields.");
         switch (command.Type)
         {
             case "Start": session.Start(); break;
             case "Pause": session.Pause(); break;
             case "Step": events.Add(session.Step()); break;
+            case "EnableJunctionRouting": session.EnableJunctionRouting(); break;
+            case "CloseRoad": session.CloseRoad(command.Target ?? "", command.Duration); break;
             case "CloseRoute": session.CloseRoute(command.Target ?? "", command.Duration); break;
             case "Restock": session.Restock(command.Amount); break;
             default: throw new ArgumentException("Unknown command type.");

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="400" viewBox="0 0 1280 400" role="img" aria-labelledby="title desc">
+<title id="title">AEGIS-SIM — Simulate. Adapt. Replay.</title>
+<desc id="desc">Desktop logistics simulation with deterministic routing, verified history and synchronized clients. Decorative network illustration.</desc>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#081426"/><stop offset="1" stop-color="#153951"/></linearGradient><linearGradient id="accent"><stop stop-color="#38e8ba"/><stop offset="1" stop-color="#58a6ff"/></linearGradient><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#75b8e8" stroke-opacity=".07"/></pattern></defs>
+<rect width="1280" height="400" rx="20" fill="url(#bg)"/><rect width="1280" height="400" rx="20" fill="url(#grid)"/>
+<rect x="58" y="58" width="6" height="36" rx="3" fill="#38e8ba"/>
+<g font-family="Segoe UI,Arial,sans-serif"><text x="82" y="83" fill="#9dc4de" font-size="18" letter-spacing="4">DESKTOP SIMULATION ENGINEERING</text><text x="58" y="169" fill="#f0f7ff" font-size="72" font-weight="700" letter-spacing="2">AEGIS-SIM</text><text x="62" y="220" fill="#5be4d0" font-size="29">Simulate. Adapt. Replay.</text><text x="62" y="264" fill="#c1d4e4" font-size="19">Resource allocation · Road routing · Verified history</text>
+<rect x="62" y="306" width="570" height="42" rx="21" fill="#203f58"/><text x="84" y="333" fill="#dceeff" font-size="16">C# / .NET 10   ·   WPF / MVVM   ·   SQLite   ·   SignalR</text></g>
+<g fill="none" stroke="#295771" stroke-width="6" stroke-linejoin="round"><path d="M790 290L850 200 950 240 1060 120 1180 170"/><path d="M850 200L870 90 1060 120"/><path d="M950 240L1090 300 1180 170"/></g>
+<path d="M790 290L850 200 870 90 1060 120 1180 170" fill="none" stroke="url(#accent)" stroke-width="5" stroke-linecap="round"/>
+<path d="M950 240L1060 120" stroke="#fb7185" stroke-width="5" stroke-dasharray="9 8"/>
+<g fill="#10283c" stroke="#58b6eb" stroke-width="3"><circle cx="790" cy="290" r="13"/><circle cx="850" cy="200" r="10"/><circle cx="870" cy="90" r="10"/><circle cx="950" cy="240" r="10"/><circle cx="1060" cy="120" r="10"/><circle cx="1090" cy="300" r="10"/><circle cx="1180" cy="170" r="13"/></g>
+<circle cx="790" cy="290" r="5" fill="#38e8ba"/><circle cx="1180" cy="170" r="5" fill="#38e8ba"/><rect x="952" y="96" width="17" height="12" rx="3" fill="#38e8ba" transform="rotate(9 960 102)"/>
+<g font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="#9dc4de"><text x="759" y="326">DEPOT</text><text x="1135" y="209">SHELTER</text><text x="881" y="360">ILLUSTRATIVE ROUTE NETWORK</text></g></svg>

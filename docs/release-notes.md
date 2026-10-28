@@ -1,3 +1,33 @@
+# Unreleased desktop 3.3.0 / engine 3.2.0
+
+Adds a separate synthetic forecast lab: deterministic 7-nearest-neighbour regression over 800 generated schema-2 initial states, group-separated holdout evaluation, training-only scaling and an exported model/evaluation artifact. Holdout MAE is 6.62 logical ticks versus 25.78 for the training-mean baseline; worst error is 62.55 ticks. This does not support fleet, roads, incidents or real-world forecasting. Exact completion preview remains available for known histories.
+
+Report export supports cancellation during reconstruction; cancelled work preserves existing output. Playback speed changes pacing without changing recorded history. Current source verification passes 212 console checks, three lessons and a warning-free Release build. Interactive UI evidence is documented separately. The repository now includes a reviewer guide, feature gallery and source/package version distinction. No new downloadable binary release is implied by this source update.
+
+# Unreleased 3.2 source - junction routing
+
+Road exercises can persist EnableJunctionRouting while all vehicles are at the depot. The mode is irreversible within a run; Reset creates a fresh run with it disabled. Vehicles finish any road they have entered, even if that road subsequently closes. At each reached node, deterministic shortest-path routing excludes currently closed edges and targets the original shelter or, when returning, the depot. A disconnected vehicle waits at its node without losing cargo or delivering twice. Shelter closure still pauses outbound service.
+
+Movement advances up to metersPerTick inside one road per tick. It stops at the next node and discards unused tick budget; per-edge rounding replaces the default whole-route rounding in this explicit mode. Dispatch still takes a separate tick, no vehicle redispatches on its return-arrival tick, shared demand stays reserved, and completion waits for every return. TicksRemaining/Duration describe the current edge in junction mode; at a node both are zero. RoadJourney retains the last reached node, target node, entered road, oriented geometry and remaining meters.
+
+Engine 3.2 reads original 3.1 road-incident histories with their old hashes and whole-trip waiting behavior. New optional journey fields are omitted when null; the mode has a separate checksum/checkpoint branch. Older engine documents cannot accept EnableJunctionRouting. The original 3.1 fixture came from the preceding packaged DLLs and retains its tick-26 final hash. No database schema change is needed.
+
+Desktop controls, actual map motion, read-only replay, preview, HTML/PDF/CSV, SQL and controller/observer state reconstruct the same model. Tests include a real host restart with a diverted vehicle. This is a discrete training model without congestion, collision avoidance or a real-world travel-time claim. No new GitHub release has been published.
+
+# Unreleased 3.1 source - shared road incidents
+
+Road exercises accept replayable `CloseRoad` commands with a road ID and 1-100 logical ticks. New dispatches recompute a deterministic shortest open path, excluding roads closed through the current tick. Highest eligible priority wins; unreachable shelters do not reserve cargo. If no shelter is reachable, vehicles wait without consuming stock. Renewing an incident extends or preserves its expiry.
+
+Assigned trips retain their geometry and duration. Any closed road in that assigned path pauses the whole trip in place, outbound or returning; expiry resumes it. Return uses the same chosen route. This is dispatch-time rerouting, not edge-by-edge movement or in-flight diversion. Default scenarios without incidents keep their old behavior and hashes. Engine 3.1 reads original 2.0/2.1/2.4/2.5/3.0 histories; road incidents cannot be inserted into older engine archives. No schema migration is required.
+
+Desktop road selection, red closed edges, alternate vehicle geometry, read-only replay, SQL checkpoints, completion preview, controller/observer and HTML/vehicle-CSV traces share the same model. The original engine 3.0 road fixture was generated with the preceding packaged DLLs. New console and WPF checks cover closures and compatibility. No GitHub binary release has been published for this increment.
+
+# Unreleased - responsive report export
+
+Source builds generate verified PDF/HTML/CSV reports on a worker task. The full run is captured before exporting, so reset, replay seeking and incoming commands cannot change the requested report. Overlapping report exports are refused; errors release the guard for retry. Completion identifies the exported run. Live persistence remains synchronous, and export does not yet offer cancellation or atomic multi-file publication. All formats are staged before publishing; handled publication errors restore previous reports and remove partial new files. If rollback also fails, recoverable originals remain in the staging folder identified by the error. Process termination, power loss and concurrent exporters to the same destination are outside this rollback guarantee. No new downloadable package has been published for this change.
+
+Report export now verifies the command history once and reuses that reconstruction for metrics and all output formats, replacing four full replays. Standalone PDF export uses one replay instead of two. Checks compare metrics across all five scenario generations and reject corrupt history at both public report entry points. This reduces duplicated work without changing simulation rules, archive hashes or report calculations; it is not a measured speedup claim.
+
 # 3.0.1 - responsive saved history and replay
 
 Desktop startup database work, saved-run listing, SQL history validation and A/B calculation now run on worker tasks. Timeline reconstruction is asynchronous and cooperatively cancellable between commands. Superseded seeks cannot publish stale results; reset/new scenarios cancel pending replay; corrupt input leaves the prior display intact. Closing the history window discards pending SQL results. Shared simulation rules, engine 3.0.0 and persisted hash formats are unchanged.
@@ -56,7 +86,7 @@ Verification: 89 executable console checks, real WPF interactions for the new to
 
 ## Remaining work and evidence limits
 
-The supplied blueprint is broader than this tested portfolio release. The 3.0 package includes local editing, multiple vehicles, priority dispatch, persisted road-to-scenario associations and a tested versioned database upgrade. General GIS formats/projections, dynamic road-edge routing, an evaluated ML model and large-history UI performance remain future work.
+The supplied blueprint is broader than this tested portfolio release. The 3.0 package includes local editing, multiple vehicles, priority dispatch, persisted road-to-scenario associations and a tested versioned database upgrade. General GIS formats/projections, evaluated real-world routing/traffic behavior, an evaluated ML model and large-history UI performance remain future work.
 
 Cloud deployment and signed installation are separate deployment work requiring a hosting target and signing certificate. Clean physical-machine installation, a comprehensive accessibility/DPI audit and a recorded demonstration have not been established. There is no claim that all blueprint acceptance gates are complete.
 

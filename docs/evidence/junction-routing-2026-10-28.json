@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-28",
+  "appVersion": "3.2.0",
+  "engine": "3.2.0",
+  "verificationCommand": "powershell -ExecutionPolicy Bypass -File .\\scripts\\verify.ps1",
+  "result": "passed",
+  "lockedRestore": true,
+  "nugetAuditEnabled": true,
+  "buildWarnings": 0,
+  "buildErrors": 0,
+  "consoleChecks": 201,
+  "releaseChecks": 64,
+  "junctionChecks": 18,
+  "newLiveHostChecks": 2,
+  "lessons": 3,
+  "wpfPassed": true,
+  "bindingErrors": 0,
+  "postLayoutWpfRerun": "passed",
+  "legacy31FixtureFinalTick": 26,
+  "legacy31FixtureFinalHash": "CF9A05DC1492D7D195590DCA881C5051112F40DD758C59FC10720B76CB08AAD1",
+  "limits": [
+    "Explicit mode enabled only while vehicles are at depot.",
+    "Entered roads finish even if closed; shortest open paths are chosen at nodes.",
+    "One edge maximum per tick, with unused movement discarded at nodes.",
+    "No congestion, collision avoidance or real-world travel-time claim."
+  ]
+}

@@ -70,3 +70,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-lesson.ps1
 মানচিত্রের পাঠ: [Lesson 05 — offline map](05-offline-map.bn.md)। `-Lesson 05` দিয়ে একই desktop app খুলে map selection ও zoom/pan শেখো।
 
 তারপর ক্রমে পড়ো: [06 — SQL history](06-sql-history.bn.md), [07 — Replay](07-replay.bn.md), [08 — Multiplayer](08-multiplayer.bn.md), [09 — Report ও release](09-release.bn.md)। প্রথম তিনটি lesson স্বাধীন console project; পরের পাঠগুলো একই updated app-এর অংশ ধরে বোঝায়।
+
+পরের ধাপ: [Lesson 19 — রাস্তা বন্ধ ও বিকল্প dispatch path](19-dynamic-roads.bn.md)।
+
+এরপর [Lesson 20 — চলন্ত গাড়ির junction থেকে নতুন পথ](20-junction-routing.bn.md)।

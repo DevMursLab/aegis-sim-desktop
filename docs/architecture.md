@@ -1,4 +1,4 @@
-# AEGIS-SIM 2.5 source / engine 2.5 architecture
+# AEGIS-SIM 3.2 source architecture
 
 ```mermaid
 flowchart TD
@@ -87,3 +87,17 @@ DatabaseSchema uses SQLite user_version=1 plus SchemaMigrations. Before changing
 ## Desktop 3.0.1: asynchronous history boundary
 
 Database initialization, saved-run list/load/verification and comparison run on worker tasks. The history dialog disables its action controls while working and discards results after closing. RunViewModel loads and seeks on worker tasks, checks cancellation between replay commands and publishes only the current request on the captured UI context. The slider exposes the requested tick while the map retains the last verified state. Reset, a new scenario or window close cancels pending replay publication. Engine and history formats remain 3.0.0. SQL work is not forcibly interrupted; final event publication, live saves and report export remain synchronous.
+
+## Version 3.1: road incidents and dispatch paths
+
+CloseRoad commands record an exact road ID and expiry tick, bounded to 1-100 ticks. RoadRouting uses positive road weights and ordinal node/road tie rules to calculate shortest open depot-to-shelter paths for new dispatches. Unreachable shelters are excluded before cargo reservation. Each dynamically dispatched VehicleState retains its route geometry, road IDs and distance-derived duration; return uses that same route. Any incident on an assigned path freezes the trip in place, outbound or returning, until all its roads reopen. No in-flight diversion or per-edge physical occupancy is modeled.
+
+RoadClosures are sorted by ordinal road ID in hashes/checkpoints. Expired incident records remain to preserve the dynamic history branch; Reset clears them. The optional VehicleState.Route field is omitted when null, so old archives retain their original serialization. Engine 3.1 rejects CloseRoad in older engine documents; original engine 3.0 road binary checksums are a committed fixture. SQL uses its existing schema; new checkpoint payloads contain incident and assigned-route state. UI map positions, preview, reports and host snapshots reconstruct this shared engine.
+
+Saved-history reconstruction and report generation run in the background. Live command persistence and final map/event publication remain synchronous. Report formats are staged before publication with rollback for handled I/O failures; crash-atomic multi-file publication is outside the guarantee.
+
+## Version 3.2: explicit junction movement
+
+EnableJunctionRouting opts a road run into per-edge movement while all vehicles are at depot. RoadRouting.FindBetween generalizes the existing deterministic Dijkstra solver to arbitrary reached nodes. RoadJourney stores the last reached node, target, occupied road and oriented road geometry with integer meter progress. A tick completes at most one edge; closure cannot eject a vehicle already on it. Subsequent paths are recalculated at nodes, with closed edges excluded. No path yields an outbound or return RoadWait event. Dispatch reservations and stable vehicle ordering are shared with the original fleet engine.
+
+An optional VehicleState.Journey is omitted when null. Its geometry, like an assigned Route, is copied when exposed outside the engine. Its derived Position property is ignored by serialization and calculated from recorded meter progress for map display. Junction mode is explicit in hashes/checkpoints; pre-3.2 archives use their unchanged branches. EnableJunctionRouting is version-gated in both append and replay. New return paths target the depot and can differ from the outbound path. SQL schema remains version 1.

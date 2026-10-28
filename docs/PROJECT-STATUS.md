@@ -1,6 +1,6 @@
 # Project status - desktop 3.3.1
 
-The deliverable is a Windows desktop portfolio simulator using fictional civilian scenarios. This checklist describes that deliverable; it does not claim every research/deployment idea in the original blueprints is complete.
+The deliverable is a Windows desktop portfolio simulator using fictional civilian scenarios. This checklist distinguishes implemented behavior from future research and deployment work.
 
 ## Delivered
 

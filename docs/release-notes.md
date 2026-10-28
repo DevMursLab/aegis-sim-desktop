@@ -96,9 +96,9 @@ Verification: 89 executable console checks, real WPF interactions for the new to
 
 ## Remaining work and evidence limits
 
-The supplied blueprint is broader than this tested portfolio release. The 3.0 package includes local editing, multiple vehicles, priority dispatch, persisted road-to-scenario associations and a tested versioned database upgrade. General GIS formats/projections, evaluated real-world routing/traffic behavior, an evaluated ML model and large-history UI performance remain future work.
+The application includes local editing, multiple vehicles, priority dispatch, persisted road associations and a tested versioned database upgrade. General GIS formats/projections, field-validated routing/traffic and forecasting, and large-history UI performance remain future work. The synthetic forecast experiment is separate from field evaluation.
 
-Cloud deployment and signed installation are separate deployment work requiring a hosting target and signing certificate. Clean physical-machine installation, a comprehensive accessibility/DPI audit and a recorded demonstration have not been established. There is no claim that all blueprint acceptance gates are complete.
+Cloud deployment and signed installation require a hosting target and signing certificate. Clean physical-machine installation, a comprehensive accessibility/DPI audit and a recorded demonstration have not been established.
 
 ## Reviewer path
 

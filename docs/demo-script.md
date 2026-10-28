@@ -25,7 +25,7 @@ For a longer technical review, stop/restart the host while clients stay open. Wa
 - Why is mean service tick not real-world waiting time?
 - Which parts would need changing before internet deployment or large scenarios?
 
-State the limits plainly: legacy instant-visit scenarios, configurable stock/travel and bounded static-road exercises coexist. Distances are a spherical approximation; local demo tokens and synchronous small-run persistence target a portfolio demo. No trained AI claim is made.
+State the limits plainly: legacy instant-visit scenarios, configurable stock/travel and bounded road exercises coexist. Distances are a spherical approximation; local demo tokens and synchronous small-run persistence target a portfolio demo. The separate forecast lab uses generated data and does not establish field-validated predictive accuracy.
 
 ## Optional stock/travel extension (2.1 source)
 

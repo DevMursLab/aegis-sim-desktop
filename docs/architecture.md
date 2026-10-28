@@ -1,103 +1,68 @@
-# AEGIS-SIM 3.2 source architecture
+# Architecture
+
+Desktop 3.3.1 / simulation engine 3.2.0. This document describes current behavior; historical changes are summarized in [release notes](release-notes.md).
 
 ```mermaid
 flowchart TD
-    W[WPF map, controls and replay timeline] --> P[Presentation: RunViewModel and commands]
-    P --> D[Simulation: validated scenario, session, history and metrics]
-    P --> Port[Commit callback / remote command port]
-    Port --> DB[Infrastructure: EF Core SQLite, scenario files and reports]
-    Port --> H[SignalR local authoritative host]
+    W[WPF views and map] --> P[Presentation: state and commands]
+    P --> D[Simulation: rules, history, routing and metrics]
+    P --> PORT[Persistence callback / network command port]
+    PORT --> DB[EF Core / SQLite]
+    PORT --> H[SignalR authoritative host]
     H --> D
     H --> DB
 ```
 
 ## Responsibilities
 
-- **Simulation** owns immutable shelter state, bounded/versioned scenarios, lifecycle, deterministic delivery/closure rules, ordered recorded commands, checksums and metrics. No UI/database/network/clock dependency.
-- **Presentation** exposes screen state, selected shelter, command enablement, map viewport calculations and replay seeking. A local command is reconstructed into a candidate, persisted through a callback, then shown. Storage failure does not publish the candidate and stops local advancement.
-- **Infrastructure** reads validated JSON/XML, stores runs/commands/typed tick events/checkpoints in SQLite, and builds PDF/HTML/CSV from replay. Persistence uses one transaction and checks immutable history prefixes.
-- **WPF** draws the offline map, handles visual gestures and file dialogs, composes services and schedules local ticks. MainWindow code-behind wires visual actions; delivery rules stay outside it.
-- **SyncHost** serializes writes through one semaphore, owns network ticks, validates controller role and expected version, commits before broadcasting and returns full versioned snapshots. The desktop timer is disabled in network mode.
-- **Tools** seeds a pair of reproducible comparison runs and sample reports.
+| Project | Responsibility |
+|---|---|
+| Simulation | Scenarios, deterministic rules, reservations, routing, replay, hashes and metrics; no UI/SQL/network/clock dependency |
+| Presentation | Bound state, command availability, selection, viewport, replay requests and persistence callbacks |
+| Infrastructure | Validated scenario/GeoJSON input, SQLite storage/upgrades, diagnostics and verified reports |
+| Desktop.Wpf | Views, drawing, dialogs, service composition and local playback timer |
+| SyncHost | Serialized authoritative writes, roles/version checks, persistence and full-snapshot synchronization |
+| Tools | Seeded histories/reports, engine/replay profiling and synthetic forecast evaluation |
 
-## Lifecycle and replay
+## Commands, persistence and replay
 
-Ready → Running ↔ Paused → Completed. Manual Step is allowed in Ready/Paused; a completed run is immutable. Reset creates a **new run ID**, preserving old saved history. In network mode this is an authoritative controller operation.
+A command is reconstructed into a candidate and validated by replay. The local persistence callback commits it before publication to the view. Save failure does not publish an advanced state. Host writes use the same commit-before-broadcast rule behind a semaphore.
 
-Commands have stable IDs and contiguous per-run sequence numbers. Reusing an ID cannot apply an action twice. A closure blocks service through a configured future tick; other unblocked shelters may receive service, or a typed Waiting tick is emitted. The same scenario and ordered commands reproduce the same state checksum.
+Commands have stable IDs and contiguous per-run sequence numbers. Duplicate identity cannot apply an action twice. Lifecycle state gates commands; stock/travel scenarios can enter SupplyExhausted. Reset creates a new run ID and preserves earlier histories.
 
-Every save persists the document, appended command rows, typed tick events and a final checkpoint. Load compares normalized SQL commands/events/checkpoints to reconstructed state. Timeline seek rebuilds the command prefix up to a tick; stored checkpoints are integrity evidence, not yet a replay acceleration cache. SHA-256 detects inconsistent/corrupted content, not malicious edits to every database field by a privileged attacker.
+SQLite stores Runs, Commands, Events and Snapshots. Commands enforce per-run sequence and command-ID uniqueness; events have a run/tick key. Load compares stored commands, typed events and checkpoints with reconstructed state. Checkpoints currently verify integrity rather than accelerating replay. Checksums detect inconsistent content, not a privileged attacker rewriting every field consistently.
 
-Schema 2 adds `SupplyExhausted`: pending demand with no depot stock or outbound cargo. Restock returns it to Paused. A trip has a dispatch tick, configured outbound ticks and configured return ticks. Completion waits for the final return. Closure can freeze outbound cargo/ETA; return travel ignores closure. Inventory obeys initial stock + restocked = depot stock + cargo + delivered.
+Database schema version 1 uses an explicit upgrade ledger. A legacy upgrade first makes a consistent SQLite backup; schema/event backfill is transactional. Failed upgrades roll back, and future/unrelated schemas are refused. This is a tested upgrade path, not a general migration framework.
 
-## Data and protocol
+## Simulation and routing
 
-Scenario schema 1: name, positive capacity and up to 64 shelters with unique names, bounded quantities and finite synthetic x/y. File size ≤256 KB; total demand ≤10000. XML disables DTD and external resolution. Runs cap ticks at 20000 and recorded commands at 25000.
+- Schema 1 retains immediate single-visit delivery for legacy histories.
+- Schema 2 adds finite inventory, reserved cargo, outbound/return phases and restock. Initial stock + restocked = depot stock + cargo + delivered.
+- Schema 3 adds 1-8 vehicles and static shelter priorities 0-9. Movement precedes dispatch; only vehicles idle at tick start can dispatch. Outstanding cargo is deducted from eligible demand. Stable vehicle/shelter ordering resolves ties.
+- Schema 4 compiles bounded WGS84 road exercises. Positive integer road lengths feed deterministic Dijkstra paths; projected geometry drives display. Distance is calculated from original geographic coordinates.
 
-Schema 2 adds mandatory finite `depotStock` (0..10000), `travelTicks` (1..20), `returnTicks` (0..20), and optional shelter travel overrides. Total supplied stock is capped at 10000. Restock is a durable command. Engine 2.1 accepts original engine 2.0/schema 1 histories and preserves their hash and normalized SQL serialization; only schema 2 hashes add vehicle/inventory fields.
+Default assigned-trip routing chooses an open path at dispatch and retains it for return. Closing an edge on that assigned path pauses the trip until expiry. Unreachable demand is excluded before cargo reservation.
 
-SQLite tables: Runs, Commands (`RunId,Sequence`, unique `RunId,CommandId`), Events (`RunId,Tick`) and Snapshots (`RunId,Sequence`, indexed `RunId,Tick`). Bootstrap uses EnsureCreated and an explicit additive event-table upgrade for development databases. A general migration/backup strategy is future work.
+Explicit junction mode enables only with all vehicles at the depot. Entered roads finish even if closed. At reached nodes, shortest open paths are recalculated toward the original shelter or depot; no path means waiting without cargo loss. A tick traverses at most one edge and discards unused movement at a node. Return paths can differ. Journey geometry/progress participate in version-gated hashes.
 
-One local exercise room is exposed at `/exercise`. Authenticated clients request Snapshot or Submit(runId,expectedVersion,command). The host broadcasts State(revision,run). Clients ignore older revisions, show a stale badge while reconnecting, and request a fresh snapshot after reconnection. The room revision is process-local; reconnect resets the client cursor before snapshot recovery. Host restart loads the latest saved run. Full snapshots intentionally favor a small training demo over throughput.
+Engine 3.2 reads supported original 2.0, 2.1, 2.4, 2.5, 3.0 and 3.1 fixtures without changing their hashes. Optional new fields are omitted for older branches. Older binaries cannot open engine 3.2 histories.
 
-Separate random controller/observer tokens are stored in a local file. All non-health HTTP/hub routes require a token and reject non-loopback source addresses. Observer writes are denied server-side. This is a same-machine demonstration boundary, not multi-tenant/enterprise authentication.
+## Desktop threading
 
-## Map and metrics
+Database initialization, saved-history listing/load/verification, A/B calculation, replay reconstruction, preview and report generation run in background tasks. Superseded replay requests cancel cooperatively and cannot publish stale state. Reset/new scenarios invalidate pending work. SQL operations can finish after a dialog closes, but their results are discarded.
 
-Native WPF renders a 1200×800 fictional local-meter plane. Scenario files provide shelter positions. River/links are visual; the route-closure availability rule is explicit and separate from geometry. Schema 1 amber marks the last delivery. Schema 2 draws the vehicle between depot and destination using phase and remaining travel ticks; geometry does not determine travel duration. Map/table/inspector read the same session state; gestures cannot change results.
+Live local commands, their persistence callback and final map/event publication remain synchronous on the UI dispatcher. Background history work does not establish large-history or low-latency guarantees. Playback speed changes pacing without changing logical history. Only the host advances network runs.
 
-Completion = delivered / requested. Mean service tick = Σ(tick × packets) / delivered, with all demand available at tick zero. Active tick percentage = ticks with positive deliveries / elapsed ticks. Waiting ticks are explicit zero-delivery events. Zero denominators have documented values. A/B comparisons require identical scenario definitions; all numbers are recalculated from verified replay.
+## Reports and analysis
 
-## Read-only review tools
+Reports capture a frozen full-run document, verify it once and reuse reconstruction for metrics and PDF/HTML/CSV. Cancellation is checked during reconstruction/staging. Handled publication failures attempt to restore previous files; failed rollback retains originals in a reported recovery directory. Multi-file publication is not crash-atomic; concurrent exporters to the same destination are unsupported.
 
-Infrastructure's GeoJSON adapter validates a bounded regional WGS84 subset and returns immutable projected vector features. The separate WPF inspector reuses viewport gestures but does not map imported geography to simulation entities. Parsing succeeds before replacing the visible layer. No layer types enter the simulation domain or checksum.
+Preview continues a separate reconstructed session until completion, exhaustion or a tick cap, assuming no new interventions. Diagnostics omit scenario text, database paths and credentials. Profiling measures engine/replay only, excluding SQL/UI/network latency.
 
-CompletionPreview replays a document (or selected prefix) into a separate session, then steps it directly until completion, supply exhaustion or the 20000-tick cap. It does not repeatedly append/replay commands and does not save the continuation. WPF runs it in a background task with cancellation. New future interventions are explicitly excluded. Engine 2.5 adds static schema 3 priorities while retaining legacy hashes and normalized payloads when priorities are zero.
+The forecast lab evaluates standardized inverse-distance 7-nearest-neighbour regression on generated schema-2 starts. Feature groups are split deterministically; scaling/baseline fitting use training rows only. It is not field-validated and does not support fleet/road/incident inference.
 
-Diagnostics export verifies full selected history and emits bounded run/runtime facts without scenario names, paths or credentials. The separate profile tool measures engine-only ticks and verified replay with warmups and repeated samples; it does not characterize SQL, WPF or multiplayer throughput.
+## Network and input boundaries
 
-## Current scale
+One local room uses `/exercise`. Non-health requests require a random controller/observer token and loopback source address. Observer writes are denied server-side. Commands include expected versions; snapshots carry revisions. Reconnect resets the client revision cursor and resynchronizes; host restart loads SQL history. This is not an internet authentication system.
 
-Small single-writer exercises; local simulation and persistence currently run on the UI dispatcher. Large scenarios can block the UI. No timing benchmark or production readiness is claimed. Distance/speed physics, general GIS import/projections, predictive AI, cloud hosting and signed deployment are outside this release. See verification and the user guide.
-
-## Scenario draft editing
-
-Presentation ScenarioDraft retains incomplete form input as strings, parses invariant numbers and builds a fresh validated ScenarioDefinition. Original and previously built shelter arrays are never edited. The WPF editor commits cell edits before validation, saves only validated JSON/XML, and starts a separate local run through the existing persist-before-publish path. Failed storage preserves the draft. Opening/closing a draft does not submit simulation commands; a running exercise may continue until the user starts a new run. Multiplayer scenario editing is disabled and rejected by the workspace.
-
-## Shared-stock fleet
-
-Schema 3 requires fleetSize 1-8 and the existing stock/travel settings. Every Step emits a single FleetTick containing exactly one ordered action per vehicle. Movement updates existing trips before dispatch. Only vehicles idle at tick start can dispatch; remaining demand is reduced by all outstanding outbound cargo when reserving loads. Stable IDs use invariant formatting. Completion/exhaustion require every vehicle at depot. Old schema 1/2 state hashes, event serialization and checkpoint shapes are unchanged. Schema 3 hashes/checkpoints include every vehicle.
-
-WPF flattens tick actions into per-vehicle rows while persistence retains one event row per tick. Fleet map icon offsets separate co-located markers in screen space only. Metrics preserve elapsed delivery-tick percentages and packet-weighted service time; outbound/return sum vehicle actions. A per-vehicle CSV accompanies fleet reports. Static priority dispatch is described below; no distance routing or true multi-threaded mutation is introduced.
-
-## Static priority and provenance
-
-Schema 3 shelter priorities are bounded 0-9. Eligible targets must have open routes and unreserved demand; sort by descending priority then original list index. Existing outbound cargo never changes destination when another route becomes eligible. Priority does not age dynamically and may defer lower ranks while scarce stock is consumed.
-
-ShelterState includes priority in hashes/checkpoints only when nonzero. Default-zero priority and default-null action reasons are omitted during JSON serialization, preserving original engine 2.4 fleet SQL events/checkpoints as well as 2.0/2.1 archives. Old engine documents with nonzero priority are rejected; new histories use engine 2.5. Dispatch reasons report the chosen rank, unreserved demand, loaded amount, resulting stock and tie rule; the engine creates these strings with invariant formatting. WPF and CSV display persisted/replayed provenance.
-
-
-## Version 3.0: frozen geographic scenarios and database upgrades
-
-GeoExercise validates the regional GeoJSON adapter and compiles positive-weight undirected roads into schema 4. Spherical segment lengths are rounded up per road, deterministic Dijkstra derives each shelter route, and route meters determine outbound and return ticks. GeographyDefinition validates connectivity, oriented paths, endpoint agreement and derived timing. Session/history snapshots deep-copy geographic arrays; map positions interpolate along frozen polylines. Geography participates in new hashes/checkpoints without changing older branches. Histories from engines 2.0/2.1/2.4/2.5 remain supported.
-
-DatabaseSchema uses SQLite user_version=1 plus SchemaMigrations. Before changing legacy tables, SQLite BackupDatabase creates a consistent backup. Event creation/backfill and schema bookkeeping commit in one transaction; a failed replay rolls back the upgrade. Newer and unrelated schemas are refused before DDL. This release establishes a specific forward upgrade; it neither implements downgrade nor promises arbitrary future migrations. Startup and replay remain synchronous for small portfolio histories.
-
-
-## Desktop 3.0.1: asynchronous history boundary
-
-Database initialization, saved-run list/load/verification and comparison run on worker tasks. The history dialog disables its action controls while working and discards results after closing. RunViewModel loads and seeks on worker tasks, checks cancellation between replay commands and publishes only the current request on the captured UI context. The slider exposes the requested tick while the map retains the last verified state. Reset, a new scenario or window close cancels pending replay publication. Engine and history formats remain 3.0.0. SQL work is not forcibly interrupted; final event publication, live saves and report export remain synchronous.
-
-## Version 3.1: road incidents and dispatch paths
-
-CloseRoad commands record an exact road ID and expiry tick, bounded to 1-100 ticks. RoadRouting uses positive road weights and ordinal node/road tie rules to calculate shortest open depot-to-shelter paths for new dispatches. Unreachable shelters are excluded before cargo reservation. Each dynamically dispatched VehicleState retains its route geometry, road IDs and distance-derived duration; return uses that same route. Any incident on an assigned path freezes the trip in place, outbound or returning, until all its roads reopen. No in-flight diversion or per-edge physical occupancy is modeled.
-
-RoadClosures are sorted by ordinal road ID in hashes/checkpoints. Expired incident records remain to preserve the dynamic history branch; Reset clears them. The optional VehicleState.Route field is omitted when null, so old archives retain their original serialization. Engine 3.1 rejects CloseRoad in older engine documents; original engine 3.0 road binary checksums are a committed fixture. SQL uses its existing schema; new checkpoint payloads contain incident and assigned-route state. UI map positions, preview, reports and host snapshots reconstruct this shared engine.
-
-Saved-history reconstruction and report generation run in the background. Live command persistence and final map/event publication remain synchronous. Report formats are staged before publication with rollback for handled I/O failures; crash-atomic multi-file publication is outside the guarantee.
-
-## Version 3.2: explicit junction movement
-
-EnableJunctionRouting opts a road run into per-edge movement while all vehicles are at depot. RoadRouting.FindBetween generalizes the existing deterministic Dijkstra solver to arbitrary reached nodes. RoadJourney stores the last reached node, target, occupied road and oriented road geometry with integer meter progress. A tick completes at most one edge; closure cannot eject a vehicle already on it. Subsequent paths are recalculated at nodes, with closed edges excluded. No path yields an outbound or return RoadWait event. Dispatch reservations and stable vehicle ordering are shared with the original fleet engine.
-
-An optional VehicleState.Journey is omitted when null. Its geometry, like an assigned Route, is copied when exposed outside the engine. Its derived Position property is ignored by serialization and calculated from recorded meter progress for map display. Junction mode is explicit in hashes/checkpoints; pre-3.2 archives use their unchanged branches. EnableJunctionRouting is version-gated in both append and replay. New return paths target the depot and can differ from the outbound path. SQL schema remains version 1.
+Scenario JSON/XML and GeoJSON are bounded and validated before state replacement. XML DTD/external resolution is disabled. The separate GIS inspector is view-only. See [user guide](user-guide.md), [map format](../assets/maps/README.md) and [verification](verification.md).

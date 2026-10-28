@@ -38,7 +38,7 @@ Read [architecture](architecture.md) for the command-to-persistence-to-publicati
 powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1 -SkipUi
 ```
 
-The 28 October 2026 source audit passed a locked restore, Release build with zero warnings/errors, 212 console checks and three lessons. A separate fresh WPF smoke run also passed with no binding errors, including two-window reconnect and the forecast lab. Omit `-SkipUi` on an interactive Windows desktop to include these flows. See [verification](verification.md) for evidence and limits.
+The documented audit passed locked restore, a Release build with zero warnings/errors and 212 console checks. WPF flows also have recorded coverage with no binding errors, including two-window reconnect and the forecast lab. The current reference checks use self-contained fixtures rather than standalone tutorial projects. Omit `-SkipUi` on an interactive Windows desktop to include UI flows. See [verification](verification.md) for exact evidence and limits.
 
 ## 5. Assess the boundaries
 

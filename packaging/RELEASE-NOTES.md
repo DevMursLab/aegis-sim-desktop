@@ -12,6 +12,6 @@ Download the ZIP and checksum, verify with `Get-FileHash <archive.zip> -Algorith
 
 ## Verification and boundaries
 
-The application is covered by 212 console checks, three reference samples, warning-free Release builds and WPF/controller-observer reconnect checks. The accompanying `.verification.json` records the exact package hash and source commit and checks ZIP integrity, isolated startup, seeded replay, tools, installation and host health.
+The application is covered by 212 console checks, warning-free Release builds and WPF/controller-observer reconnect checks. The accompanying `.verification.json` records the exact package hash and source commit and checks ZIP integrity, isolated startup, seeded replay, tools, installation and host health.
 
 Independent portfolio software using fictional civilian data. Local/loopback networking only. No field-validated forecasting, real traffic, high-load, clean-physical-machine, signed-installer or comprehensive accessibility/DPI claim. Supported older histories remain readable; old binaries cannot open new engine 3.2 histories.

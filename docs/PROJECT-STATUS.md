@@ -14,7 +14,7 @@ The deliverable is a Windows desktop portfolio simulator using fictional civilia
 - [x] Background completion preview, diagnostics and reproducible engine/replay profiling.
 - [x] Local SignalR controller/observer roles, deduplication and restart/reconnect recovery.
 - [x] Bounded synthetic forecast experiment with separated training/holdout groups and baseline comparison.
-- [x] Release build, 212 console checks, lessons and actual WPF interaction/reconnect checks.
+- [x] Release build, 212 console checks and actual WPF interaction/reconnect checks.
 - [x] Self-contained Windows package, manifest/checksum generation and reusable extracted-package verification.
 - [x] Screenshot gallery, architecture, reviewer path and application documentation.
 

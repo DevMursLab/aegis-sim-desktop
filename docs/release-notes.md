@@ -1,3 +1,7 @@
+## Source maintenance - reference tests
+
+Removes the standalone lessons and lesson launcher from the source tree. The seven reference-engine checks retain their small model as self-contained test fixtures under `tests/Aegis.ReferenceEngine.Checks/Fixtures/`. Solution, CI and verification references are updated. Simulation behavior and the 212-check total are unchanged; the Windows application remains desktop 3.3.1 / engine 3.2.0.
+
 # Desktop 3.3.1 - documentation and distribution cleanup
 
 Replaces the long landing page with a focused feature overview, five application captures, setup instructions and links to technical documentation. Personal learning/interview material and planning PDFs are excluded from the current source tree; a user guide documents the application workflows. Reference console samples remain because they are exercised by verification. Simulation engine 3.2.0, routing rules, persistence formats and application behavior are unchanged.

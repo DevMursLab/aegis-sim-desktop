@@ -93,7 +93,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\package.ps1 -OutputDirectory 
 python .\scripts\verify-package.py .\artifacts\AEGIS-SIM-3.3.1-win-x64.zip
 ```
 
-The documented source audit passed **212 executable console checks**, three reference console samples, a Release build with zero warnings/errors, and actual WPF/reconnect flows with no binding errors. Checks are console executables rather than an xUnit suite. Use `-SkipUi` for console-only CI. See [verification evidence and limits](docs/verification.md).
+The documented source audit passed **212 executable console checks**, a Release build with zero warnings/errors, and actual WPF/reconnect flows with no binding errors. Checks are console executables rather than an xUnit suite. Use `-SkipUi` for console-only CI. See [verification evidence and limits](docs/verification.md).
 
 Packages include a source/version manifest and SHA-256 sidecar. Package checks use isolated extraction and data directories to test startup, seeded replay, tools, installation and host health.
 

@@ -76,6 +76,6 @@ This is not an internet deployment or a production identity/authentication syste
 
 ## Verification and troubleshooting
 
-Run `scripts/verify.ps1` for locked restore, Release build, executable checks and interactive WPF flows. Use `-SkipUi` for headless CI. The small console samples under `lessons/` are reference fixtures used by solution verification.
+Run `scripts/verify.ps1` for locked restore, Release build, executable checks and interactive WPF flows. Use `-SkipUi` for headless CI. The seven reference-engine checks contain self-contained test fixtures under `tests/Aegis.ReferenceEngine.Checks/Fixtures/`; they do not depend on tutorial projects.
 
 For a Windows ZIP, run `python scripts/verify-package.py <archive.zip>` beside its SHA-256 file. This validates isolated extraction, startup, seeded replay, tools, installation and host health. See [verification](verification.md) and [architecture](architecture.md) for evidence, tradeoffs and limits.

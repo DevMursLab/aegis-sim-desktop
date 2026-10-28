@@ -13,6 +13,6 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-      - name: Release build, console checks and lessons
+      - name: Release build and console checks
         shell: pwsh
         run: ./scripts/verify.ps1 -SkipUi

@@ -18,11 +18,11 @@
   <a href="docs/REVIEWER-GUIDE.md"><strong>Five-minute reviewer guide</strong></a> &middot;
   <a href="#application-gallery">Application gallery</a> &middot;
   <a href="docs/demo-script.md">Demo walkthrough</a> &middot;
-  <a href="https://github.com/DevMursLab/aegis-sim-desktop/releases/tag/v3.0.1">Windows download</a> &middot;
+  <a href="https://github.com/DevMursLab/aegis-sim-desktop/releases/tag/v3.3.0">Windows download</a> &middot;
   <a href="docs/verification.md">Verification</a>
 </p>
 
-> **Version guide:** current source is **desktop 3.3.0 / engine 3.2.0**. The downloadable **3.0.1** package contains the editor, fleet, priorities and original road exercise. Build source for shared road incidents, junction diversion, the synthetic forecast lab and newer report-export behavior.
+> **Version guide:** **desktop 3.3.0 / engine 3.2.0** includes shared road incidents, junction diversion, the synthetic forecast lab, cancellable report export and playback speed controls. The Windows x64 package includes its runtime. Older 3.0.1 downloads lack these additions.
 
 ![Actual controller window with synchronized map, incident controls and event history](docs/images/desktop-preview.png)
 
@@ -106,9 +106,13 @@ Worst holdout error is **62.55 ticks**. This bounded synthetic experiment suppor
 
 ![Actual synthetic forecast lab with holdout metrics and model export](docs/images/forecast-lab.png)
 
+## Interview and delivery readiness
+
+[Bangla interview preparation](docs/INTERVIEW-PREP.bn.md) covers the core classes, OOP/MVVM, routing, persistence, replay and honest technical boundaries. [Project status](docs/PROJECT-STATUS.md) distinguishes delivered portfolio features from future work.
+
 ## Start reviewing
 
-**Without an SDK:** [download the Windows 3.0.1 release](https://github.com/DevMursLab/aegis-sim-desktop/releases/tag/v3.0.1), extract it and run `Start-Seeded-Demo.cmd`.
+**Without an SDK:** [download the Windows 3.3.0 release](https://github.com/DevMursLab/aegis-sim-desktop/releases/tag/v3.3.0), extract it and run `Start-Seeded-Demo.cmd`.
 
 **Latest source, Windows + .NET 10:**
 
@@ -193,7 +197,7 @@ Engine 3.2 reads original 2.0, 2.1, 2.4, 2.5, 3.0 and 3.1 histories without chan
 
 ## Responsive saved history
 
-Saved-run listing, SQL verification, comparison and replay reconstruction run in the background. Timeline requests cancel superseded replay work; a reset or new scenario discards pending results. Corrupt history preserves the previously displayed run. Source builds also export reports in the background from a frozen full-run copy: reset, seeking or new commands cannot change an in-progress export. One report export runs at a time, and failures allow retry. The published 3.0.1 desktop uses engine 3.0.0; current source builds use engine 3.2.0. Live command persistence remains synchronous.
+Saved-run listing, SQL verification, comparison and replay reconstruction run in the background. Timeline requests cancel superseded replay work; a reset or new scenario discards pending results. Corrupt history preserves the previously displayed run. Source builds also export reports in the background from a frozen full-run copy: reset, seeking or new commands cannot change an in-progress export. One report export runs at a time, and failures allow retry. Desktop 3.3.0 uses engine 3.2.0; old desktop 3.0.1 packages use engine 3.0.0. Live command persistence remains synchronous.
 
 ## Roads that drive the simulation
 
@@ -215,7 +219,7 @@ An entered road finishes even if it closes; the vehicle chooses a shortest open 
 
 Assigned-trip routing remains available in source builds. Open **Tools / Road network demo**, select `road-01` in the road picker and choose **Close road / 5 ticks** before stepping. New dispatches choose shortest open paths through `road-99`; distance, travel duration and vehicle geometry follow the detour. Closed edges appear red. If no path is available, vehicles wait at the depot without reserving cargo. A closure of any road in an assigned trip pauses that trip in place, including its return; it resumes after the closure expires. Assigned trips do not reroute midway. The return follows the assigned outbound path.
 
-Commands, chosen paths, expiry ticks, checksums, SQL checkpoints, preview, host/observer and report traces preserve the incident. Old engine 3.0 and earlier histories remain readable; create a new run to use road incidents. The published 3.0.1 download does not include this feature. [Bangla exercise](docs/learning/19-dynamic-roads.bn.md).
+Commands, chosen paths, expiry ticks, checksums, SQL checkpoints, preview, host/observer and report traces preserve the incident. Old engine 3.0 and earlier histories remain readable; create a new run to use road incidents. Included in the 3.3.0 download; older 3.0.1 downloads lack this feature. [Bangla exercise](docs/learning/19-dynamic-roads.bn.md).
 
 ![Actual desktop with a closed shared road and alternate vehicle paths](docs/images/dynamic-roads.png)
 
@@ -237,7 +241,7 @@ Fleet actions persist inside one aggregate event per tick, preserving the SQL ev
 
 Open **Tools / Scenario editor** to edit a separate local draft: capacity, shelter names/demand/positions, finite stock and travel settings. Validate, save JSON/XML or start a separate run with a new ID. Invalid input cannot create a run; existing saved history remains available. Shared multiplayer scenarios cannot be edited here. [Bangla lesson 13](docs/learning/13-scenario-editor.bn.md).
 
-The **3.0.1 Windows ZIP includes the editor, fleet, priorities and integrated road exercise**. [Download the release](https://github.com/DevMursLab/aegis-sim-desktop/releases/tag/v3.0.1).
+The **3.3.0 Windows ZIP includes the editor, fleet, priorities, road incidents, junction routing and forecast lab**. [Download the release](https://github.com/DevMursLab/aegis-sim-desktop/releases/tag/v3.3.0).
 
 ![Actual local scenario editor after validation](docs/images/scenario-editor.png)
 
@@ -267,7 +271,8 @@ The demo is **loopback-only**. Credentials live in `%LOCALAPPDATA%\AEGIS-SIM\hos
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\package.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\package.ps1 -OutputDirectory .\artifacts\AEGIS-SIM-3.3.0-win-x64
+python .\scripts\verify-package.py .\artifacts\AEGIS-SIM-3.3.0-win-x64.zip
 ```
 
 Verification performs a locked dependency restore, full Release build with warnings treated as errors, **212 executable console checks**, all earlier console lessons, real WPF interaction checks, and a two-window host-restart/reconnect check. Checks are console executables, not an xUnit/`dotnet test` suite.

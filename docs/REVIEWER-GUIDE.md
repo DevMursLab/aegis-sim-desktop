@@ -6,7 +6,7 @@ AEGIS-SIM is an independent portfolio project for fictional civilian response ex
 
 Open the [screenshot gallery](../README.md#application-gallery), then follow the [three-minute demo](demo-script.md). The screenshots show the actual Windows application; the repository banner is decorative artwork.
 
-The published [3.0.1 Windows download](https://github.com/DevMursLab/aegis-sim-desktop/releases/tag/v3.0.1) includes the runtime, editor, fleet, priorities and the original road exercise. Current source is desktop 3.3.0 / simulation engine 3.2.0, adding shared road incidents, junction diversion, a synthetic forecast experiment and report-export improvements. Build source to review these additions.
+The published [3.3.0 Windows download](https://github.com/DevMursLab/aegis-sim-desktop/releases/tag/v3.3.0) includes its runtime, editor, fleet, priorities, road incidents, junction diversion, synthetic forecast lab and report-export improvements. Desktop version is 3.3.0 / simulation engine 3.2.0. The package is verified from an isolated ZIP extraction, including fresh/seeded startup, custom-directory installation, installed startup, host health and packaged tools. This is a local Windows check, not a clean physical machine audit.
 
 ## 2. Reproduce a result
 

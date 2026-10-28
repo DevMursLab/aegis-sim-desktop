@@ -1,5 +1,7 @@
 # এখান থেকে শুরু করো
 
+**আগে [কাজের খাতা](WORK-LOG.bn.md) পড়ো:** কী বানানো হয়েছে, কেন, কোন কোডে আছে, কীভাবে নিজে পরীক্ষা করবে এবং কোন ক্রমে শিখবে—সব এক জায়গায় আছে। নিজের শেখার checklist-ও সেখানে রাখবে। Interview-এর জন্য [সংক্ষিপ্ত প্রস্তুতি](../INTERVIEW-PREP.bn.md) আছে।
+
 এই repository-তে শেখার কাজ ও মূল অ্যাপের অগ্রগতি আলাদা করে লেখা থাকবে। তিনটি console lesson ও একটি portfolio MVP প্রস্তুত: desktop map, incident, SQLite history, replay, local multiplayer ও report। Full GIS/AI/production deployment এই version-এর scope নয়।
 
 ## প্রতিদিনের পদ্ধতি
